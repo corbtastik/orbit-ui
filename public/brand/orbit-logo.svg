@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!--
+    The OrbitAI mark, static, for the favicon and anywhere else the animated
+    CSS version cannot go. Same three orbital planes and the same seven-stop
+    palette as src/components/brand/OrbitLogo.jsx; this one holds a single
+    frame of the rotation rather than sweeping through it, because favicon
+    animation is not reliably supported and a spinning tab icon is noise.
+  -->
+  <defs>
+    <linearGradient id="orbit" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0"    stop-color="#f04888"/>
+      <stop offset="0.17" stop-color="#e07840"/>
+      <stop offset="0.33" stop-color="#d4a830"/>
+      <stop offset="0.5"  stop-color="#10c868"/>
+      <stop offset="0.67" stop-color="#00c8a0"/>
+      <stop offset="0.83" stop-color="#4088f0"/>
+      <stop offset="1"    stop-color="#9058e8"/>
+    </linearGradient>
+  </defs>
+
+  <g fill="none" stroke="url(#orbit)" stroke-width="2.6">
+    <!-- Three planes, as the mark projects at rotateX(12) rotateY(28). -->
+    <ellipse cx="32" cy="32" rx="25" ry="24"/>
+    <ellipse cx="32" cy="32" rx="25" ry="9"/>
+    <ellipse cx="32" cy="32" rx="11" ry="24.5"/>
+  </g>
+
+  <g fill="url(#orbit)">
+    <circle cx="32" cy="32" r="6"/>
+    <circle cx="32" cy="8"  r="4"/>
+    <circle cx="32" cy="56" r="3.2"/>
+    <circle cx="56" cy="27" r="4.2"/>
+    <circle cx="8"  cy="37" r="3"/>
+  </g>
+</svg>

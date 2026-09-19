@@ -1,6 +1,10 @@
 /* ============================================================
-   MongoDB LeafyGreen — Spacing & Radius
-   4px base grid. LeafyGreen spacing units: 1=4 … 8=64.
+   Star Lord — Spacing & Radius
+   4px base grid.
+
+   Unchanged from the pack this replaced. Spacing and radius are
+   the layout, and the layout is not what is being restyled --
+   only color and type are.
    ============================================================ */
 
 :root {
@@ -24,7 +28,7 @@
   /* Border radius */
   --radius-none: 0;
   --radius-sm:   4px;
-  --radius-md:   6px;   /* default LeafyGreen control radius */
+  --radius-md:   6px;   /* default control radius */
   --radius-lg:   12px;  /* cards, panels */
   --radius-xl:   24px;  /* large feature cards */
   --radius-pill: 100px; /* badges, pills */

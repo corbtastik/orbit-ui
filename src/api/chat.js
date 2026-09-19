@@ -1,5 +1,5 @@
-// Thin wrapper over the chat history endpoints. Vite proxies /chat to the
-// visualizer's own server on :4000, so these are same-origin in development.
+// Thin wrapper over the server's /chat endpoints. Vite proxies /chat to the
+// API on :7002, so these are same-origin in development.
 
 async function request(path, options = {}) {
   const res = await fetch(path, {
@@ -40,3 +40,24 @@ export const appendTurns = (id, body) =>
 
 export const deleteConversation = (id) =>
   request(`/chat/conversations/${id}`, { method: 'DELETE' });
+
+// --- browsed clusters (the sidebar tree) ------------------------------------
+// Read-only. Databases arrive with the cluster; collections are fetched when
+// a database is expanded. See server/clusters/registry.js.
+
+export const listClusters = () =>
+  request('/chat/clusters').then((r) => r.clusters);
+
+export const listCollections = (clusterId, dbName) =>
+  request(`/chat/clusters/${clusterId}/databases/${encodeURIComponent(dbName)}/collections`)
+    .then((r) => r.collections);
+
+export const collectionStats = (clusterId, dbName) =>
+  request(`/chat/clusters/${clusterId}/databases/${encodeURIComponent(dbName)}/stats`)
+    .then((r) => r.collections);
+
+export const listDocuments = (clusterId, dbName, collName, { skip = 0, limit = 25 } = {}) =>
+  request(
+    `/chat/clusters/${clusterId}/databases/${encodeURIComponent(dbName)}` +
+      `/collections/${encodeURIComponent(collName)}/documents?skip=${skip}&limit=${limit}`
+  );

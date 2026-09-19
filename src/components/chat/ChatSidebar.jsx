@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import ProjectGroup from './ProjectGroup.jsx';
+import ClusterTree from './ClusterTree.jsx';
+import OrbitLogo from '../brand/OrbitLogo.jsx';
 import { DEFAULT_PROJECT } from './conversations.js';
 
 // Always present, never created and never deletable. New chats land here when
@@ -18,6 +20,7 @@ export default function ChatSidebar({
   onCreateProject,
   onDelete,
   onMove,
+  onOpenTab,
   width,
 }) {
   const [collapsedProjects, setCollapsedProjects] = useState({});
@@ -56,6 +59,7 @@ export default function ChatSidebar({
   if (collapsed) {
     return (
       <aside className="chat-side chat-side--collapsed">
+        <OrbitLogo size={26} />
         <button
           type="button"
           className="chat-side__expand"
@@ -71,6 +75,11 @@ export default function ChatSidebar({
 
   return (
     <aside className="chat-side" style={{ flexBasis: `${width}px` }}>
+      <div className="chat-side__brand">
+        <OrbitLogo size={34} />
+        <span className="orbit-wordmark chat-side__wordmark">OrbitAI</span>
+      </div>
+
       <div className="chat-side__top">
         <button type="button" className="chat-side__new" onClick={() => onNewChat(null)}>
           + New chat
@@ -87,6 +96,10 @@ export default function ChatSidebar({
       </div>
 
       <div className="chat-side__scroll">
+        {/* Above Chats: the tree is what the conversations are about, and it
+            is the part that does not grow as chats accumulate. */}
+        <ClusterTree onOpenTab={onOpenTab} />
+
         <div className="chat-side__section-head">
           <span>Chats</span>
           <button

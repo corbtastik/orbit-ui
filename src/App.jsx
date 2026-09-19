@@ -11,6 +11,9 @@ import SidebarResizer, {
   SIDEBAR_DEFAULT,
   clampSidebarWidth,
 } from './components/chat/SidebarResizer.jsx';
+import TabBar from './components/browse/TabBar.jsx';
+import CollectionsTable from './components/browse/CollectionsTable.jsx';
+import DocumentsView from './components/browse/DocumentsView.jsx';
 import { DEFAULT_PROVIDER } from './components/chat/providers.js';
 import * as chatApi from './api/chat.js';
 import { DEFAULT_PROJECT } from './components/chat/conversations.js';
@@ -41,6 +44,13 @@ function readStoredWidth() {
 let nextId = 1;
 const newId = (prefix) => `${prefix}-new-${nextId++}`;
 
+// Tab identity is the thing being looked at, so opening the same database
+// twice focuses the tab that is already there rather than stacking a second.
+const tabId = (tab) =>
+  tab.kind === 'collection'
+    ? `coll:${tab.clusterId}/${tab.db}/${tab.coll}`
+    : `db:${tab.clusterId}/${tab.db}`;
+
 export default function App() {
   const [projects, setProjects] = useState([]);
   const [conversations, setConversations] = useState([]);
@@ -53,6 +63,10 @@ export default function App() {
   // deliberately untouched: a conversation that spans several models is the
   // interesting case, not an accident to guard against.
   const [provider, setProvider] = useState(DEFAULT_PROVIDER);
+  // Browse tabs opened from the sidebar tree. 'chat' is not in this list --
+  // it is always present and always first.
+  const [tabs, setTabs] = useState([]);
+  const [activeTab, setActiveTab] = useState('chat');
   const scrollRef = useRef(null);
 
   const { messages, isStreaming, error, activity, send, stop, reset } = useChatStream({
@@ -173,6 +187,20 @@ export default function App() {
     }
   };
 
+  const openTab = useCallback((tab) => {
+    const id = tabId(tab);
+    setTabs((prev) => (prev.some((t) => t.id === id) ? prev : [...prev, { ...tab, id }]));
+    setActiveTab(id);
+  }, []);
+
+  // Closing the tab you are on falls back to Chat rather than to a neighbour:
+  // Chat is always there, and guessing a neighbour is how you end up looking
+  // at a collection you did not ask for.
+  const closeTab = useCallback((id) => {
+    setTabs((prev) => prev.filter((t) => t.id !== id));
+    setActiveTab((current) => (current === id ? 'chat' : current));
+  }, []);
+
   const handleSubmit = async (text) => {
     setDraft('');
     setPinned(true);
@@ -239,6 +267,7 @@ export default function App() {
         onCreateProject={handleCreateProject}
         onDelete={handleDeleteChat}
         onMove={handleMoveChat}
+        onOpenTab={openTab}
         width={sidebarWidth}
       />
 
@@ -251,6 +280,12 @@ export default function App() {
       )}
 
       <div className="chat__main">
+      <TabBar tabs={tabs} activeId={activeTab} onSelect={setActiveTab} onClose={closeTab} />
+
+      {/* Hidden rather than unmounted. A reply streams for 45-90 seconds, and
+          browsing a collection mid-answer must not throw away the transcript's
+          scroll position or remount the list it is appending to. */}
+      <div className={`chat__pane ${activeTab === 'chat' ? '' : 'chat__pane--hidden'}`}>
       <header className="chat__header">
         <div>
           <h1>OrbitAI</h1>
@@ -317,6 +352,20 @@ export default function App() {
         streaming={isStreaming}
         onStop={stop}
       />
+      </div>
+
+      {tabs.map((tab) => tab.id !== activeTab ? null : (
+        <div className="browse__pane" key={tab.id}>
+          {tab.kind === 'collection' ? (
+            <DocumentsView tab={tab} />
+          ) : (
+            <CollectionsTable
+              tab={tab}
+              onOpenCollection={(coll) => openTab({ ...tab, kind: 'collection', coll })}
+            />
+          )}
+        </div>
+      ))}
       </div>
     </div>
   );

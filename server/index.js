@@ -13,6 +13,8 @@ import { MongoClient } from "mongodb";
 
 import makeChatRouter from "./routes/chat.js";
 import makeChatStreamRouter from "./routes/chatStream.js";
+import makeClustersRouter from "./routes/clusters.js";
+import { loadClusters, closeClusters } from "./clusters/registry.js";
 import { log } from "./lib/log.js";
 
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -21,7 +23,7 @@ const MONGODB_URI = process.env.MONGODB_URI;
 // operate on -- those reach Atlas with the MCP server's own credentials, and
 // chat history has no business sharing them.
 const DB_NAME = process.env.ORBIT_DB_NAME || "orbitai";
-const PORT = process.env.PORT || 4010;
+const PORT = process.env.PORT || 7002;
 
 const redact = (uri) =>
   (uri || "").replace(/(mongodb\+srv:\/\/)([^:]+):([^@]+)@/i, "$1***:***@");
@@ -80,11 +82,19 @@ async function main() {
   // /chat/providers, /chat/stream
   app.use(makeChatStreamRouter());
 
+  // /chat/clusters -- the sidebar tree. Read from ORBIT_CLUSTER_* in .env,
+  // which is a separate relationship from MONGODB_URI above; see
+  // server/clusters/registry.js.
+  const configured = loadClusters();
+  console.log("[BOOT] Clusters", configured.map((c) => c.name));
+  app.use(makeClustersRouter());
+
   app.listen(PORT, () => console.log(`OrbitAI UI API listening on http://localhost:${PORT}`));
 
   process.on("SIGINT", async () => {
     console.log("\nShutting down...");
     await client.close().catch(() => {});
+    await closeClusters();
     process.exit(0);
   });
 }

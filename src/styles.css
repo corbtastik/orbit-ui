@@ -3,14 +3,10 @@
 /* ============================================================
    Theme tokens
 
-   Every value below resolves to a ramp entry from the vendored MongoDB
-   LeafyGreen pack in src/brand/tokens/. Semantic names are defined once,
-   here, and the rest of this file is written against them.
-
-   The pack ships semantic aliases for light mode only, so the block below
-   is the dark equivalent, derived from the same ramps: Slate Blue as the
-   page, gray-dark4 as panel surfaces, gray-dark3 as hairlines, Spring
-   Green as the single accent.
+   Every value below resolves to an entry in the Star Lord pack in
+   src/brand/tokens/. Semantic names are defined once, here, and the
+   rest of this file is written against them -- which is why swapping
+   the palette out was this block and nothing below it.
    ============================================================ */
 
 /* Three radii, not twelve: 6px for anything you click or type into, 12px
@@ -20,62 +16,70 @@
   --radius-surface: var(--radius-lg);   /* 12px -- docks, panels, cards */
   --motion: var(--dur-base) var(--ease-standard);   /* 150ms, no bounce */
 
-  /* The pack's type scale starts at 12px, which is right for marketing and
+  /* The pack's type scale starts at 12px, which is right for prose and
      one notch loose for a console. --fs-micro is the only addition;
-     everything else comes straight off the brand scale. */
+     everything else comes straight off the pack's scale. */
   --fs-micro: 11px;
 
-  /* The document motif. MongoDB always shows code on an Evergreen window --
-     it is the same treatment in light and dark contexts, so these do not
-     switch with the theme. */
-  --code-surface: var(--mdb-green-dark3);   /* #023430 Evergreen */
-  --code-edge:    rgba(113, 246, 186, 0.14);
-  --code-fg:      var(--mdb-gray-light2);
-  --code-key:     var(--mdb-blue-light1);
-  --code-string:  var(--mdb-green-light1);
-  --code-number:  var(--mdb-yellow-base);
-  --code-boolean: var(--mdb-purple-base);
-  --code-null:    var(--mdb-gray-base);
+  /* The code motif. Star Lord puts code on the same surface as every
+     other panel and separates it with syntax color instead of a
+     different ground, so --code-surface is the panel color. */
+  --code-surface: var(--sl-surface);
+  --code-edge:    rgba(127, 215, 255, 0.14);
+  --code-fg:      var(--sl-sh-variable);
+  --code-key:     var(--sl-sh-keyword);
+  --code-string:  var(--sl-sh-string);
+  --code-number:  var(--sl-sh-string);    /* yolo maps every number tier to the string color */
+  --code-boolean: var(--sl-sh-function);
+  --code-null:    var(--sl-sh-comment);
 }
 
 /* The app is dark, permanently -- there is no light theme and no toggle.
-   See src/brand/README.md. Every value comes from a LeafyGreen ramp. */
+   See src/brand/README.md. Every value comes from the Star Lord ramp. */
 :root {
-  --bg:      var(--mdb-black);        /* #001E2B Slate Blue */
-  --panel:   var(--mdb-gray-dark4);   /* #112733 */
-  --panel-2: var(--mdb-gray-dark3);   /* #21313C -- surfaces nested in a panel */
-  --fg:      var(--mdb-gray-light2);  /* #E8EDEB */
-  --muted:   var(--mdb-gray-base);    /* #889397 */
-  --border:  var(--mdb-gray-dark3);   /* #21313C */
+  --bg:      var(--sl-bg);          /* #0A0D24 */
+  --panel:   var(--sl-surface);     /* #15183A */
+  --panel-2: var(--sl-surface-2);   /* #1F2347 -- surfaces nested in a panel */
+  --fg:      var(--sl-text);        /* #F3E9FF */
+  --muted:   var(--sl-muted);       /* #9A8EBF -- see the note in colors.css */
+  --border:  var(--sl-border);      /* #2A2E5A */
 
-  /* Spring Green is bright enough that anything sitting on it takes Slate
-     ink rather than white -- the brand's own treatment for CTAs on dark
-     sections. */
-  --accent:       var(--mdb-green-base);    /* #00ED64 Spring Green */
-  --accent-hover: var(--mdb-green-light1);  /* #71F6BA */
-  --accent-fg:    var(--mdb-black);
-  --accent-soft:  rgba(0, 237, 100, 0.14);  /* tinted fills and hover washes */
+  /* Pink is the theme's one interactive color -- link and primary are the
+     same value in themes.json. It is bright enough that anything sitting
+     on it takes the page navy as ink rather than white. */
+  --accent:       var(--sl-primary);        /* #FF5DA2 */
+  --accent-hover: var(--sl-primary-light);  /* #FF85BC */
+  --accent-fg:    var(--sl-bg);
+  --accent-soft:  rgba(255, 93, 162, 0.14); /* tinted fills and hover washes */
 
-  /* The pack's elevation scale casts slate onto white. On a slate page
-     there is nothing left in the ramp to cast with, so these keep the
-     brand's geometry and hue and carry it below the page colour. */
-  --elev-1: 0 1px 2px  rgba(0, 12, 17, 0.40);
-  --elev-2: 0 2px 6px  rgba(0, 12, 17, 0.44);
-  --elev-3: 0 8px 24px rgba(0, 12, 17, 0.48);
+  /* Cast in the theme's navy rather than black: on a page this dark a
+     black shadow reads as a hole instead of a lift. */
+  --elev-1: 0 1px 2px  rgba(5, 7, 20, 0.40);
+  --elev-2: 0 2px 6px  rgba(5, 7, 20, 0.44);
+  --elev-3: 0 8px 24px rgba(5, 7, 20, 0.48);
 
   /* Raised and recessed surfaces drawn on top of a panel. Translucent and
      tinted, rather than pure white or black. */
-  --wash:         rgba(232, 237, 235, 0.06);
-  --wash-hover:   rgba(232, 237, 235, 0.11);
-  --sunken:       rgba(0, 12, 17, 0.35);
-  --sunken-hover: rgba(0, 12, 17, 0.50);
+  --wash:         rgba(243, 233, 255, 0.06);
+  --wash-hover:   rgba(243, 233, 255, 0.11);
+  --sunken:       rgba(5, 7, 20, 0.35);
+  --sunken-hover: rgba(5, 7, 20, 0.50);
 
-  /* Status. The light tiers read on slate; the base tiers do not. */
-  --danger:  var(--mdb-red-light1);     /* #FF6960 */
-  --warning: var(--mdb-yellow-base);    /* #FFC010 */
-  --info:    var(--mdb-blue-light1);    /* #0498EC */
-  --ai:      var(--mdb-purple-base);    /* #B45AF2 -- the brand's AI accent */
-  --success: var(--mdb-green-light1);   /* #71F6BA */
+  /* Sidebar rows and chips. These were referenced in nine places and
+     defined in none, so every row hover and the active-row highlight
+     painted nothing. Rest state is muted; the active row overrides the
+     foreground to --fg, which is what made the omission hard to see. */
+  --row-bg: var(--wash);
+  --row-fg: var(--muted);
+
+  /* Status. Star Lord is a two-hue theme, so these come from its syntax
+     colors -- the only other hues it defines -- rather than from a status
+     ramp it does not have. */
+  --danger:  var(--sl-error);         /* #FF5252 */
+  --warning: var(--sl-sh-string);     /* #FFE98A */
+  --info:    var(--sl-heading);       /* #7FD7FF */
+  --ai:      var(--sl-primary);       /* #FF5DA2 */
+  --success: var(--sl-heading-light); /* #A8E4FF */
 }
 
 /* Focus. The brand ring is translucent rather than a hard outline, and it
@@ -87,7 +91,91 @@
 }
 
 html, body, #root { height: 100%; }
-body { background: var(--bg); color: var(--fg); }
+
+/* Montserrat for body and headings; Space Mono is the accent face, applied
+   per-element to technical labels rather than inherited from here. The pack
+   this replaced never set a UI face at all, so body copy had been rendering
+   in the browser default. */
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
+
+/* Controls do not inherit the page face on their own. */
+button, input, select, textarea { font-family: inherit; }
+
+
+/* --- OrbitAI mark -------------------------------------------------------- */
+
+/* The logo from corbtastik.github.io/orbit-web, held at one angle -- the same
+   view public/brand/orbit-logo.svg draws for the favicon. The geometry lives
+   in src/components/brand/OrbitLogo.jsx; only the colour is animated here.
+
+   Upstream's 12s colour cycle is kept. Its 24s rotation is not: a mark that
+   spins forever in the corner of the sidebar is motion nobody asked for. */
+
+.orbit-logo {
+  display: block;
+  flex: 0 0 auto;
+  width: var(--orbit-size, 34px);
+  height: var(--orbit-size, 34px);
+}
+
+/* Each stop walks the whole palette, offset from its neighbour by the
+   animation-delay the component sets, so the colour travels along the
+   gradient instead of every stop turning at once. */
+.orbit-logo--animated .orbit-logo__stop {
+  animation: orbit-hue-stop 12s linear infinite;
+}
+
+/* The starting colour, and the whole of it when nothing animates: without
+   this a paused or non-animating mark has no stop-color at all and renders
+   black. */
+.orbit-logo__stop { stop-color: #f04888; }
+
+@keyframes orbit-hue-stop {
+  0% { stop-color: #f04888; }
+  14.29% { stop-color: #e07840; }
+  28.57% { stop-color: #d4a830; }
+  42.86% { stop-color: #10c868; }
+  57.14% { stop-color: #00c8a0; }
+  71.43% { stop-color: #4088f0; }
+  85.71% { stop-color: #9058e8; }
+  100% { stop-color: #f04888; }
+}
+
+/* The wordmark takes the same palette as a sweeping gradient -- upstream's
+   .orbit-title, which is the other half of the mark. */
+.orbit-wordmark {
+  font-family: 'Orbitron', var(--font-heading);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  background-image: linear-gradient(120deg, #f04888,\n    #e07840,\n    #d4a830,\n    #10c868,\n    #00c8a0,\n    #4088f0,\n    #9058e8,\n    #f04888);
+  background-size: 260% 260%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: orbit-title 12s ease-in-out infinite;
+}
+
+@keyframes orbit-title {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Colour cycling is still motion. A reader who has asked for less gets the
+   mark and the wordmark held still. */
+@media (prefers-reduced-motion: reduce) {
+  .orbit-logo--animated .orbit-logo__stop,
+  .orbit-wordmark {
+    animation: none;
+  }
+  .orbit-wordmark { background-position: 0% 50%; }
+}
 
 
 /* --- app shell ---------------------------------------------------------- */
@@ -125,7 +213,7 @@ body { background: var(--bg); color: var(--fg); }
   justify-content: center;
   font-size: var(--fs-body);
   font-weight: var(--fw-bold);
-  color: white;
+  color: var(--accent-fg);
   flex-shrink: 0;
 }
 
@@ -149,7 +237,7 @@ body { background: var(--bg); color: var(--fg); }
 
 .pipeline-step__value--small {
   font-size: var(--fs-micro);
-  font-family: var(--font-mono);
+  font-family: var(--font-accent);
 }
 
 .pipeline-token {
@@ -327,7 +415,7 @@ body { background: var(--bg); color: var(--fg); }
 .chat-retrieval--open .chat-retrieval__caret { transform: rotate(90deg); }
 
 .chat-retrieval__tool {
-  font-family: var(--font-mono);
+  font-family: var(--font-accent);
   color: var(--accent);
 }
 
@@ -372,7 +460,7 @@ body { background: var(--bg); color: var(--fg); }
 }
 
 .chat-chip__ref {
-  font-family: var(--font-mono);
+  font-family: var(--font-accent);
   font-weight: var(--fw-semibold);
 }
 
@@ -559,7 +647,7 @@ body { background: var(--bg); color: var(--fg); }
   background: var(--muted);
 }
 
-.chat-msg__provider-dot--orbit  { background: #7c5cff; }
+.chat-msg__provider-dot--orbit  { background: var(--accent); }
 
 /* Retained so conversations stored before OrbitAI became the only provider
    still render with their own colour rather than a grey default. */
@@ -568,7 +656,7 @@ body { background: var(--bg); color: var(--fg); }
 .chat-msg__provider-dot--openai { background: #10a37f; }
 
 .chat-msg__model {
-  font-family: var(--font-mono);
+  font-family: var(--font-accent);
   font-weight: var(--fw-regular);
   text-transform: none;
   letter-spacing: var(--ls-normal);
@@ -608,12 +696,28 @@ body { background: var(--bg); color: var(--fg); }
 .chat-side__expand:hover,
 .chat-side__collapse:hover { color: var(--fg); border-color: var(--accent); }
 
+/* Top-left of the sidebar: the mark, then the wordmark. */
+.chat-side__brand {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 12px 4px;
+}
+
+.chat-side__wordmark {
+  font-size: var(--fs-body);
+  line-height: 1;
+}
+
+.chat-side--collapsed .orbit-logo { margin-bottom: 14px; }
+
 .chat-side__top {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 20px 12px 12px;
+  padding: 12px 12px 12px;
 }
 
 .chat-side__new {
@@ -680,6 +784,176 @@ body { background: var(--bg); color: var(--fg); }
 }
 
 .chat-side__project-input:focus { outline: none; }
+
+/* --- cluster tree ------------------------------------------------------- */
+
+/* cluster -> databases -> collections, for whatever is configured as
+   ORBIT_CLUSTER_* in .env. Indentation carries the hierarchy, so the three
+   row variants differ only in padding-left and weight. */
+
+.cluster-tree {
+  flex: 0 0 auto;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.cluster-tree__search {
+  width: calc(100% - 12px);
+  margin: 2px 6px 6px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--sunken);
+  color: var(--fg);
+  font: inherit;
+  font-size: var(--fs-code);
+  box-sizing: border-box;
+}
+
+.cluster-tree__search::placeholder { color: var(--muted); }
+.cluster-tree__search:focus { outline: none; border-color: var(--accent); }
+
+.cluster-tree__row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--row-fg);
+  font: inherit;
+  font-size: var(--fs-code);
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.cluster-tree__row:hover { background: var(--row-bg); color: var(--fg); }
+
+/* The database row carries two controls: the caret expands, the name opens a
+   tab. They are separate buttons inside one row, so the row itself is a plain
+   div there and the padding it would have had moves onto the name button. */
+.cluster-tree__twisty {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.cluster-tree__open {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* The collection row is the leaf -- nothing expands, so it is not a button
+   and must not offer a pointer. */
+.cluster-tree__row--collection { cursor: default; }
+
+.cluster-tree__row--db:hover { background: var(--row-bg); color: var(--fg); }
+
+.cluster-tree__row--cluster    { padding-left: 6px;  font-weight: var(--fw-semibold); color: var(--fg); }
+.cluster-tree__row--db         { padding-left: 20px; }
+.cluster-tree__row--collection { padding-left: 40px; }
+
+/* admin, config, local and Atlas's own __-prefixed databases. Present, because
+   hiding them makes a cluster look emptier than it is, but set back so they
+   do not compete with the databases someone actually made. */
+.cluster-tree__row--system .cluster-tree__name { opacity: 0.6; }
+
+/* Sized to the 14px icons beside it rather than to the text: the caret is
+   the hit target for expanding a row, and at 9px it was the smallest thing
+   in the sidebar. */
+.cluster-tree__caret {
+  flex: 0 0 auto;
+  width: 13px;
+  font-size: var(--fs-body-s);
+  line-height: 1;
+  color: var(--muted);
+  transition: transform var(--motion);
+}
+
+.cluster-tree__row:hover .cluster-tree__caret { color: var(--fg); }
+
+.cluster-tree__caret--open { transform: rotate(90deg); }
+
+.cluster-tree__icon {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.3;
+  stroke-linejoin: round;
+}
+
+.cluster-tree__row--collection .cluster-tree__icon { fill: var(--muted); stroke: none; }
+.cluster-tree__row:hover .cluster-tree__icon { stroke: var(--accent); }
+.cluster-tree__row--collection:hover .cluster-tree__icon { fill: var(--accent); stroke: none; }
+
+/* The status dot rides the cluster icon, so the wrapper is what positions it. */
+.cluster-tree__icon-wrap {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.cluster-tree__icon-pin { fill: var(--muted); stroke: none; }
+.cluster-tree__row:hover .cluster-tree__icon-pin { fill: var(--accent); }
+
+.cluster-tree__status {
+  position: absolute;
+  right: -2px;
+  bottom: -1px;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  border: 1.5px solid var(--panel);
+  box-sizing: content-box;
+}
+
+.cluster-tree__status--ok    { background: var(--success); }
+.cluster-tree__status--error { background: var(--danger); }
+
+.cluster-tree__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cluster-tree__note {
+  margin: 2px 6px 6px;
+  font-size: var(--fs-caption);
+  color: var(--muted);
+  line-height: var(--lh-snug);
+}
+
+.cluster-tree__note--nested { margin-left: 40px; }
+.cluster-tree__note--error  { color: var(--danger); }
+
+.cluster-tree__note code {
+  font-family: var(--font-accent);
+  font-size: var(--fs-micro);
+  color: var(--accent);
+}
+
 
 /* --- project groups ---------------------------------------------------- */
 
@@ -1009,7 +1283,9 @@ body.is-resizing {
   align-self: center;
   width: 100%;
   max-width: 780px;
-  margin: 0 24px;
+  /* Bottom margin matches the composer's padding-top, so the indicator
+     clears the divider by the same gap the input below it does. */
+  margin: 0 24px 16px;
   padding: 8px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius-surface);
@@ -1033,7 +1309,7 @@ body.is-resizing {
 .chat__activity-label { color: var(--fg); }
 
 .chat__activity-label code {
-  font-family: var(--font-mono);
+  font-family: var(--font-accent);
   color: var(--accent);
 }
 
@@ -1043,6 +1319,292 @@ body.is-resizing {
   margin-left: auto;
   font-variant-numeric: tabular-nums;
 }
+
+/* --- tabs and browse views ---------------------------------------------- */
+
+/* The main view's tab strip. Chat is always first and has no close control. */
+.tabbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.tabbar__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--fs-code);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tabbar__tab:hover { color: var(--fg); }
+
+.tabbar__tab--active {
+  color: var(--fg);
+  border-bottom-color: var(--accent);
+}
+
+/* The label and the close button are separate targets inside one tab, so the
+   padding lives on them rather than on the tab. */
+.tabbar__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 4px 10px 10px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+button.tabbar__tab { padding: 10px 12px; }
+
+.tabbar__kind { color: var(--accent); font-size: var(--fs-caption); }
+
+.tabbar__close {
+  padding: 10px 9px 10px 3px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: var(--fs-micro);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tabbar__close:hover { color: var(--danger); }
+
+/* Hidden, not unmounted -- see the note in App.jsx. */
+.chat__pane {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.chat__pane--hidden { display: none; }
+
+.browse__pane {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.browse {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.browse__head { margin-bottom: 18px; }
+
+.browse__title {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-bold);
+  color: var(--fg);
+}
+
+.browse__sub {
+  margin: 4px 0 0;
+  font-size: var(--fs-code);
+  color: var(--muted);
+}
+
+.browse__note {
+  padding: 24px;
+  font-size: var(--fs-code);
+  color: var(--muted);
+}
+
+.browse__note--error { color: var(--danger); }
+
+/* --- collections table --- */
+
+/* The table is wider than most windows, so it scrolls inside its own box
+   rather than making the whole pane scroll sideways. */
+.browse__table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-surface);
+}
+
+.browse__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-code);
+}
+
+.browse__table th {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--muted);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+
+.browse__th--right { text-align: right; }
+.browse__th--left  { text-align: left; }
+
+.browse__table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+.browse__table tr:last-child td { border-bottom: 0; }
+.browse__table tbody tr:hover { background: var(--wash); }
+
+.browse__td--right { text-align: right; font-variant-numeric: tabular-nums; }
+.browse__muted { color: var(--muted); }
+
+.browse__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.browse__link:hover { text-decoration: underline; }
+
+/* --- documents --- */
+
+.browse__doc {
+  position: relative;
+  margin-bottom: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--code-edge);
+  border-radius: var(--radius-surface);
+  background: var(--code-surface);
+  overflow-x: auto;
+}
+
+/* Upper right of the card. Sticky on the horizontal axis so it stays in view
+   when a wide document scrolls sideways underneath it. */
+.browse__doc-expand {
+  position: sticky;
+  float: right;
+  top: 0;
+  left: 100%;
+  z-index: 1;
+  margin-left: 12px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--panel);
+  color: var(--muted);
+  font-family: var(--font-accent);
+  font-size: var(--fs-micro);
+  line-height: 1.6;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.browse__doc-expand:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.browse__pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 16px 0 8px;
+}
+
+.browse__page-btn {
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--panel);
+  color: var(--fg);
+  font: inherit;
+  font-size: var(--fs-code);
+  cursor: pointer;
+}
+
+.browse__page-btn:hover:not(:disabled) { border-color: var(--accent); }
+.browse__page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.browse__page-range {
+  font-size: var(--fs-code);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- JSON viewer --- */
+
+.json {
+  font-family: var(--font-mono);
+  font-size: var(--fs-code);
+  line-height: 1.55;
+  color: var(--code-fg);
+  white-space: nowrap;
+}
+
+.json__line { display: flex; align-items: baseline; }
+
+/* Fixed width whether or not the row has a twisty, so keys stay in a column. */
+.json__toggle {
+  flex: 0 0 auto;
+  width: 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.json__toggle--none { cursor: default; }
+.json__toggle--open { transform: rotate(90deg); }
+.json__toggle:hover { color: var(--accent); }
+
+.json__ellipsis {
+  padding: 0 5px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--wash);
+  color: var(--muted);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.json__ellipsis:hover { background: var(--accent-soft); color: var(--accent); }
+
+.json__key     { color: var(--code-key); }
+.json__string  { color: var(--code-string); white-space: pre-wrap; }
+.json__number  { color: var(--code-number); }
+.json__boolean { color: var(--code-boolean); }
+.json__null    { color: var(--code-null); }
+.json__punct   { color: var(--muted); }
+
 
 /* --- rendered markdown -------------------------------------------------- */
 
