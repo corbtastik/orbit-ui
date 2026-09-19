@@ -1,83 +1,80 @@
-# Star Lord (theme pack)
+# Material 3, on the Star Lord palette
 
-`brand.css` and everything under `tokens/` are the Star Lord theme, ported from
-[yolo-11ty](https://github.com/corbtastik/yolo-11ty). This replaced a vendored
-MongoDB LeafyGreen pack.
+`brand.css` and everything under `tokens/` are Google's
+[Material 3](https://m3.material.io) design system, with the Star Lord colours
+carried over from the theme this replaced.
 
-## Where the values come from
+## What "keep the colours" meant
 
-The twelve source colors in `tokens/colors.css` are copied verbatim from the
-`star-lord` entry in yolo-11ty's `src/_data/themes.json`, dark half only. The
-three faces in `tokens/fonts.css` are the ones every yolo theme shares — they
-are not per-theme there and are not per-theme here.
+The palette values are unchanged — the accents are still the twelve source
+colours from yolo-11ty's `themes.json`, and `tokens/colors.css` lists them
+verbatim at the top.
 
-A blog theme needs fewer surfaces than a console does, so `colors.css` adds a
-short derived ramp under the verbatim block: one intermediate surface, two
-hover tiers, and the error red that yolo keeps in `theme-vars.js` rather than
-in the theme itself. Everything derived is stated in terms of the twelve.
+What changed is the structure around them. M3 does not have "an accent and a
+border colour"; it has role quartets — `primary` / `on-primary` /
+`primary-container` / `on-primary-container` — and a six-step surface ladder
+that carries elevation. Components are specified against those role names, so
+the roles had to exist before any component could be built to spec.
 
-To pull a different yolo theme, replace the verbatim block and rederive those
-few — nothing else in the app reads a color.
+Only the container tones are new, and each is the existing hue re-lit to the
+tone M3 asks for. Nothing introduces a hue the palette did not already have.
 
-## What did not change
+The app's three surfaces turned out to already sit on M3's ladder:
 
-`tokens/spacing.css` and the type scale in `tokens/typography.css` are
-unchanged from the pack this replaced, as are motion and z-index in
-`tokens/effects.css`. Spacing, radius and type size decide how much room every
-panel needs; moving them would move the layout, and only color and type were
-being restyled.
+    --md-surface                  #0A0D24   was the page
+    --md-surface-container        #15183A   was the panel
+    --md-surface-container-high   #1F2347   was the nested panel
+    --md-surface-container-highest #2A2E5A  was the border
 
-## Fonts
+## The parts that make it M3
 
-    Montserrat       UI, body copy and headings
-    Space Mono       technical labels
-    Source Code Pro  code
+- **Shape.** Seven-step corner scale. Controls are fully rounded, cards are
+  12dp, the drawer's items are pills. This is the most visible change.
+- **State layers.** Hovering does not swap a background; it lays a translucent
+  film of the component's own content colour over it, at M3's 8/10/10%. Every
+  interactive surface in the app works this way now.
+- **Elevation by tone.** A raised surface is a lighter container tone, with the
+  shadow subordinate. On a page this dark a shadow reads as a hole, not a lift.
+- **The type scale.** Fifteen roles, each with a size, line height, weight and
+  tracking. Tracking is the part usually dropped, and it is what makes an M3
+  label read as one — a label is a small body *with positive letter-spacing*.
+- **Component specs.** 40dp buttons with 24dp side padding, 56dp drawer items in
+  a 12dp gutter, 48dp tabs with an inset 3dp indicator, 32dp chips, filled text
+  fields rounded at the top only.
 
-All three are free Google Fonts, loaded in `tokens/fonts.css`. There is nothing
-to substitute and no licensed file to drop in later — unlike the pack this
-replaced, whose brand faces were proprietary.
+## The typefaces are not M3's
 
-The roles are not quite yolo's. There, Space Mono is `font-family-primary` and
-body copy is monospace; here body is Montserrat and Space Mono is the accent
-face, marking the strings the app did not write — tool name, model id, MCP
-endpoint, citation ref, the running-tool label. Code is Source Code Pro, not
-Space Mono, so a tool *name* and a code *block* stay visually distinct.
+M3 defaults to Roboto. These are Montserrat, Space Mono and Source Code Pro,
+kept from the previous theme. M3 is explicit that a brand font can be
+substituted into the scale, only the colours were called out to keep, and
+swapping the faces would have discarded a deliberate choice M3 does not require
+changing.
 
-`--font-accent` is applied per element, never inherited. Adding a technical
-label means naming it.
-
-## How it is consumed
+## Layering
 
 `brand.css` is the only entry point; it is import order and nothing else.
-`src/styles.css` maps these tokens onto the app's semantic names — `--bg`,
-`--panel`, `--fg`, `--accent` and the rest — in one block at the top, and the
-thousand lines below it are written against those. That layer is the seam: the
-palette swap was that block and nothing under it.
+`src/styles.css` maps the M3 roles onto the short names its component rules use
+— `--bg`, `--panel`, `--accent` — in one block at the top.
 
-Do not reach past it. Nothing outside `src/styles.css` should name a `--sl-*`
-token, and no component should carry a literal color.
+Where a short name and an M3 role disagree, the role wins. `--panel` is
+`surface-container` because that is the tone M3 draws a level-2 surface on, not
+because the app used to call it a panel.
+
+Nothing outside `src/styles.css` should name an `--md-*` or `--sl-*` token, and
+no component should carry a literal colour.
 
 ## The app is dark, permanently
 
-There is no light theme and no toggle, and none should be added. The tokens in
-`src/styles.css` are defined once on `:root`; there is no `[data-theme]`
-selector and nothing reads such an attribute. Star Lord has a light half in
-`themes.json` and it is deliberately not ported.
+There is no light scheme and no toggle. M3 defines both; only the dark one is
+ported.
 
 ## The mark
 
-The OrbitAI logo, from
-[orbit-web](https://corbtastik.github.io/orbit-web/), exists twice:
+The OrbitAI logo, from [orbit-web](https://corbtastik.github.io/orbit-web/),
+exists twice:
 
-    src/components/brand/OrbitLogo.jsx   animated, CSS 3D — the sidebar
+    src/components/brand/OrbitLogo.jsx   animated gradient — the sidebar
     public/brand/orbit-logo.svg          static — the favicon
 
-Upstream draws it in Three.js. Both copies here avoid that dependency for the
-reasons in the component's header comment, and they share upstream's seven-stop
-palette and its 24s rotation / 12s colour cycle. Change the palette in both or
-in neither.
-
-`Orbitron` is loaded for the wordmark and used nowhere else.
-
-The MongoDB logomarks and `favicon.ico` are still in `public/brand/` and are
-now referenced by nothing. They can be deleted whenever.
+Both draw the same geometry; keep them in step. `Orbitron` is loaded for the
+wordmark and used nowhere else.

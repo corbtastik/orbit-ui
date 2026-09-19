@@ -1,0 +1,30 @@
+/* ============================================================
+   Material 3 — Motion
+
+   M3's easing set. `emphasized` is the default for anything
+   the user initiated and will watch; `standard` is for small
+   changes that should not draw the eye. The accelerate and
+   decelerate pairs are for things leaving and entering.
+
+   The durations are M3's named tokens. Most of this app's
+   transitions are `short-4` on `standard`.
+   ============================================================ */
+
+:root {
+  --md-easing-emphasized:            cubic-bezier(0.2, 0, 0, 1);
+  --md-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --md-easing-standard:              cubic-bezier(0.2, 0, 0, 1);
+  --md-easing-standard-decelerate:   cubic-bezier(0, 0, 0, 1);
+  --md-easing-standard-accelerate:   cubic-bezier(0.3, 0, 1, 1);
+  --md-easing-linear:                linear;
+
+  --md-duration-short-1:  50ms;
+  --md-duration-short-2:  100ms;
+  --md-duration-short-3:  150ms;
+  --md-duration-short-4:  200ms;
+  --md-duration-medium-1: 250ms;
+  --md-duration-medium-2: 300ms;
+  --md-duration-medium-4: 400ms;
+  --md-duration-long-2:   500ms;
+}

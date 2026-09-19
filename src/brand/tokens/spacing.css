@@ -1,40 +1,41 @@
 /* ============================================================
-   Star Lord — Spacing & Radius
-   4px base grid.
+   Material 3 — Spacing
 
-   Unchanged from the pack this replaced. Spacing and radius are
-   the layout, and the layout is not what is being restyled --
-   only color and type are.
+   M3 lays out on a 4dp grid. The scale below is that grid;
+   the named component metrics under it are M3's own specified
+   sizes, and they are the reason this file changed: an M3
+   button is 40dp tall with 24dp of side padding, and a
+   navigation drawer item is 56dp tall in a 12dp gutter. Those
+   are not preferences to tune, they are what makes the layout
+   read as M3.
+
+   Corner radius now lives in shape.css.
    ============================================================ */
 
 :root {
-  /* Spacing scale (4px base) */
-  --space-0:  0;
-  --space-1:  4px;
-  --space-2:  8px;
-  --space-3:  12px;
-  --space-4:  16px;
-  --space-5:  24px;
-  --space-6:  32px;
-  --space-7:  48px;
-  --space-8:  64px;
-  --space-9:  88px;
-  --space-10: 120px;
+  --md-space-0:  0;
+  --md-space-1:  4px;
+  --md-space-2:  8px;
+  --md-space-3:  12px;
+  --md-space-4:  16px;
+  --md-space-5:  20px;
+  --md-space-6:  24px;
+  --md-space-7:  28px;
+  --md-space-8:  32px;
+  --md-space-10: 40px;
+  --md-space-12: 48px;
+  --md-space-14: 56px;
 
-  /* Layout */
-  --container-max: 1200px;
-  --gutter:        24px;
-
-  /* Border radius */
-  --radius-none: 0;
-  --radius-sm:   4px;
-  --radius-md:   6px;   /* default control radius */
-  --radius-lg:   12px;  /* cards, panels */
-  --radius-xl:   24px;  /* large feature cards */
-  --radius-pill: 100px; /* badges, pills */
-  --radius-circle: 50%;
-
-  /* Border widths */
-  --border-w:        1px;
-  --border-w-strong: 2px;
+  /* Component metrics, from the M3 specs. */
+  --md-button-height:      40px;
+  --md-button-padding-x:   24px;
+  --md-icon-button-size:   40px;
+  --md-nav-item-height:    56px;
+  --md-nav-item-gutter:    12px;
+  --md-list-item-1line:    56px;
+  --md-list-item-2line:    72px;
+  --md-text-field-height:  56px;
+  --md-tab-height:         48px;
+  --md-chip-height:        32px;
+  --md-touch-target:       48px;
 }

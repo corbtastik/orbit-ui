@@ -1,0 +1,20 @@
+/* ============================================================
+   Material 3 — Shape scale
+
+   M3 specifies corner radius per component from a seven-step
+   scale, and the steps are considerably larger than the three
+   radii this app used before. A button is fully rounded, a
+   card is 12, a dialog is 28. The shape is a large part of
+   what makes M3 legible as M3, so these are the spec values
+   rather than a softened version of them.
+   ============================================================ */
+
+:root {
+  --md-corner-none:        0;
+  --md-corner-extra-small: 4px;
+  --md-corner-small:       8px;
+  --md-corner-medium:      12px;
+  --md-corner-large:       16px;
+  --md-corner-extra-large: 28px;
+  --md-corner-full:        9999px;
+}

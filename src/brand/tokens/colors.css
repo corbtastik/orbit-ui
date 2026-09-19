@@ -1,17 +1,22 @@
 /* ============================================================
-   Star Lord — Color palette
+   Material 3 — Color roles, Star Lord palette
 
-   The twelve source colors are copied verbatim from the
-   `star-lord` entry in yolo-11ty's src/_data/themes.json, dark
-   half only. This app has no light theme.
+   The palette is unchanged: the accents below are the same
+   values as before, copied from the `star-lord` entry in
+   yolo-11ty's themes.json. What changed is the structure.
 
-   A blog theme needs fewer surfaces than a console does, so a
-   short derived ramp follows. Everything in it is stated in
-   terms of the twelve, and nothing else is invented.
+   M3 does not have "an accent and a border colour". It has
+   role quartets -- primary / on-primary / primary-container /
+   on-primary-container -- and a surface ladder of six
+   container tones that carries elevation. Components are
+   specified against those role names, so the roles have to
+   exist before any component can be built to spec.
+
+   Dark scheme only. See src/brand/README.md.
    ============================================================ */
 
 :root {
-  /* ---- The theme, verbatim (themes.json -> star-lord -> dark) ---- */
+  /* ---- The source palette, verbatim ---- */
   --sl-bg:          #0A0D24;
   --sl-text:        #F3E9FF;
   --sl-heading:     #7FD7FF;
@@ -24,31 +29,85 @@
   --sl-sh-function: #FF5DA2;
   --sl-sh-variable: #F3E9FF;
   --sl-sh-comment:  #8A7FAF;
+  --sl-error:       #FF5252;
 
-  /* ---- Derived ----
-     A sidebar, a panel inside it and a card inside that are three
-     surfaces; the theme ships two. --sl-surface-2 sits between
-     --sl-surface and --sl-border, on the same navy line. */
-  --sl-surface-2: #1F2347;
+  /* ============================================================
+     ACCENT ROLES
+     Each is the palette hue at four M3 tones. on-* is the ink
+     that sits on the role of the same name.
+     ============================================================ */
 
-  /* Hover tiers. Pink and cyan are already near the top of their
-     ramps, so hover goes lighter rather than darker. */
-  --sl-primary-light: #FF85BC;
-  --sl-heading-light: #A8E4FF;
+  --md-primary:                 var(--sl-primary);  /* #FF5DA2 */
+  --md-on-primary:              var(--sl-bg);
+  --md-primary-container:       #8C1F4D;
+  --md-on-primary-container:    #FFD5E6;
 
-  /* The one color the theme does not carry. yolo defines it in
-     theme-vars.js as the dark-mode syntax-error value. */
-  --sl-error: #FF5252;
+  --md-secondary:               var(--sl-heading);  /* #7FD7FF */
+  --md-on-secondary:            var(--sl-bg);
+  --md-secondary-container:     #1B4F6B;
+  --md-on-secondary-container:  #CDEBFA;
 
-  /* De-emphasised UI text. The theme's comment color is #8A7FAF, which is
-     tuned to sit on --sl-surface in a code block and clears 4.5:1 there.
-     UI muted text also lands on --sl-surface-2, where that value drops to
-     4.13:1 at 11-12px. Same hue, lifted until the worst of the three
-     surfaces clears: bg 6.38, surface 5.72, surface-2 5.03. */
-  --sl-muted: #9A8EBF;
+  /* Tertiary is the palette's purple, lifted to an accent tone.
+     M3 uses it for accents that must not read as the primary
+     action -- here, the AI/tool markers. */
+  --md-tertiary:                #C5B8E8;
+  --md-on-tertiary:             var(--sl-bg);
+  --md-tertiary-container:      #403663;
+  --md-on-tertiary-container:   #E4DCF5;
 
-  /* ---- Focus ----
-     Cyan, not pink: pink is the accent, and a focus ring the same
-     color as the thing it surrounds stops reading as focus. */
-  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--sl-heading) 55%, transparent);
+  --md-error:                   var(--sl-error);    /* #FF5252 */
+  --md-on-error:                var(--sl-bg);
+  --md-error-container:         #7A1E1E;
+  --md-on-error-container:      #FFDAD6;
+
+  /* ============================================================
+     SURFACE LADDER
+     In M3 dark, elevation is a lighter surface tone, not a
+     heavier shadow. These six are what a raised component is
+     drawn on. The middle three are the app's existing page,
+     panel and nested-panel colours -- they already formed this
+     ladder, which is why the mapping needed no new hues.
+     ============================================================ */
+
+  --md-surface:                  var(--sl-bg);      /* #0A0D24 */
+  --md-surface-dim:              #060818;
+  --md-surface-bright:           #31365F;
+
+  --md-surface-container-lowest: #05071A;
+  --md-surface-container-low:    #101331;
+  --md-surface-container:        var(--sl-surface); /* #15183A */
+  --md-surface-container-high:   #1F2347;
+  --md-surface-container-highest: var(--sl-border); /* #2A2E5A */
+
+  --md-on-surface:          var(--sl-text);         /* #F3E9FF */
+  /* Lifted one step off the palette's comment colour so it
+     still clears 4.5:1 on the highest container, where the
+     source value dropped to 4.27. */
+  --md-on-surface-variant:  #A79BCC;
+
+  --md-outline:         #79709C;   /* 3:1 on surface -- M3's bar for a border */
+  --md-outline-variant: var(--sl-border);
+
+  /* For the rare inverted surface: snackbars, tooltips. */
+  --md-inverse-surface:    #E7E0F0;
+  --md-on-inverse-surface: #2B2A3A;
+  --md-inverse-primary:    #8C1F4D;
+
+  --md-scrim: #000000;
+  --md-shadow: #000000;
+
+  /* ============================================================
+     STATE LAYER OPACITIES
+     M3 renders interaction as a translucent layer of the
+     content colour over the component, rather than by swapping
+     the component's own background. One set of numbers, used
+     by every interactive surface in the app.
+     ============================================================ */
+
+  --md-state-hover:    0.08;
+  --md-state-focus:    0.10;
+  --md-state-pressed:  0.10;
+  --md-state-dragged:  0.16;
+  --md-state-disabled-content:   0.38;
+  --md-state-disabled-container: 0.12;
 }

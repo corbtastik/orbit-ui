@@ -1,53 +1,71 @@
 /* ============================================================
-   Star Lord — Typography scale
+   Material 3 — Type scale
 
-   Space Mono for UI and body, Montserrat for headings, Source
-   Code Pro for code -- the split yolo-11ty uses.
+   The scale is M3's: fifteen roles in five groups, with the
+   size, line height, weight and tracking each one specifies.
+   Tracking is the part most often dropped, and it is what
+   makes M3 labels read as M3 -- a label is not just a small
+   body, it is a small body with positive letter-spacing.
 
-   The scale itself is unchanged from the pack this replaced.
-   Type sizes decide how much room every panel in the app needs,
-   so moving them would move the layout, and the layout is not
-   what is being restyled.
+   The typefaces are NOT M3's. M3 defaults to Roboto but is
+   explicit that a brand font can be substituted into the
+   scale, and the faces here were chosen deliberately:
+   Montserrat for UI, Space Mono for machine-supplied strings,
+   Source Code Pro for code. Only the colours were called out
+   to keep, but swapping the faces would have thrown away a
+   choice that M3 does not require changing.
    ============================================================ */
 
 :root {
-  /* Font families (defined in fonts.css) re-declared as type roles */
-  --font-display: var(--font-heading);
-  --font-body:    var(--font-sans);
-  --font-code:    var(--font-mono);
+  --md-font-brand: var(--font-sans);      /* Montserrat */
+  --md-font-plain: var(--font-sans);
+  --md-font-code:  var(--font-mono);      /* Source Code Pro */
+  --md-font-accent: var(--font-accent);   /* Space Mono */
 
-  /* Weights. Space Mono ships 400 and 700 only -- the two middle
-     steps resolve to the nearest real weight rather than a
-     synthesised one, which is why semibold headings still look
-     right: Montserrat does have 500 and 600. */
-  --fw-regular:  400;
-  --fw-medium:   500;
-  --fw-semibold: 600;
-  --fw-bold:     700;
+  /* Display */
+  --md-display-large-size: 57px;   --md-display-large-line: 64px;   --md-display-large-track: -0.25px;
+  --md-display-medium-size: 45px;  --md-display-medium-line: 52px;  --md-display-medium-track: 0;
+  --md-display-small-size: 36px;   --md-display-small-line: 44px;   --md-display-small-track: 0;
 
-  /* Type scale — px values */
-  --fs-display-xl: 72px;
-  --fs-display-l:  56px;
-  --fs-display-m:  44px;
-  --fs-h1:         32px;
-  --fs-h2:         24px;
-  --fs-h3:         20px;
-  --fs-body-l:     18px;
-  --fs-body:       16px;
-  --fs-body-s:     14px;
-  --fs-caption:    12px;
-  --fs-code:       13px;
+  /* Headline */
+  --md-headline-large-size: 32px;  --md-headline-large-line: 40px;  --md-headline-large-track: 0;
+  --md-headline-medium-size: 28px; --md-headline-medium-line: 36px; --md-headline-medium-track: 0;
+  --md-headline-small-size: 24px;  --md-headline-small-line: 32px;  --md-headline-small-track: 0;
 
-  /* Line heights */
-  --lh-tight:   1.1;
-  --lh-heading: 1.2;
-  --lh-snug:    1.35;
-  --lh-body:    1.55;
+  /* Title */
+  --md-title-large-size: 22px;     --md-title-large-line: 28px;     --md-title-large-track: 0;
+  --md-title-medium-size: 16px;    --md-title-medium-line: 24px;    --md-title-medium-track: 0.15px;
+  --md-title-small-size: 14px;     --md-title-small-line: 20px;     --md-title-small-track: 0.1px;
 
-  /* Letter spacing. Space Mono is already wide, so the tight tiers
-     do more work here than they did under a proportional sans. */
-  --ls-tight:  -0.02em;
-  --ls-snug:   -0.01em;
-  --ls-normal: 0;
-  --ls-wide:   0.04em;
+  /* Body */
+  --md-body-large-size: 16px;      --md-body-large-line: 24px;      --md-body-large-track: 0.5px;
+  --md-body-medium-size: 14px;     --md-body-medium-line: 20px;     --md-body-medium-track: 0.25px;
+  --md-body-small-size: 12px;      --md-body-small-line: 16px;      --md-body-small-track: 0.4px;
+
+  /* Label */
+  --md-label-large-size: 14px;     --md-label-large-line: 20px;     --md-label-large-track: 0.1px;
+  --md-label-medium-size: 12px;    --md-label-medium-line: 16px;    --md-label-medium-track: 0.5px;
+  --md-label-small-size: 11px;     --md-label-small-line: 16px;     --md-label-small-track: 0.5px;
+
+  /* M3 weights. Titles and labels are medium; body and display
+     are regular. Montserrat has real 500 and 600, so none of
+     this is synthesised. */
+  --md-weight-regular:  400;
+  --md-weight-medium:   500;
+  --md-weight-semibold: 600;
+  --md-weight-bold:     700;
 }
+
+/* Applying a role means size, line height, weight and tracking
+   together -- setting only the size is the usual way an M3
+   type scale ends up looking like something else. These
+   classes exist so a component can take a role in one line. */
+.md-title-large   { font: var(--md-weight-regular) var(--md-title-large-size)/var(--md-title-large-line) var(--md-font-brand); letter-spacing: var(--md-title-large-track); }
+.md-title-medium  { font: var(--md-weight-medium) var(--md-title-medium-size)/var(--md-title-medium-line) var(--md-font-brand); letter-spacing: var(--md-title-medium-track); }
+.md-title-small   { font: var(--md-weight-medium) var(--md-title-small-size)/var(--md-title-small-line) var(--md-font-brand); letter-spacing: var(--md-title-small-track); }
+.md-body-large    { font: var(--md-weight-regular) var(--md-body-large-size)/var(--md-body-large-line) var(--md-font-plain); letter-spacing: var(--md-body-large-track); }
+.md-body-medium   { font: var(--md-weight-regular) var(--md-body-medium-size)/var(--md-body-medium-line) var(--md-font-plain); letter-spacing: var(--md-body-medium-track); }
+.md-body-small    { font: var(--md-weight-regular) var(--md-body-small-size)/var(--md-body-small-line) var(--md-font-plain); letter-spacing: var(--md-body-small-track); }
+.md-label-large   { font: var(--md-weight-medium) var(--md-label-large-size)/var(--md-label-large-line) var(--md-font-plain); letter-spacing: var(--md-label-large-track); }
+.md-label-medium  { font: var(--md-weight-medium) var(--md-label-medium-size)/var(--md-label-medium-line) var(--md-font-plain); letter-spacing: var(--md-label-medium-track); }
+.md-label-small   { font: var(--md-weight-medium) var(--md-label-small-size)/var(--md-label-small-line) var(--md-font-plain); letter-spacing: var(--md-label-small-track); }
