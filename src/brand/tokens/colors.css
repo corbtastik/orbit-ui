@@ -1,0 +1,112 @@
+/* ============================================================
+   MongoDB LeafyGreen — Color Palette
+   Base ramps mirror @leafygreen-ui/palette. Brand aliases come
+   from the official MongoDB brand colors.css (assets pack).
+   ============================================================ */
+
+:root {
+  /* ---- Neutrals (Gray ramp) ---- */
+  --mdb-white:       #FFFFFF;
+  --mdb-black:       #001E2B; /* "MongoDB Black" / Slate Blue */
+  --mdb-gray-dark4:  #112733; /* dark-mode secondary surface */
+  --mdb-gray-dark3:  #21313C;
+  --mdb-gray-dark2:  #3D4F58;
+  --mdb-gray-dark1:  #5C6C75;
+  --mdb-gray-base:   #889397;
+  --mdb-gray-light1: #C1C7C6;
+  --mdb-gray-light2: #E8EDEB;
+  --mdb-gray-light3: #F9FBFA;
+
+  /* ---- Green (primary / brand) ---- */
+  --mdb-green-dark3:  #023430; /* Evergreen */
+  --mdb-green-dark2:  #00684A; /* Forest Green */
+  --mdb-green-dark1:  #00A35C;
+  --mdb-green-base:   #00ED64; /* Spring Green — signature accent */
+  --mdb-green-light1: #71F6BA;
+  --mdb-green-light2: #C0FAE6;
+  --mdb-green-light3: #E3FCF7; /* Mist */
+
+  /* ---- Blue (links / info) ---- */
+  --mdb-blue-dark3:  #0C2657;
+  --mdb-blue-dark2:  #083C90;
+  --mdb-blue-dark1:  #1254B7;
+  --mdb-blue-base:   #016BF8;
+  --mdb-blue-light1: #0498EC;
+  --mdb-blue-light2: #C3E7FE;
+  --mdb-blue-light3: #E1F7FF;
+
+  /* ---- Red (error / destructive) ---- */
+  --mdb-red-dark3:  #5B0000;
+  --mdb-red-dark2:  #970606;
+  --mdb-red-base:   #DB3030;
+  --mdb-red-light1: #FF6960;
+  --mdb-red-light2: #FFCDC7;
+  --mdb-red-light3: #FFEAE5;
+
+  /* ---- Yellow (warning / pending) ---- */
+  --mdb-yellow-dark3:  #4C2100;
+  --mdb-yellow-dark2:  #944F01;
+  --mdb-yellow-base:   #FFC010;
+  --mdb-yellow-light2: #FFEC9E;
+  --mdb-yellow-light3: #FEF7DB;
+
+  /* ---- Purple (accent / AI) ---- */
+  --mdb-purple-dark3:  #2D0B59;
+  --mdb-purple-dark2:  #5E0C9E;
+  --mdb-purple-base:   #B45AF2;
+  --mdb-purple-light2: #F1D4FD;
+  --mdb-purple-light3: #F9EBFF; /* Lavender */
+
+  /* ---- Brand aliases (verbatim from brand colors.css) ---- */
+  --mdb-brand-spring-green: var(--mdb-green-base);
+  --mdb-brand-forest-green: var(--mdb-green-dark2);
+  --mdb-brand-evergreen:    var(--mdb-green-dark3);
+  --mdb-brand-slate-blue:   var(--mdb-black);
+  --mdb-brand-mist:         var(--mdb-green-light3);
+  --mdb-brand-lavender:     var(--mdb-purple-light3);
+
+  /* ============================================================
+     SEMANTIC ALIASES — light mode (use these in product UI)
+     ============================================================ */
+
+  /* Text */
+  --text-primary:   var(--mdb-black);
+  --text-secondary: var(--mdb-gray-dark1);
+  --text-tertiary:  var(--mdb-gray-base);
+  --text-disabled:  var(--mdb-gray-light1);
+  --text-inverse:   var(--mdb-white);
+  --text-link:      var(--mdb-blue-base);
+  --text-error:     var(--mdb-red-base);
+  --text-success:   var(--mdb-green-dark2);
+
+  /* Surfaces / backgrounds */
+  --surface-page:        var(--mdb-white);
+  --surface-secondary:   var(--mdb-gray-light3);
+  --surface-card:        var(--mdb-white);
+  --surface-hover:       var(--mdb-gray-light2);
+  --surface-dark:        var(--mdb-black);       /* full-bleed dark sections */
+  --surface-evergreen:   var(--mdb-green-dark3); /* deep brand panels */
+  --surface-mist:        var(--mdb-green-light3); /* soft green tint */
+  --surface-info:        var(--mdb-blue-light3);
+  --surface-warning:     var(--mdb-yellow-light3);
+  --surface-error:       var(--mdb-red-light3);
+
+  /* Borders */
+  --border-subtle:  var(--mdb-gray-light2);
+  --border-default: var(--mdb-gray-light1);
+  --border-strong:  var(--mdb-gray-base);
+  --border-focus:   var(--mdb-blue-light1);
+
+  /* Actions — product UI primary button (LeafyGreen green) */
+  --action-primary-bg:       var(--mdb-green-dark2);
+  --action-primary-bg-hover: var(--mdb-green-dark3);
+  --action-primary-text:     var(--mdb-white);
+
+  /* Actions — marketing CTA (Spring Green on Slate) */
+  --cta-bg:        var(--mdb-green-base);
+  --cta-bg-hover:  var(--mdb-green-light1);
+  --cta-text:      var(--mdb-black);
+
+  /* Focus ring */
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--mdb-blue-light1) 55%, transparent);
+}

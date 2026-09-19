@@ -1,0 +1,40 @@
+/* ============================================================
+   MongoDB LeafyGreen — Fonts
+   Brand fonts are proprietary:
+     • Euclid Circular A  — primary sans (UI + body)
+     • MongoDB Value Serif — display serif (marketing headlines)
+     • Source Code Pro     — monospace (code, open-source)
+   Substitutes loaded from Google Fonts (SUBSTITUTION — see readme):
+     • Euclid Circular A  -> Hanken Grotesk
+     • MongoDB Value Serif -> Source Serif 4
+     • Source Code Pro     -> Source Code Pro (exact match, free)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Source+Code+Pro:wght@400;500;600;700&display=swap');
+
+/* Alias the proprietary brand families so product code keeps referencing the
+   real MongoDB typefaces. These @font-face rules currently resolve through the
+   Google-Fonts substitutes (loaded above). When the licensed Euclid Circular A
+   and MongoDB Value Serif woff2 files are uploaded, replace the `src` below with
+   `url("../assets/fonts/<file>.woff2") format("woff2")` to make them exact —
+   no other change is needed. */
+@font-face {
+  font-family: "Euclid Circular A";
+  src: local("Hanken Grotesk"), local("HankenGrotesk");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "MongoDB Value Serif";
+  src: local("Source Serif 4"), local("Source Serif 4 18pt"), local("SourceSerif4");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-sans:  "Euclid Circular A", "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "MongoDB Value Serif", "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-mono:  "Source Code Pro", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}

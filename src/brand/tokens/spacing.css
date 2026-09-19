@@ -1,0 +1,36 @@
+/* ============================================================
+   MongoDB LeafyGreen — Spacing & Radius
+   4px base grid. LeafyGreen spacing units: 1=4 … 8=64.
+   ============================================================ */
+
+:root {
+  /* Spacing scale (4px base) */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  24px;
+  --space-6:  32px;
+  --space-7:  48px;
+  --space-8:  64px;
+  --space-9:  88px;
+  --space-10: 120px;
+
+  /* Layout */
+  --container-max: 1200px;
+  --gutter:        24px;
+
+  /* Border radius */
+  --radius-none: 0;
+  --radius-sm:   4px;
+  --radius-md:   6px;   /* default LeafyGreen control radius */
+  --radius-lg:   12px;  /* cards, panels */
+  --radius-xl:   24px;  /* large feature cards */
+  --radius-pill: 100px; /* badges, pills */
+  --radius-circle: 50%;
+
+  /* Border widths */
+  --border-w:        1px;
+  --border-w-strong: 2px;
+}

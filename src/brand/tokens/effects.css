@@ -1,0 +1,31 @@
+/* ============================================================
+   MongoDB LeafyGreen — Effects: shadows, motion, layering
+   Shadows are soft and cool-toned (slate-tinted), never heavy.
+   ============================================================ */
+
+:root {
+  /* Elevation — cool slate-tinted shadows */
+  --shadow-100: 0 1px 2px rgba(0, 30, 43, 0.12);
+  --shadow-200: 0 2px 6px rgba(0, 30, 43, 0.10);
+  --shadow-300: 0 4px 12px rgba(0, 30, 43, 0.12);
+  --shadow-400: 0 8px 24px rgba(0, 30, 43, 0.14);
+  --shadow-500: 0 16px 40px rgba(0, 30, 43, 0.16);
+
+  /* Focus / interactive glow */
+  --shadow-focus: 0 0 0 3px rgba(4, 152, 236, 0.45);
+
+  /* Motion — LeafyGreen uses quick, gentle ease-in-out */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --ease-out:      cubic-bezier(0, 0, 0.2, 1); /* @kind other */
+  --ease-in:       cubic-bezier(0.4, 0, 1, 1); /* @kind other */
+  --dur-fast:   100ms; /* @kind other */
+  --dur-base:   150ms; /* @kind other */
+  --dur-slow:   250ms; /* @kind other */
+
+  /* Z-index layers */
+  --z-base:     0; /* @kind other */
+  --z-sticky:   100; /* @kind other */
+  --z-overlay:  1000; /* @kind other */
+  --z-modal:    1100; /* @kind other */
+  --z-toast:    1200; /* @kind other */
+}
