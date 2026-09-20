@@ -389,8 +389,9 @@ button, input, select, textarea { font-family: inherit; }
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
+  /* M3 small top app bar: 64dp tall, 16dp either side. */
   min-height: 64px;
-  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-6);
+  padding: var(--space-2) var(--space-4);
   background: var(--md-sys-color-surface);
 }
 
@@ -744,8 +745,16 @@ button, input, select, textarea { font-family: inherit; }
   flex: 0 0 260px;              /* overridden inline once resized */
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--border);
-  background: var(--panel);
+  /* M3's drawer container tone. Narrower than the spec's 360dp because this
+     is a chat list beside a transcript, not a primary nav -- and it is
+     user-resizable, which the spec does not contemplate.
+
+     The divider stays. Dropping it and letting the container tone do the
+     work is the tidier reading of the spec, but measured it is 1.09:1
+     against the page -- the drawer stops reading as a panel at all. M3 uses
+     outline-variant for exactly this edge. */
+  background: var(--md-sys-color-surface-container-low);
+  border-right: 1px solid var(--md-sys-color-outline-variant);
   overflow: hidden;
 }
 
@@ -1172,18 +1181,25 @@ body.is-resizing {
   z-index: 3;
 }
 
+/* Not a snackbar, deliberately. M3 snackbars are inverse-surface and
+   transient; this is a persistent inline error, and error-container reads as
+   an error where inverse-surface does not. M3 has no component for it, so it
+   borrows the snackbar's metrics -- 48dp minimum, elevation 2 -- and its own
+   colour roles. */
 .chat__error {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin: 0 24px;
-  padding: 9px 14px;
+  gap: var(--space-3);
+  min-height: 48px;
+  margin: 0 var(--space-6);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
   border: 0;
-  border-radius: var(--md-sys-shape-corner-medium);
+  border-radius: var(--md-sys-shape-corner-extra-small);
   background: var(--md-sys-color-error-container);
   color: var(--md-sys-color-on-error-container);
+  box-shadow: var(--md-sys-elevation-level2);
   font-size: var(--md-sys-typescale-body-medium-size);
   line-height: var(--md-sys-typescale-body-medium-line-height);
   letter-spacing: var(--md-sys-typescale-body-medium-tracking);
@@ -1191,6 +1207,13 @@ body.is-resizing {
   align-self: center;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* The action in an error banner takes the on-container colour, the way a
+   snackbar's action takes inverse-primary. */
+.chat__error md-text-button {
+  --md-text-button-label-text-color: var(--md-sys-color-on-error-container);
+  flex: 0 0 auto;
 }
 
 .chat__error button {
@@ -1419,11 +1442,12 @@ button.tabbar__tab { padding: 0 var(--space-4); }
 /* The table is wider than most windows, so it scrolls inside its own box
    rather than making the whole pane scroll sideways. */
 /* M3 outlined card holding the table. */
+/* M3 outlined card: surface, a 1dp outline-variant edge, 12dp corners. */
 .browse__table-wrap {
   overflow-x: auto;
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container-low);
+  background: var(--md-sys-color-surface);
 }
 
 .browse__table {
@@ -1496,8 +1520,12 @@ button.tabbar__tab { padding: 0 var(--space-4); }
   position: relative;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
-  padding: 0 var(--space-4);
+  /* M3 gives each segment a 48dp minimum target even though the control is
+     40dp tall; without it a two-segment control is under the threshold. */
+  min-width: var(--metric-touch-target);
+  padding: 0 var(--space-3);
   border: 0;
   background: transparent;
   color: var(--md-sys-color-on-surface);
@@ -1767,6 +1795,9 @@ button.tabbar__tab { padding: 0 var(--space-4); }
 /* --- documents --- */
 
 /* M3 filled card: container tone, 12dp corners, no outline. */
+/* M3 elevated card: surface-container-low at elevation 1. It was previously
+   this tone with no shadow, which is a filled card's job but a filled card
+   is surface-container-highest -- far too light for a page of code. */
 .browse__doc {
   position: relative;
   margin-bottom: var(--space-3);
@@ -1774,6 +1805,7 @@ button.tabbar__tab { padding: 0 var(--space-4); }
   border: 0;
   border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-surface-container-low);
+  box-shadow: var(--md-sys-elevation-level1);
   overflow-x: auto;
 }
 

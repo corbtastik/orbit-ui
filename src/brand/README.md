@@ -66,8 +66,43 @@ set on the host. That works because its inner container has no background of
 its own and inherits `border-radius` -- worth knowing before anyone tries
 `::part()`.
 
-Still hand-built, pending a decision rather than work: the tab bar. Its tabs
-carry close buttons, which `md-tabs` does not expect.
+## The six that stay hand-built
+
+Material Web ships none of these and, being in maintenance mode, never will.
+Each is built against the published spec and on the same `--md-sys-*` tokens,
+so they are indistinguishable from the real components in use.
+
+    navigation drawer   surface-container-low, 56dp items, 12dp gutter,
+                        full-radius pills, secondary-container selection
+    top app bar         small, 64dp, title-large, 16dp either side
+    card                elevated (surface-container-low + elevation 1) for
+                        documents; outlined (surface + outline-variant) for
+                        the collections table
+    error banner        NOT a snackbar -- see below
+    segmented button    40dp, full-radius ends, shared outline, 48dp targets
+    tab bar             hand-built on purpose: its tabs carry close buttons,
+                        which md-tabs does not expect and cannot be talked
+                        into cleanly
+
+Two deliberate departures, both measured rather than assumed:
+
+**The drawer keeps its divider.** Letting the container tone separate it from
+the page is the tidier reading of the spec, but that measures 1.09:1 here --
+the drawer stops reading as a panel. M3 uses `outline-variant` for this edge.
+
+**The error banner is not a snackbar.** M3 snackbars are `inverse-surface` and
+transient; this one is persistent and reports a failure, where
+`error-container` reads as an error and `inverse-surface` does not. It borrows
+the snackbar's metrics -- 48dp minimum, elevation 2, 4dp corners -- and keeps
+its own colour roles.
+
+## Tooltips are native, on purpose
+
+The app uses `title` attributes, not an M3 tooltip. Material Web ships no
+tooltip, and a hand-built one would need focus management, hover delays and
+positioning to match what the browser already does correctly for free --
+including for keyboards and screen readers. Twenty hover hints do not justify
+rebuilding that. This is the one M3 component deliberately not built.
 
 ## The parts that make it M3
 

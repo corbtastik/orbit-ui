@@ -4,6 +4,13 @@ import { MdIconButton } from '../md/index.jsx';
 
 // The main view's tabs. Chat is always first and cannot be closed -- it is
 // the application, and the browse tabs are things opened alongside it.
+//
+// Hand-built rather than md-tabs, and staying that way. Every tab here
+// carries a close control, which md-tabs does not expect: it owns activation
+// and treats its tabs as single targets, so an interactive child fights it.
+// A close-per-tab is worth more than the component would give back, and this
+// is already built to the M3 primary-tab spec -- 48dp, label-large, an inset
+// 3dp indicator -- on the same tokens everything else uses.
 
 export default function TabBar({ tabs, activeId, onSelect, onClose }) {
   return (
