@@ -87,6 +87,15 @@ scripts/
 - **An absent field is not a null field.** The table renders absent as an empty
   hatched cell and null as `null`. Presence is tested with `Object.hasOwn`, not
   truthiness — a field holding `0`, `""` or `false` is present.
+- **Tool calls are kept per turn, not per message.** The transcript stores an
+  array of them with full arguments; results are clipped to 4,000 characters
+  before they leave the server, because twenty uncapped results a turn would
+  make transcripts megabytes against a 16MB document limit. The whole result
+  is always in `logs/orbit.log`.
+- **Connection context is inferred, not declared.** The MCP server holds the
+  connection state and does not report it, so the header reads it off the tool
+  calls going past. It only ever adds: a call with no `database` argument does
+  not mean the database was cleared.
 - **Paging uses `skip`.** Fine at these depths, expensive thousands of documents
   in. A range query is the fix if that ever matters.
 

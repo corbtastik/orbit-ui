@@ -23,6 +23,53 @@ const MODEL = process.env.CLAUDE_MODEL ?? "claude-opus-5";
 // still terminating a genuine loop.
 const MAX_ITERATIONS = Number(process.env.ORBIT_MAX_ITERATIONS ?? 30);
 
+// How much of a tool result travels to the browser, and from there into the
+// stored conversation. A single call can return tens of kilobytes; twenty of
+// them per turn would make transcripts megabytes each, against a 16MB
+// document limit. The full text is always in logs/orbit.log -- this is the
+// copy that has to be affordable to keep.
+const MAX_OUTPUT_CHARS = 4000;
+
+/**
+ * What the conversation is currently pointed at, read off the tool traffic.
+ *
+ * There is nothing to ask: the MCP server holds the connection state and does
+ * not report it, and the model chooses a cluster by calling `connect` and a
+ * database by naming one in an argument. So context is inferred from what
+ * actually went over the wire, which has the advantage of being what happened
+ * rather than what was intended.
+ *
+ * Only ever adds. A call that names a database does not mean the cluster
+ * changed, and a `find` with no database argument does not mean there is no
+ * database -- absence of an argument is not a change of context.
+ */
+function readContext(previous, toolName, input) {
+  const next = { ...previous };
+  const args = input ?? {};
+
+  // `connect` is the one that changes cluster, and the argument it uses has
+  // been both `name` and `connection` across OrbitAI versions.
+  if (toolName === "connect") {
+    const target = args.name ?? args.connection ?? args.connectionString;
+    if (typeof target === "string" && target) next.connection = target;
+  }
+  if (typeof args.connection === "string" && args.connection) next.connection = args.connection;
+
+  if (typeof args.database === "string" && args.database) next.database = args.database;
+  if (typeof args.collection === "string" && args.collection) next.collection = args.collection;
+
+  // Atlas tools carry the project as a path parameter rather than an argument.
+  const groupId = args.params?.groupId;
+  if (typeof groupId === "string" && groupId) next.groupId = groupId;
+
+  return next;
+}
+
+const clip = (text) =>
+  text.length <= MAX_OUTPUT_CHARS
+    ? { text, truncated: false }
+    : { text: text.slice(0, MAX_OUTPUT_CHARS), truncated: true, fullLength: text.length };
+
 /**
  * Yields the same events as every other transport -- token, retrieval, done --
  * so the hook above does not know a tool loop happened.
@@ -43,6 +90,10 @@ export async function* streamChat({ messages, signal, conversationId = "default"
   }
 
   const history = messages.map((m) => ({ role: m.role, content: m.text }));
+
+  // Accumulated across the whole turn, not reset per round: a cluster chosen
+  // in round two is still the cluster in round nineteen.
+  let context = {};
 
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
     log(`[${conversationId}] model call #${iteration + 1} starting (aborted=${signal?.aborted})`);
@@ -102,16 +153,35 @@ export async function* streamChat({ messages, signal, conversationId = "default"
     // making parallel calls.
     const results = [];
     for (const use of toolUses) {
+      // Two events per call: one when it starts, one when it finishes.
+      //
+      // The start event is what the activity bar reacts to -- a call that runs
+      // for eight seconds has to be visible while it runs, not only once it
+      // is over. The result event carries the output and is matched back by
+      // id, because parallel calls finish out of order.
+      //
+      // Arguments go in whole. They were truncated to 200 characters, which
+      // cuts an aggregation pipeline or a find filter off mid-token, and the
+      // argument is the half that says what the model actually asked for.
       yield {
         type: "retrieval",
         retrieval: {
+          id: use.id,
           tool: use.name,
           mode: "mcp",
           index: mcpUrl(),
-          query: JSON.stringify(use.input ?? {}).slice(0, 200),
-          count: null,
+          input: use.input ?? {},
+          round: iteration + 1,
         },
       };
+
+      const before = context;
+      context = readContext(context, use.name, use.input);
+      // Only on a change. Re-announcing the same cluster twenty times would
+      // make the header flicker through identical states.
+      if (JSON.stringify(before) !== JSON.stringify(context)) {
+        yield { type: "context", context };
+      }
 
       const started = Date.now();
       try {
@@ -124,6 +194,16 @@ export async function* streamChat({ messages, signal, conversationId = "default"
             `${isError ? "ERROR " : ""}${text.length}b in ${Date.now() - started}ms` +
             (isError ? `: ${text.slice(0, 200)}` : "")
         );
+        yield {
+          type: "retrieval_result",
+          result: {
+            id: use.id,
+            ...clip(text),
+            isError,
+            ms: Date.now() - started,
+          },
+        };
+
         results.push({
           type: "tool_result",
           tool_use_id: use.id,
@@ -142,6 +222,21 @@ export async function* streamChat({ messages, signal, conversationId = "default"
           `[${conversationId}] #${iteration + 1} ${use.name} THREW after ` +
             `${Date.now() - started}ms: ${err?.message ?? err}`
         );
+        // A thrown call is reported to the transcript the same as a returned
+        // error. Previously it reached the model and the log but nothing on
+        // screen, so an answer built on three failed calls looked no
+        // different from one built on three good ones.
+        yield {
+          type: "retrieval_result",
+          result: {
+            id: use.id,
+            text: `tool failed: ${err?.message ?? err}`,
+            truncated: false,
+            isError: true,
+            ms: Date.now() - started,
+          },
+        };
+
         results.push({
           type: "tool_result",
           tool_use_id: use.id,

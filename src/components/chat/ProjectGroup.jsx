@@ -14,6 +14,7 @@ export default function ProjectGroup({
   onDelete,
   onMove,
   onTogglePin,
+  onRename,
   projects,
   isDefault,
 }) {
@@ -57,6 +58,7 @@ export default function ProjectGroup({
                 onDelete={onDelete}
                 onMove={onMove}
                 onTogglePin={onTogglePin}
+                onRename={onRename}
                 projects={projects}
               />
             ))

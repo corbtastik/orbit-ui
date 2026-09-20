@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useChatStream } from './hooks/useChatStream.js';
+import { useHotkeys } from './hooks/useHotkeys.js';
 
 import MessageList from './components/chat/MessageList.jsx';
 import Composer from './components/chat/Composer.jsx';
@@ -11,6 +12,7 @@ import SidebarResizer, {
   SIDEBAR_DEFAULT,
   clampSidebarWidth,
 } from './components/chat/SidebarResizer.jsx';
+import ConnectionContext from './components/chat/ConnectionContext.jsx';
 import TabBar from './components/browse/TabBar.jsx';
 import CollectionsTable from './components/browse/CollectionsTable.jsx';
 import DocumentsView from './components/browse/DocumentsView.jsx';
@@ -70,8 +72,12 @@ export default function App() {
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState('chat');
   const scrollRef = useRef(null);
+  const searchInputRef = useRef(null);
+  // Where each conversation was last read, so switching away and back does
+  // not dump you at the bottom of a transcript you were part-way through.
+  const scrollMemory = useRef(new Map());
 
-  const { messages, isStreaming, error, activity, send, stop, reset } = useChatStream({
+  const { messages, isStreaming, error, activity, context, send, stop, reset } = useChatStream({
     provider,
     conversationId: activeId ?? undefined,
   });
@@ -123,12 +129,30 @@ export default function App() {
   };
 
   const handleSelect = async (id) => {
+    if (id === activeId) return;
+
+    // Remember where we were before the transcript is replaced.
+    if (activeId && scrollRef.current) {
+      scrollMemory.current.set(activeId, scrollRef.current.scrollTop);
+    }
+
     setActiveId(id);
-    setPinned(true);
     reset([]);
     try {
       const conversation = await chatApi.getConversation(id);
       reset(conversation.messages ?? []);
+
+      // Restore after the transcript has rendered. A conversation never
+      // opened before has no remembered position and starts at the end,
+      // which is where a chat is normally resumed.
+      const previous = scrollMemory.current.get(id);
+      requestAnimationFrame(() => {
+        const el = scrollRef.current;
+        if (!el) return;
+        el.scrollTop = previous ?? el.scrollHeight;
+        const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
+        setPinned(distance < 48);
+      });
     } catch (err) {
       setLoadError(err.message);
     }
@@ -191,6 +215,15 @@ export default function App() {
     }
   };
 
+  const handleRenameChat = async (id, title) => {
+    try {
+      const updated = await chatApi.updateConversation(id, { title });
+      setConversations((prev) => prev.map((c) => (c.id === id ? { ...c, ...updated } : c)));
+    } catch (err) {
+      setLoadError(err.message);
+    }
+  };
+
   const handleCreateProject = async (name) => {
     try {
       const project = await chatApi.createProject(name);
@@ -213,6 +246,19 @@ export default function App() {
     setTabs((prev) => prev.filter((t) => t.id !== id));
     setActiveTab((current) => (current === id ? 'chat' : current));
   }, []);
+
+  // The shortcuts people reach for without being told. Declared after the
+  // handlers they call -- these are const arrow functions, so referencing one
+  // earlier is a temporal dead zone error at render, not a hoisted no-op.
+  useHotkeys({
+    'mod+k': () => {
+      setSidebarCollapsed(false);
+      // focus() on a Material field forwards into its shadow input.
+      searchInputRef.current?.focus?.();
+    },
+    'mod+shift+o': () => handleNewChat(null),
+    'mod+/': () => setSidebarCollapsed((v) => !v),
+  });
 
   const handleSubmit = async (text) => {
     setDraft('');
@@ -274,6 +320,7 @@ export default function App() {
         conversations={conversations}
         activeId={activeId}
         collapsed={sidebarCollapsed}
+        searchInputRef={searchInputRef}
         onToggleCollapsed={() => setSidebarCollapsed((v) => !v)}
         onSelect={handleSelect}
         onNewChat={handleNewChat}
@@ -281,6 +328,7 @@ export default function App() {
         onDelete={handleDeleteChat}
         onMove={handleMoveChat}
         onTogglePin={handleTogglePin}
+        onRename={handleRenameChat}
         onOpenTab={openTab}
         width={sidebarWidth}
       />
@@ -308,10 +356,7 @@ export default function App() {
           </p>
         </div>
         <div className="chat__header-controls">
-          <div className="chat__context" title="What the assistant can reach">
-            <span className="chat__context-dot" />
-            Atlas admin · cluster data
-          </div>
+          <ConnectionContext context={context} />
           <ProviderSelector value={provider} onChange={setProvider} />
         </div>
       </header>

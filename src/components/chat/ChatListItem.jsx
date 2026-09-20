@@ -10,6 +10,7 @@ import {
   MdDialog,
   MdTextButton,
   MdDivider,
+  MdFilledTextField,
 } from '../md/index.jsx';
 
 // One conversation in the drawer, as an M3 list item.
@@ -17,10 +18,12 @@ import {
 // The item carries the select action; the move and delete controls sit in its
 // `end` slot. They cannot be nested inside the item's own button, so the row
 // is a list item with interactive children rather than a single control.
-export default function ChatListItem({ conversation, active, onSelect, onDelete, onMove, onTogglePin, projects = [] }) {
+export default function ChatListItem({ conversation, active, onSelect, onDelete, onMove, onTogglePin, onRename, projects = [] }) {
   const { id, title, updatedAt, provider, projectId, pinnedAt } = conversation;
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [renaming, setRenaming] = useState(false);
+  const [draft, setDraft] = useState(title);
 
   // md-menu anchors by element id, so each row needs one of its own -- two
   // rows sharing an anchor id would open every menu against the first.
@@ -65,6 +68,12 @@ export default function ChatListItem({ conversation, active, onSelect, onDelete,
                 open={menuOpen}
                 onClosed={() => setMenuOpen(false)}
               >
+                {onRename && (
+                  <MdMenuItem onClick={() => { setDraft(title); setRenaming(true); }}>
+                    <Icon slot="start" name="edit" size={20} />
+                    <span slot="headline">Rename</span>
+                  </MdMenuItem>
+                )}
                 {onTogglePin && (
                   <>
                     <MdMenuItem onClick={() => onTogglePin(id, !pinnedAt)}>
@@ -103,6 +112,30 @@ export default function ChatListItem({ conversation, active, onSelect, onDelete,
           </MdIconButton>
         </span>
       </MdListItem>
+
+      {/* PATCH has accepted a title since the first commit; there was simply
+          no way to reach it, so a chat named after its opening "hey" stayed
+          that way forever. */}
+      <MdDialog open={renaming} onClosed={() => setRenaming(false)}>
+        <div slot="headline">Rename chat</div>
+        <form slot="content" id="rename-form" method="dialog" onSubmit={(e) => {
+          e.preventDefault();
+          const next = draft.trim();
+          setRenaming(false);
+          if (next && next !== title) onRename(id, next);
+        }}>
+          <MdFilledTextField
+            className="chat-side__rename-input"
+            label="Title"
+            value={draft}
+            onInput={(e) => setDraft(e.target.value)}
+          />
+        </form>
+        <div slot="actions">
+          <MdTextButton onClick={() => setRenaming(false)}>Cancel</MdTextButton>
+          <MdTextButton type="submit" form="rename-form">Save</MdTextButton>
+        </div>
+      </MdDialog>
 
       {/* Deleting a conversation is not recoverable, so it asks. This used to
           be the row swapping its own text to "Delete this chat?" -- compact,

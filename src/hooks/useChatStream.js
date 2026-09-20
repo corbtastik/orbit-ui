@@ -29,6 +29,10 @@ export function useChatStream({ provider, transport, conversationId, initialMess
   // UI shows a bare caret the whole time, and a working run is indistinguishable
   // from a dead one -- which is exactly how this went undiagnosed.
   const [activity, setActivity] = useState(null);
+  // Where the conversation is pointed, read off the tool traffic by the
+  // server. Survives the turn it was learned in, because the MCP session it
+  // describes does too.
+  const [context, setContext] = useState({});
   const abortRef = useRef(null);
 
   const patchLast = useCallback((patch) => {
@@ -95,12 +99,30 @@ export function useChatStream({ provider, transport, conversationId, initialMess
         signal: controller.signal,
       })) {
         switch (event.type) {
+          // Appended, not replaced. This used to assign a single `retrieval`
+          // field, so a turn that ran twenty tool calls kept the last one and
+          // threw the other nineteen away -- in an app whose whole purpose is
+          // tool-calling, that was the record of what it did.
           case 'retrieval':
-            track({ retrieval: event.retrieval });
+            track((last) => ({
+              ...last,
+              retrievals: [...(last.retrievals ?? []), event.retrieval],
+            }));
             setActivity((a) => ({
               label: event.retrieval?.tool ?? 'working',
               startedAt: a?.startedAt ?? Date.now(),
               calls: (a?.calls ?? 0) + 1,
+            }));
+            break;
+
+          // Matched back by id rather than by position: parallel calls in one
+          // round finish out of order.
+          case 'retrieval_result':
+            track((last) => ({
+              ...last,
+              retrievals: (last.retrievals ?? []).map((r) =>
+                r.id === event.result?.id ? { ...r, result: event.result } : r
+              ),
             }));
             break;
           case 'token':
@@ -111,6 +133,10 @@ export function useChatStream({ provider, transport, conversationId, initialMess
             // string instead of rebuilding the turn on every token.
             track((last) => ({ ...last, text: last.text + event.text }));
             break;
+          case 'context':
+            setContext((prev) => ({ ...prev, ...event.context }));
+            break;
+
           case 'done':
             track({ streaming: false, model: event.model });
             break;
@@ -143,7 +169,10 @@ export function useChatStream({ provider, transport, conversationId, initialMess
     abortRef.current?.abort();
     setMessages(next);
     setError(null);
+    // A different conversation is a different MCP session, so what the last
+    // one was pointed at says nothing about this one.
+    setContext({});
   }, []);
 
-  return { messages, isStreaming, error, activity, send, stop, reset };
+  return { messages, isStreaming, error, activity, context, send, stop, reset };
 }

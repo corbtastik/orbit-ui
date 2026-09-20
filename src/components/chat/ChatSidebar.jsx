@@ -14,9 +14,11 @@ import { MdFilledTonalButton, MdIconButton, MdList } from '../md/index.jsx';
 const DEFAULT_GROUP = { id: DEFAULT_PROJECT, name: 'default' };
 
 export default function ChatSidebar({
+  searchInputRef,
   projects,
   conversations,
   onTogglePin,
+  onRename,
   activeId,
   collapsed,
   onToggleCollapsed,
@@ -131,6 +133,7 @@ export default function ChatSidebar({
                   onDelete={onDelete}
                   onMove={onMove}
                   onTogglePin={onTogglePin}
+                  onRename={onRename}
                   projects={projects}
                 />
               ))}
@@ -151,6 +154,7 @@ export default function ChatSidebar({
         </div>
 
         <ChatSearch
+          inputRef={searchInputRef}
           query={searchQuery}
           onQueryChange={setSearchQuery}
           activeId={activeId}
@@ -172,7 +176,14 @@ export default function ChatSidebar({
           />
         )}
 
-        {!isSearching(searchQuery) && [DEFAULT_GROUP, ...projects].map((p) => (
+        {!isSearching(searchQuery) && conversations.length === 0 && (
+          <p className="chat-side__empty-group">
+            No chats yet. Ask something to start one.
+          </p>
+        )}
+
+        {!isSearching(searchQuery) && conversations.length > 0 &&
+          [DEFAULT_GROUP, ...projects].map((p) => (
           <ProjectGroup
             key={p.id}
             project={p}
@@ -186,6 +197,7 @@ export default function ChatSidebar({
             onDelete={onDelete}
             onMove={onMove}
             onTogglePin={onTogglePin}
+            onRename={onRename}
             projects={projects}
           />
         ))}
