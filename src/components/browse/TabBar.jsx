@@ -1,4 +1,5 @@
 import React from 'react';
+import Icon from '../brand/Icon.jsx';
 
 // The main view's tabs. Chat is always first and cannot be closed -- it is
 // the application, and the browse tabs are things opened alongside it.
@@ -29,7 +30,7 @@ export default function TabBar({ tabs, activeId, onSelect, onClose }) {
             onClick={() => onSelect(tab.id)}
             title={tab.kind === 'collection' ? `${tab.db}.${tab.coll}` : tab.db}
           >
-            <span className="tabbar__kind">{tab.kind === 'collection' ? '▤' : '▣'}</span>
+            <Icon name={tab.kind === 'collection' ? 'folder' : 'database'} size={18} />
             {tab.kind === 'collection' ? tab.coll : tab.db}
           </button>
           <button
@@ -39,7 +40,7 @@ export default function TabBar({ tabs, activeId, onSelect, onClose }) {
             title="Close tab"
             aria-label={`Close ${tab.kind === 'collection' ? tab.coll : tab.db}`}
           >
-            ✕
+            <Icon name="close" size={18} />
           </button>
         </span>
       ))}

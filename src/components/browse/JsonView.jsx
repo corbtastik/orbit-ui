@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Icon from '../brand/Icon.jsx';
 
 // A collapsible Extended JSON viewer.
 //
@@ -71,7 +72,7 @@ function Node({ name, value, depth, isLast, openDepth }) {
           aria-expanded="false"
           aria-label="Expand"
         >
-          ▸
+          <Icon name="chevron_right" size={16} />
         </button>
         {label}
         <span className="json__punct">{openBrace}</span>
@@ -98,7 +99,7 @@ function Node({ name, value, depth, isLast, openDepth }) {
           aria-expanded="true"
           aria-label="Collapse"
         >
-          ▸
+          <Icon name="chevron_right" size={16} className="icon--rotated" />
         </button>
         {label}
         <span className="json__punct">{openBrace}</span>

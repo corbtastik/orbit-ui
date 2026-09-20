@@ -1,6 +1,9 @@
 /* ============================================================
    Material 3, on the Star Lord palette — global entry point.
    Consumers link THIS file. Import order only; no rules here.
+
+   colors.css is generated -- see scripts/build-theme.mjs.
+   Everything else is hand-written.
    ============================================================ */
 
 @import url("tokens/fonts.css");
@@ -10,3 +13,4 @@
 @import url("tokens/elevation.css");
 @import url("tokens/motion.css");
 @import url("tokens/spacing.css");
+@import url("tokens/syntax.css");

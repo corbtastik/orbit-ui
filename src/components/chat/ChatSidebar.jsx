@@ -3,6 +3,7 @@ import ProjectGroup from './ProjectGroup.jsx';
 import ClusterTree from './ClusterTree.jsx';
 import OrbitLogo from '../brand/OrbitLogo.jsx';
 import { DEFAULT_PROJECT } from './conversations.js';
+import Icon from '../brand/Icon.jsx';
 
 // Always present, never created and never deletable. New chats land here when
 // no project was chosen, so the sidebar is never a blank panel with nowhere
@@ -67,7 +68,7 @@ export default function ChatSidebar({
           title="Show chats"
           aria-label="Show chats"
         >
-          ☰
+          <Icon name="menu" size={24} />
         </button>
       </aside>
     );
@@ -91,7 +92,7 @@ export default function ChatSidebar({
           title="Hide chats"
           aria-label="Hide chats"
         >
-          ⟨
+          <Icon name="left_panel_close" size={24} />
         </button>
       </div>
 

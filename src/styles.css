@@ -18,86 +18,86 @@
 
 :root {
   /* ---- surfaces ---- */
-  --bg:      var(--md-surface);
-  --panel:   var(--md-surface-container);
-  --panel-2: var(--md-surface-container-high);
-  --fg:      var(--md-on-surface);
-  --muted:   var(--md-on-surface-variant);
-  --border:  var(--md-outline-variant);
+  --bg:      var(--md-sys-color-surface);
+  --panel:   var(--md-sys-color-surface-container);
+  --panel-2: var(--md-sys-color-surface-container-high);
+  --fg:      var(--md-sys-color-on-surface);
+  --muted:   var(--md-sys-color-on-surface-variant);
+  --border:  var(--md-sys-color-outline-variant);
 
   /* ---- primary ---- */
-  --accent:       var(--md-primary);
-  --accent-fg:    var(--md-on-primary);
-  --accent-hover: var(--md-primary);
+  --accent:       var(--md-sys-color-primary);
+  --accent-fg:    var(--md-sys-color-on-primary);
+  --accent-hover: var(--md-sys-color-primary);
   /* The tinted fill under a selected item. M3 uses a container
      tone for this, not a transparency over the page. */
-  --accent-soft:  var(--md-primary-container);
+  --accent-soft:  var(--md-sys-color-primary-container);
 
   /* ---- status ---- */
-  --danger:  var(--md-error);
+  --danger:  var(--md-sys-color-error);
   --warning: var(--sl-sh-string);
-  --info:    var(--md-secondary);
-  --ai:      var(--md-tertiary);
-  --success: var(--md-secondary);
+  --info:    var(--md-sys-color-secondary);
+  --ai:      var(--md-sys-color-tertiary);
+  --success: var(--md-sys-color-secondary);
 
   /* ---- rows ---- */
-  --row-bg: color-mix(in srgb, var(--md-on-surface) calc(var(--md-state-hover) * 100%), transparent);
-  --row-fg: var(--md-on-surface-variant);
+  --row-bg: color-mix(in srgb, var(--md-sys-color-on-surface) calc(var(--md-sys-state-hover-state-layer-opacity) * 100%), transparent);
+  --row-fg: var(--md-sys-color-on-surface-variant);
 
   /* Washes are state layers now: a percentage of the content
      colour, which is how M3 specifies every hover and press in
      the system. See .md-state below. */
-  --wash:         color-mix(in srgb, var(--md-on-surface) calc(var(--md-state-hover) * 100%), transparent);
-  --wash-hover:   color-mix(in srgb, var(--md-on-surface) calc(var(--md-state-pressed) * 100%), transparent);
-  --sunken:       var(--md-surface-container-lowest);
-  --sunken-hover: var(--md-surface-container-low);
+  --wash:         color-mix(in srgb, var(--md-sys-color-on-surface) calc(var(--md-sys-state-hover-state-layer-opacity) * 100%), transparent);
+  --wash-hover:   color-mix(in srgb, var(--md-sys-color-on-surface) calc(var(--md-sys-state-pressed-state-layer-opacity) * 100%), transparent);
+  --sunken:       var(--md-sys-color-surface-container-lowest);
+  --sunken-hover: var(--md-sys-color-surface-container-low);
 
   /* ---- shape ----
      M3 radii, considerably larger than the three this app had.
      A control is fully rounded; a surface is 12; a card that
      holds other cards is 16. */
-  --radius-control: var(--md-corner-full);
-  --radius-surface: var(--md-corner-medium);
-  --radius-card:    var(--md-corner-large);
-  --radius-sm:      var(--md-corner-extra-small);
-  --radius-pill:    var(--md-corner-full);
+  --radius-control: var(--md-sys-shape-corner-full);
+  --radius-surface: var(--md-sys-shape-corner-medium);
+  --radius-card:    var(--md-sys-shape-corner-large);
+  --radius-sm:      var(--md-sys-shape-corner-extra-small);
+  --radius-pill:    var(--md-sys-shape-corner-full);
   --radius-circle:  50%;
 
   /* ---- elevation ---- */
-  --elev-1: var(--md-elevation-1);
-  --elev-2: var(--md-elevation-2);
-  --elev-3: var(--md-elevation-3);
+  --elev-1: var(--md-sys-elevation-level1);
+  --elev-2: var(--md-sys-elevation-level2);
+  --elev-3: var(--md-sys-elevation-level3);
 
   /* ---- motion ---- */
-  --motion: var(--md-duration-short-4) var(--md-easing-standard);
+  --motion: var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 
   /* ---- type ----
      Mapped onto M3 roles rather than onto a px ladder. The
      names are the ones the component rules already use; the
      values are M3's. Tracking travels with them through the
      .md-* classes in typography.css and the rules below.  */
-  --fs-h2:     var(--md-headline-small-size);
-  --fs-h3:     var(--md-title-large-size);
-  --fs-body-l: var(--md-body-large-size);
-  --fs-body:   var(--md-body-large-size);
-  --fs-body-s: var(--md-body-medium-size);
-  --fs-code:   var(--md-body-medium-size);
-  --fs-caption: var(--md-body-small-size);
-  --fs-micro:  var(--md-label-small-size);
+  --fs-h2:     var(--md-sys-typescale-headline-small-size);
+  --fs-h3:     var(--md-sys-typescale-title-large-size);
+  --fs-body-l: var(--md-sys-typescale-body-large-size);
+  --fs-body:   var(--md-sys-typescale-body-large-size);
+  --fs-body-s: var(--md-sys-typescale-body-medium-size);
+  --fs-code:   var(--md-sys-typescale-body-medium-size);
+  --fs-caption: var(--md-sys-typescale-body-small-size);
+  --fs-micro:  var(--md-sys-typescale-label-small-size);
 
-  --fw-regular:  var(--md-weight-regular);
-  --fw-medium:   var(--md-weight-medium);
-  --fw-semibold: var(--md-weight-medium);   /* M3 tops out at medium for UI */
-  --fw-bold:     var(--md-weight-bold);
+  --fw-regular:  var(--md-sys-typescale-weight-regular);
+  --fw-medium:   var(--md-sys-typescale-weight-medium);
+  --fw-semibold: var(--md-sys-typescale-weight-medium);   /* M3 tops out at medium for UI */
+  --fw-bold:     var(--md-sys-typescale-weight-bold);
 
   --lh-snug: 1.35;
   --lh-body: 1.5;
   --ls-normal: 0;
-  --ls-wide: var(--md-label-medium-track);
+  --ls-wide: var(--md-sys-typescale-label-medium-tracking);
 
   /* ---- code ---- */
-  --code-surface: var(--md-surface-container-low);
-  --code-edge:    var(--md-outline-variant);
+  --code-surface: var(--md-sys-color-surface-container-low);
+  --code-edge:    var(--md-sys-color-outline-variant);
   --code-fg:      var(--sl-sh-variable);
   --code-key:     var(--sl-sh-keyword);
   --code-string:  var(--sl-sh-string);
@@ -105,7 +105,7 @@
   --code-boolean: var(--sl-sh-function);
   --code-null:    var(--sl-sh-comment);
 
-  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--md-secondary) 55%, transparent);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--md-sys-color-secondary) 55%, transparent);
 }
 
 /* ============================================================
@@ -131,17 +131,17 @@
   background: currentColor;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--md-duration-short-2) var(--md-easing-standard);
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
-.md-state:hover::after   { opacity: var(--md-state-hover); }
-.md-state:focus-visible::after { opacity: var(--md-state-focus); }
-.md-state:active::after  { opacity: var(--md-state-pressed); }
+.md-state:hover::after   { opacity: var(--md-sys-state-hover-state-layer-opacity); }
+.md-state:focus-visible::after { opacity: var(--md-sys-state-focus-state-layer-opacity); }
+.md-state:active::after  { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
 .md-state:disabled::after { opacity: 0; }
 
 /* M3 disables by opacity on the content, not by greying it. */
 :where(button, [role="tab"]):disabled {
-  opacity: var(--md-state-disabled-content);
+  opacity: var(--md-sys-state-disabled-content-opacity);
   cursor: not-allowed;
 }
 
@@ -149,7 +149,7 @@
    for keyboard focus. Zero-specificity so anything with its
    own focus treatment wins. */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid var(--md-secondary);
+  outline: 2px solid var(--md-sys-color-secondary);
   outline-offset: 2px;
   box-shadow: none;
 }
@@ -157,21 +157,57 @@
 html, body, #root { height: 100%; }
 
 body {
-  background: var(--md-surface);
-  color: var(--md-on-surface);
-  font-family: var(--md-font-plain);
-  font-size: var(--md-body-medium-size);
-  line-height: var(--md-body-medium-line);
-  letter-spacing: var(--md-body-medium-track);
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--md-ref-typeface-plain);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  line-height: var(--md-sys-typescale-body-medium-line-height);
+  letter-spacing: var(--md-sys-typescale-body-medium-tracking);
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--md-font-brand);
-  font-weight: var(--md-weight-regular);
+  font-family: var(--md-ref-typeface-brand);
+  font-weight: var(--md-sys-typescale-weight-regular);
   letter-spacing: 0;
 }
 
 button, input, select, textarea { font-family: inherit; }
+
+
+/* --- Material Symbols ----------------------------------------------------- */
+
+/* The icon font renders a ligature: the element's text content is the icon's
+   name. Until the font loads that name is literal text, so `display: block`
+   in the font request keeps it invisible rather than flashing the word
+   "chevron_right" across the sidebar. */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.icon {
+  flex: 0 0 auto;
+  /* Optically centred with adjacent text rather than sitting on the
+     baseline, which is where an icon font otherwise lands. */
+  vertical-align: middle;
+  color: inherit;
+  transition: transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+}
+
+/* A caret that rotates instead of swapping glyph: the rotation reads as the
+   same object turning, which is what an expand control should look like. */
+.icon--rotated { transform: rotate(90deg); }
 
 
 /* --- OrbitAI mark -------------------------------------------------------- */
@@ -263,9 +299,9 @@ button, input, select, textarea { font-family: inherit; }
 .pipeline-step {
   display: flex;
   align-items: stretch;
-  background: var(--md-surface-container-high);
-  border: 1px solid var(--md-outline-variant);
-  border-radius: var(--md-corner-medium);
+  background: var(--md-sys-color-surface-container-high);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
   min-width: 180px;
   overflow: hidden;
 }
@@ -310,14 +346,14 @@ button, input, select, textarea { font-family: inherit; }
    changes untouched. It is a secondary-container chip now. */
 .pipeline-token {
   display: inline-block;
-  background: var(--md-secondary-container);
+  background: var(--md-sys-color-secondary-container);
   border: 0;
-  border-radius: var(--md-corner-small);
-  padding: 2px var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-small);
+  padding: 2px var(--space-2);
   margin: 2px;
-  font-size: var(--md-label-small-size);
-  letter-spacing: var(--md-label-small-track);
-  color: var(--md-on-secondary-container);
+  font-size: var(--md-sys-typescale-label-small-size);
+  letter-spacing: var(--md-sys-typescale-label-small-tracking);
+  color: var(--md-sys-color-on-secondary-container);
 }
 
 .pipeline-arrow {
@@ -352,18 +388,18 @@ button, input, select, textarea { font-family: inherit; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--md-space-4);
+  gap: var(--space-4);
   min-height: 64px;
-  padding: var(--md-space-2) var(--md-space-4) var(--md-space-2) var(--md-space-6);
-  background: var(--md-surface);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-6);
+  background: var(--md-sys-color-surface);
 }
 
 .chat__header h1 {
-  font-size: var(--md-title-large-size);
-  line-height: var(--md-title-large-line);
-  letter-spacing: var(--md-title-large-track);
-  font-weight: var(--md-weight-regular);
-  color: var(--md-on-surface);
+  font-size: var(--md-sys-typescale-title-large-size);
+  line-height: var(--md-sys-typescale-title-large-line-height);
+  letter-spacing: var(--md-sys-typescale-title-large-tracking);
+  font-weight: var(--md-sys-typescale-weight-regular);
+  color: var(--md-sys-color-on-surface);
   margin: 0;
 }
 
@@ -377,16 +413,16 @@ button, input, select, textarea { font-family: inherit; }
 .chat__context {
   display: flex;
   align-items: center;
-  gap: var(--md-space-2);
-  min-height: var(--md-chip-height);
-  padding: 0 var(--md-space-4);
-  border: 1px solid var(--md-outline);
-  border-radius: var(--md-corner-small);
-  font-size: var(--md-label-large-size);
-  line-height: var(--md-label-large-line);
-  letter-spacing: var(--md-label-large-track);
-  font-weight: var(--md-weight-medium);
-  color: var(--md-on-surface-variant);
+  gap: var(--space-2);
+  min-height: var(--metric-chip-height);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-small);
+  font-size: var(--md-sys-typescale-label-large-size);
+  line-height: var(--md-sys-typescale-label-large-line-height);
+  letter-spacing: var(--md-sys-typescale-label-large-tracking);
+  font-weight: var(--md-sys-typescale-weight-medium);
+  color: var(--md-sys-color-on-surface-variant);
   white-space: nowrap;
 }
 
@@ -486,14 +522,7 @@ button, input, select, textarea { font-family: inherit; }
 
 .chat-retrieval__summary:hover { color: var(--fg); }
 
-.chat-retrieval__caret {
-  transition: transform var(--motion);
-  font-size: var(--fs-micro);
-}
-
-.chat-retrieval--open .chat-retrieval__caret { transform: rotate(90deg); }
-
-.chat-retrieval__tool {
+.chat-retrieval--open .chat-retrieval__tool {
   font-family: var(--font-accent);
   color: var(--accent);
 }
@@ -523,16 +552,16 @@ button, input, select, textarea { font-family: inherit; }
   display: inline-flex;
   align-items: baseline;
   gap: 8px;
-  min-height: var(--md-chip-height);
-  padding: 0 var(--md-space-4);
-  border: 1px solid var(--md-outline);
-  border-radius: var(--md-corner-small);
+  min-height: var(--metric-chip-height);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-small);
   background: transparent;
-  color: var(--md-on-surface-variant);
-  font-size: var(--md-label-large-size);
-  line-height: var(--md-label-large-line);
-  letter-spacing: var(--md-label-large-track);
-  font-weight: var(--md-weight-medium);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-label-large-size);
+  line-height: var(--md-sys-typescale-label-large-line-height);
+  letter-spacing: var(--md-sys-typescale-label-large-tracking);
+  font-weight: var(--md-sys-typescale-weight-medium);
   cursor: pointer;
   transition: border-color var(--motion), background var(--motion);
 }
@@ -584,14 +613,14 @@ button, input, select, textarea { font-family: inherit; }
 .chat__examples button {
   position: relative;
   width: 100%;
-  padding: var(--md-space-4);
-  border: 1px solid var(--md-outline-variant);
-  border-radius: var(--md-corner-medium);
+  padding: var(--space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
   background: transparent;
-  color: var(--md-on-surface);
-  font-size: var(--md-body-medium-size);
-  line-height: var(--md-body-medium-line);
-  letter-spacing: var(--md-body-medium-track);
+  color: var(--md-sys-color-on-surface);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  line-height: var(--md-sys-typescale-body-medium-line-height);
+  letter-spacing: var(--md-sys-typescale-body-medium-tracking);
   text-align: left;
   cursor: pointer;
   overflow: hidden;
@@ -605,13 +634,13 @@ button, input, select, textarea { font-family: inherit; }
   background: currentColor;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--md-duration-short-2) var(--md-easing-standard);
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
-.chat__examples button:hover::after  { opacity: var(--md-state-hover); }
-.chat__examples button:active::after { opacity: var(--md-state-pressed); }
+.chat__examples button:hover::after  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
+.chat__examples button:active::after { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
 
-.chat__examples button:hover { border-color: var(--md-outline); }
+.chat__examples button:hover { border-color: var(--md-sys-color-outline); }
 
 /* --- composer --------------------------------------------------------- */
 
@@ -638,29 +667,29 @@ button, input, select, textarea { font-family: inherit; }
 .chat__input {
   flex: 1 1 auto;
   resize: none;
-  min-height: var(--md-text-field-height);
-  padding: var(--md-space-4) var(--md-space-4);
+  min-height: var(--metric-text-field-height);
+  padding: var(--space-4) var(--space-4);
   border: 0;
-  border-bottom: 1px solid var(--md-outline);
-  border-radius: var(--md-corner-extra-small) var(--md-corner-extra-small) 0 0;
-  background: var(--md-surface-container-highest);
-  color: var(--md-on-surface);
+  border-bottom: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-extra-small) var(--md-sys-shape-corner-extra-small) 0 0;
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface);
   font: inherit;
-  font-size: var(--md-body-large-size);
-  line-height: var(--md-body-large-line);
-  letter-spacing: var(--md-body-large-track);
+  font-size: var(--md-sys-typescale-body-large-size);
+  line-height: var(--md-sys-typescale-body-large-line-height);
+  letter-spacing: var(--md-sys-typescale-body-large-tracking);
   max-height: 160px;
   overflow-y: auto;
   transition: border-color var(--motion);
 }
 
-.chat__input::placeholder { color: var(--md-on-surface-variant); }
+.chat__input::placeholder { color: var(--md-sys-color-on-surface-variant); }
 
 .chat__input:focus {
   outline: none;
-  border-bottom: 2px solid var(--md-primary);
+  border-bottom: 2px solid var(--md-sys-color-primary);
   /* The extra border pixel would otherwise shift the text up by one. */
-  padding-bottom: calc(var(--md-space-4) - 1px);
+  padding-bottom: calc(var(--space-4) - 1px);
 }
 
 /* M3 filled button: the one primary action on this screen. */
@@ -670,16 +699,16 @@ button, input, select, textarea { font-family: inherit; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--md-button-height);
-  padding: 0 var(--md-button-padding-x);
+  min-height: var(--metric-button-height);
+  padding: 0 var(--metric-button-padding-x);
   border: 0;
-  border-radius: var(--md-corner-full);
-  background: var(--md-primary);
-  color: var(--md-on-primary);
-  font-size: var(--md-label-large-size);
-  line-height: var(--md-label-large-line);
-  letter-spacing: var(--md-label-large-track);
-  font-weight: var(--md-weight-medium);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  font-size: var(--md-sys-typescale-label-large-size);
+  line-height: var(--md-sys-typescale-label-large-line-height);
+  letter-spacing: var(--md-sys-typescale-label-large-tracking);
+  font-weight: var(--md-sys-typescale-weight-medium);
   cursor: pointer;
   overflow: hidden;
   transition: box-shadow var(--motion);
@@ -692,18 +721,18 @@ button, input, select, textarea { font-family: inherit; }
   background: currentColor;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--md-duration-short-2) var(--md-easing-standard);
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
-.chat__send:hover:not(:disabled)::after  { opacity: var(--md-state-hover); }
-.chat__send:active:not(:disabled)::after { opacity: var(--md-state-pressed); }
-.chat__send:hover:not(:disabled) { box-shadow: var(--md-elevation-1); }
+.chat__send:hover:not(:disabled)::after  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
+.chat__send:active:not(:disabled)::after { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
+.chat__send:hover:not(:disabled) { box-shadow: var(--md-sys-elevation-level1); }
 
 /* M3 disables by flattening the container to 12% and the label to 38% of
    on-surface, rather than by fading the whole button. */
 .chat__send:disabled {
-  background: color-mix(in srgb, var(--md-on-surface) 12%, transparent);
-  color: color-mix(in srgb, var(--md-on-surface) 38%, transparent);
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent);
+  color: color-mix(in srgb, var(--md-sys-color-on-surface) 38%, transparent);
   box-shadow: none;
   opacity: 1;
   cursor: not-allowed;
@@ -712,8 +741,8 @@ button, input, select, textarea { font-family: inherit; }
 /* M3 outlined button -- a secondary action beside a filled one. */
 .chat__send--stop {
   background: transparent;
-  color: var(--md-primary);
-  border: 1px solid var(--md-outline);
+  color: var(--md-sys-color-primary);
+  border: 1px solid var(--md-sys-color-outline);
 }
 
 /* --- provider selection and provenance -------------------------------- */
@@ -834,15 +863,15 @@ button, input, select, textarea { font-family: inherit; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--md-icon-button-size);
-  height: var(--md-icon-button-size);
+  width: var(--metric-icon-button-size);
+  height: var(--metric-icon-button-size);
   padding: 0;
   background: none;
   border: 0;
-  border-radius: var(--md-corner-full);
-  color: var(--md-on-surface-variant);
+  border-radius: var(--md-sys-shape-corner-full);
+  color: var(--md-sys-color-on-surface-variant);
   cursor: pointer;
-  font-size: var(--md-body-large-size);
+  font-size: var(--md-sys-typescale-body-large-size);
   line-height: 1;
   overflow: hidden;
 }
@@ -855,13 +884,13 @@ button, input, select, textarea { font-family: inherit; }
   background: currentColor;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--md-duration-short-2) var(--md-easing-standard);
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
 .chat-side__expand:hover::after,
-.chat-side__collapse:hover::after { opacity: var(--md-state-hover); }
+.chat-side__collapse:hover::after { opacity: var(--md-sys-state-hover-state-layer-opacity); }
 .chat-side__expand:hover,
-.chat-side__collapse:hover { color: var(--md-on-surface); }
+.chat-side__collapse:hover { color: var(--md-sys-color-on-surface); }
 
 /* Top-left of the sidebar: the mark, then the wordmark. */
 .chat-side__brand {
@@ -895,17 +924,17 @@ button, input, select, textarea { font-family: inherit; }
   flex: 1 1 auto;
   display: inline-flex;
   align-items: center;
-  gap: var(--md-space-2);
-  min-height: var(--md-button-height);
-  padding: 0 var(--md-button-padding-x);
+  gap: var(--space-2);
+  min-height: var(--metric-button-height);
+  padding: 0 var(--metric-button-padding-x);
   border: 0;
-  border-radius: var(--md-corner-full);
-  background: var(--md-secondary-container);
-  color: var(--md-on-secondary-container);
-  font-size: var(--md-label-large-size);
-  line-height: var(--md-label-large-line);
-  letter-spacing: var(--md-label-large-track);
-  font-weight: var(--md-weight-medium);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  font-size: var(--md-sys-typescale-label-large-size);
+  line-height: var(--md-sys-typescale-label-large-line-height);
+  letter-spacing: var(--md-sys-typescale-label-large-tracking);
+  font-weight: var(--md-sys-typescale-weight-medium);
   text-align: left;
   cursor: pointer;
   overflow: hidden;
@@ -918,12 +947,12 @@ button, input, select, textarea { font-family: inherit; }
   background: currentColor;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--md-duration-short-2) var(--md-easing-standard);
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
-.chat-side__new:hover::after  { opacity: var(--md-state-hover); }
-.chat-side__new:active::after { opacity: var(--md-state-pressed); }
-.chat-side__new:hover { box-shadow: var(--md-elevation-1); }
+.chat-side__new:hover::after  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
+.chat-side__new:active::after { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
+.chat-side__new:hover { box-shadow: var(--md-sys-elevation-level1); }
 
 .chat-side__new:hover { border-color: var(--accent); }
 
@@ -939,13 +968,13 @@ button, input, select, textarea { font-family: inherit; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: var(--md-space-14);
-  padding: var(--md-space-4) var(--md-space-4) var(--md-space-2);
-  font-size: var(--md-title-small-size);
-  line-height: var(--md-title-small-line);
-  letter-spacing: var(--md-title-small-track);
-  font-weight: var(--md-weight-medium);
-  color: var(--md-on-surface-variant);
+  min-height: var(--space-14);
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  font-size: var(--md-sys-typescale-title-small-size);
+  line-height: var(--md-sys-typescale-title-small-line-height);
+  letter-spacing: var(--md-sys-typescale-title-small-tracking);
+  font-weight: var(--md-sys-typescale-weight-medium);
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 .chat-side__section-head--plain { padding-top: 20px; }
@@ -995,23 +1024,23 @@ button, input, select, textarea { font-family: inherit; }
 
 /* M3 search bar: a fully rounded container tone, no outline. */
 .cluster-tree__search {
-  width: calc(100% - var(--md-space-6));
-  min-height: var(--md-button-height);
-  margin: 0 var(--md-nav-item-gutter) var(--md-space-2);
-  padding: 0 var(--md-space-4);
+  width: calc(100% - var(--space-6));
+  min-height: var(--metric-button-height);
+  margin: 0 var(--metric-nav-item-gutter) var(--space-2);
+  padding: 0 var(--space-4);
   border: 0;
-  border-radius: var(--md-corner-full);
-  background: var(--md-surface-container-high);
-  color: var(--md-on-surface);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
   font: inherit;
-  font-size: var(--md-body-large-size);
-  letter-spacing: var(--md-body-large-track);
+  font-size: var(--md-sys-typescale-body-large-size);
+  letter-spacing: var(--md-sys-typescale-body-large-tracking);
   box-sizing: border-box;
 }
 
 .cluster-tree__search::placeholder { color: var(--muted); }
 .cluster-tree__search:focus {
-  outline: 2px solid var(--md-primary);
+  outline: 2px solid var(--md-sys-color-primary);
   outline-offset: -2px;
 }
 
@@ -1021,20 +1050,20 @@ button, input, select, textarea { font-family: inherit; }
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--md-space-2);
-  width: calc(100% - var(--md-space-6));
+  gap: var(--space-2);
+  width: calc(100% - var(--space-6));
   min-height: 40px;
-  margin: 0 var(--md-nav-item-gutter);
-  padding: 0 var(--md-space-3);
+  margin: 0 var(--metric-nav-item-gutter);
+  padding: 0 var(--space-3);
   border: 0;
-  border-radius: var(--md-corner-full);
+  border-radius: var(--md-sys-shape-corner-full);
   background: none;
-  color: var(--md-on-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
   font: inherit;
-  font-size: var(--md-label-large-size);
-  line-height: var(--md-label-large-line);
-  letter-spacing: var(--md-label-large-track);
-  font-weight: var(--md-weight-medium);
+  font-size: var(--md-sys-typescale-label-large-size);
+  line-height: var(--md-sys-typescale-label-large-line-height);
+  letter-spacing: var(--md-sys-typescale-label-large-tracking);
+  font-weight: var(--md-sys-typescale-weight-medium);
   text-align: left;
   cursor: pointer;
   box-sizing: border-box;
@@ -1049,12 +1078,12 @@ button, input, select, textarea { font-family: inherit; }
   background: currentColor;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--md-duration-short-2) var(--md-easing-standard);
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
-.cluster-tree__row:hover::before  { opacity: var(--md-state-hover); }
-.cluster-tree__row:active::before { opacity: var(--md-state-pressed); }
-.cluster-tree__row:hover { color: var(--md-on-surface); }
+.cluster-tree__row:hover::before  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
+.cluster-tree__row:active::before { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
+.cluster-tree__row:hover { color: var(--md-sys-color-on-surface); }
 
 /* The database row carries two controls: the caret expands, the name opens a
    tab. They are separate buttons inside one row, so the row itself is a plain
@@ -1088,12 +1117,12 @@ button, input, select, textarea { font-family: inherit; }
    and must not offer a pointer. */
 .cluster-tree__row--collection { cursor: default; }
 
-.cluster-tree__row--db:hover { color: var(--md-on-surface); }
+.cluster-tree__row--db:hover { color: var(--md-sys-color-on-surface); }
 
 /* Indentation carries the hierarchy; the pill stays the same shape. */
-.cluster-tree__row--cluster    { padding-left: var(--md-space-3); color: var(--md-on-surface); }
-.cluster-tree__row--db         { padding-left: var(--md-space-6); }
-.cluster-tree__row--collection { padding-left: var(--md-space-10); }
+.cluster-tree__row--cluster    { padding-left: var(--space-3); color: var(--md-sys-color-on-surface); }
+.cluster-tree__row--db         { padding-left: var(--space-6); }
+.cluster-tree__row--collection { padding-left: var(--space-10); }
 
 /* admin, config, local and Atlas's own __-prefixed databases. Present, because
    hiding them makes a cluster look emptier than it is, but set back so they
@@ -1103,43 +1132,14 @@ button, input, select, textarea { font-family: inherit; }
 /* Sized to the 14px icons beside it rather than to the text: the caret is
    the hit target for expanding a row, and at 9px it was the smallest thing
    in the sidebar. */
-.cluster-tree__caret {
-  flex: 0 0 auto;
-  width: 13px;
-  font-size: var(--fs-body-s);
-  line-height: 1;
-  color: var(--muted);
-  transition: transform var(--motion);
-}
-
-.cluster-tree__row:hover .cluster-tree__caret { color: var(--fg); }
-
-.cluster-tree__caret--open { transform: rotate(90deg); }
-
-.cluster-tree__icon {
-  flex: 0 0 auto;
-  width: 14px;
-  height: 14px;
-  fill: none;
-  stroke: var(--muted);
-  stroke-width: 1.3;
-  stroke-linejoin: round;
-}
-
-.cluster-tree__row--collection .cluster-tree__icon { fill: var(--muted); stroke: none; }
-.cluster-tree__row:hover .cluster-tree__icon { stroke: var(--accent); }
-.cluster-tree__row--collection:hover .cluster-tree__icon { fill: var(--accent); stroke: none; }
-
-/* The status dot rides the cluster icon, so the wrapper is what positions it. */
+.cluster-tree__row:hover .cluster-tree__row--collection .cluster-tree__row:hover .cluster-tree__row--collection:hover /* The status dot rides the cluster icon, so the wrapper is what positions it. */
 .cluster-tree__icon-wrap {
   position: relative;
   display: inline-flex;
   flex: 0 0 auto;
 }
 
-.cluster-tree__icon-pin { fill: var(--muted); stroke: none; }
-.cluster-tree__row:hover .cluster-tree__icon-pin { fill: var(--accent); }
-
+.cluster-tree__row:hover 
 .cluster-tree__status {
   position: absolute;
   right: -2px;
@@ -1208,15 +1208,6 @@ button, input, select, textarea { font-family: inherit; }
 
 .chat-side__group-toggle:hover { background: var(--row-bg); }
 
-.chat-side__caret {
-  flex: 0 0 auto;
-  font-size: var(--fs-micro);
-  color: var(--muted);
-  transition: transform var(--motion);
-}
-
-.chat-side__caret--open { transform: rotate(90deg); }
-
 .chat-side__group-name {
   flex: 1 1 auto;
   overflow: hidden;
@@ -1256,8 +1247,8 @@ button, input, select, textarea { font-family: inherit; }
   display: flex;
   align-items: stretch;
   min-width: 0;
-  margin: 0 var(--md-nav-item-gutter) 2px;
-  border-radius: var(--md-corner-full);
+  margin: 0 var(--metric-nav-item-gutter) 2px;
+  border-radius: var(--md-sys-shape-corner-full);
   overflow: hidden;
 }
 
@@ -1265,16 +1256,16 @@ button, input, select, textarea { font-family: inherit; }
   flex: 1 1 auto;
   display: flex;
   align-items: center;
-  gap: var(--md-space-3);
-  min-height: var(--md-nav-item-height);
-  padding: 0 var(--md-space-2) 0 var(--md-space-4);
+  gap: var(--space-3);
+  min-height: var(--metric-nav-item-height);
+  padding: 0 var(--space-2) 0 var(--space-4);
   background: none;
   border: 0;
-  color: var(--md-on-surface-variant);
-  font-size: var(--md-label-large-size);
-  line-height: var(--md-label-large-line);
-  letter-spacing: var(--md-label-large-track);
-  font-weight: var(--md-weight-medium);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-label-large-size);
+  line-height: var(--md-sys-typescale-label-large-line-height);
+  letter-spacing: var(--md-sys-typescale-label-large-tracking);
+  font-weight: var(--md-sys-typescale-weight-medium);
   text-align: left;
   cursor: pointer;
   min-width: 0;
@@ -1286,24 +1277,24 @@ button, input, select, textarea { font-family: inherit; }
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: var(--md-on-surface);
+  background: var(--md-sys-color-on-surface);
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--md-duration-short-2) var(--md-easing-standard);
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
-.chat-side__row:hover::after  { opacity: var(--md-state-hover); }
-.chat-side__row:active::after { opacity: var(--md-state-pressed); }
+.chat-side__row:hover::after  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
+.chat-side__row:active::after { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
 
 .chat-side__row--active {
-  background: var(--md-secondary-container);
+  background: var(--md-sys-color-secondary-container);
 }
 
 .chat-side__row--active .chat-side__item {
-  color: var(--md-on-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
 }
 
-.chat-side__row--active::after { background: var(--md-on-secondary-container); }
+.chat-side__row--active::after { background: var(--md-sys-color-on-secondary-container); }
 
 .chat-side__row--confirming .chat-side__item {
   color: var(--fg);
@@ -1327,9 +1318,9 @@ button, input, select, textarea { font-family: inherit; }
 
 .chat-side__item-time {
   flex: 0 0 auto;
-  font-size: var(--md-label-small-size);
-  line-height: var(--md-label-small-line);
-  letter-spacing: var(--md-label-small-track);
+  font-size: var(--md-sys-typescale-label-small-size);
+  line-height: var(--md-sys-typescale-label-small-line-height);
+  letter-spacing: var(--md-sys-typescale-label-small-tracking);
   color: inherit;
   opacity: 0.7;
 }
@@ -1450,12 +1441,12 @@ body.is-resizing {
   margin: 0 24px;
   padding: 9px 14px;
   border: 0;
-  border-radius: var(--md-corner-medium);
-  background: var(--md-error-container);
-  color: var(--md-on-error-container);
-  font-size: var(--md-body-medium-size);
-  line-height: var(--md-body-medium-line);
-  letter-spacing: var(--md-body-medium-track);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  line-height: var(--md-sys-typescale-body-medium-line-height);
+  letter-spacing: var(--md-sys-typescale-body-medium-tracking);
   max-width: 780px;
   align-self: center;
   width: 100%;
@@ -1529,15 +1520,15 @@ body.is-resizing {
   max-width: 780px;
   /* Bottom margin matches the composer's padding-top, so the indicator
      clears the divider by the same gap the input below it does. */
-  margin: 0 var(--md-space-6) var(--md-space-4);
-  padding: var(--md-space-3) var(--md-space-4);
+  margin: 0 var(--space-6) var(--space-4);
+  padding: var(--space-3) var(--space-4);
   border: 0;
-  border-radius: var(--md-corner-medium);
-  background: var(--md-surface-container-high);
-  font-size: var(--md-body-medium-size);
-  line-height: var(--md-body-medium-line);
-  letter-spacing: var(--md-body-medium-track);
-  color: var(--md-on-surface-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-high);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  line-height: var(--md-sys-typescale-body-medium-line-height);
+  letter-spacing: var(--md-sys-typescale-body-medium-tracking);
+  color: var(--md-sys-color-on-surface-variant);
   box-sizing: border-box;
 }
 
@@ -1574,9 +1565,9 @@ body.is-resizing {
   display: flex;
   align-items: stretch;
   gap: 2px;
-  padding: 0 var(--md-space-3);
-  background: var(--md-surface);
-  border-bottom: 1px solid var(--md-outline-variant);
+  padding: 0 var(--space-3);
+  background: var(--md-sys-color-surface);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
   overflow-x: auto;
   scrollbar-width: thin;
 }
@@ -1590,16 +1581,16 @@ body.is-resizing {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  min-height: var(--md-tab-height);
+  min-height: var(--metric-tab-height);
   padding: 0;
   border: 0;
   background: none;
-  color: var(--md-on-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
   font: inherit;
-  font-size: var(--md-label-large-size);
-  line-height: var(--md-label-large-line);
-  letter-spacing: var(--md-label-large-track);
-  font-weight: var(--md-weight-medium);
+  font-size: var(--md-sys-typescale-label-large-size);
+  line-height: var(--md-sys-typescale-label-large-line-height);
+  letter-spacing: var(--md-sys-typescale-label-large-tracking);
+  font-weight: var(--md-sys-typescale-weight-medium);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -1611,13 +1602,13 @@ body.is-resizing {
   background: currentColor;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--md-duration-short-2) var(--md-easing-standard);
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
-.tabbar__tab:hover::before  { opacity: var(--md-state-hover); }
-.tabbar__tab:active::before { opacity: var(--md-state-pressed); }
+.tabbar__tab:hover::before  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
+.tabbar__tab:active::before { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
 
-.tabbar__tab--active { color: var(--md-primary); }
+.tabbar__tab--active { color: var(--md-sys-color-primary); }
 
 .tabbar__tab--active::after {
   content: "";
@@ -1626,7 +1617,7 @@ body.is-resizing {
   right: 8px;
   bottom: 0;
   height: 3px;
-  background: var(--md-primary);
+  background: var(--md-sys-color-primary);
   border-radius: 3px 3px 0 0;
 }
 
@@ -1635,8 +1626,8 @@ body.is-resizing {
 .tabbar__label {
   display: inline-flex;
   align-items: center;
-  gap: var(--md-space-2);
-  padding: 0 var(--md-space-1) 0 var(--md-space-4);
+  gap: var(--space-2);
+  padding: 0 var(--space-1) 0 var(--space-4);
   border: 0;
   background: none;
   color: inherit;
@@ -1647,12 +1638,12 @@ body.is-resizing {
   text-overflow: ellipsis;
 }
 
-button.tabbar__tab { padding: 0 var(--md-space-4); }
+button.tabbar__tab { padding: 0 var(--space-4); }
 
 .tabbar__kind { color: var(--accent); font-size: var(--fs-caption); }
 
 .tabbar__close {
-  padding: 0 var(--md-space-3) 0 var(--md-space-1);
+  padding: 0 var(--space-3) 0 var(--space-1);
   border: 0;
   background: none;
   color: var(--muted);
@@ -1715,9 +1706,9 @@ button.tabbar__tab { padding: 0 var(--md-space-4); }
 /* M3 outlined card holding the table. */
 .browse__table-wrap {
   overflow-x: auto;
-  border: 1px solid var(--md-outline-variant);
-  border-radius: var(--md-corner-medium);
-  background: var(--md-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
 }
 
 .browse__table {
@@ -1770,11 +1761,11 @@ button.tabbar__tab { padding: 0 var(--md-space-4); }
 /* M3 filled card: container tone, 12dp corners, no outline. */
 .browse__doc {
   position: relative;
-  margin-bottom: var(--md-space-3);
-  padding: var(--md-space-4);
+  margin-bottom: var(--space-3);
+  padding: var(--space-4);
   border: 0;
-  border-radius: var(--md-corner-medium);
-  background: var(--md-surface-container-low);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
   overflow-x: auto;
 }
 
@@ -1786,24 +1777,24 @@ button.tabbar__tab { padding: 0 var(--md-space-4); }
   top: 0;
   left: 100%;
   z-index: 1;
-  margin-left: var(--md-space-3);
-  padding: 0 var(--md-space-3);
-  min-height: var(--md-space-8);
+  margin-left: var(--space-3);
+  padding: 0 var(--space-3);
+  min-height: var(--space-8);
   border: 0;
-  border-radius: var(--md-corner-full);
+  border-radius: var(--md-sys-shape-corner-full);
   background: transparent;
-  color: var(--md-primary);
-  font-family: var(--md-font-plain);
-  font-size: var(--md-label-medium-size);
-  line-height: var(--md-space-8);
-  letter-spacing: var(--md-label-medium-track);
-  font-weight: var(--md-weight-medium);
+  color: var(--md-sys-color-primary);
+  font-family: var(--md-ref-typeface-plain);
+  font-size: var(--md-sys-typescale-label-medium-size);
+  line-height: var(--space-8);
+  letter-spacing: var(--md-sys-typescale-label-medium-tracking);
+  font-weight: var(--md-sys-typescale-weight-medium);
   white-space: nowrap;
   cursor: pointer;
 }
 
 .browse__doc-expand:hover {
-  background: color-mix(in srgb, var(--md-primary) calc(var(--md-state-hover) * 100%), transparent);
+  background: color-mix(in srgb, var(--md-sys-color-primary) calc(var(--md-sys-state-hover-state-layer-opacity) * 100%), transparent);
 }
 
 .browse__pager {
@@ -1817,17 +1808,17 @@ button.tabbar__tab { padding: 0 var(--md-space-4); }
 /* M3 outlined button. */
 .browse__page-btn {
   position: relative;
-  min-height: var(--md-button-height);
-  padding: 0 var(--md-space-6);
-  border: 1px solid var(--md-outline);
-  border-radius: var(--md-corner-full);
+  min-height: var(--metric-button-height);
+  padding: 0 var(--space-6);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-full);
   background: transparent;
-  color: var(--md-primary);
+  color: var(--md-sys-color-primary);
   font: inherit;
-  font-size: var(--md-label-large-size);
-  line-height: var(--md-label-large-line);
-  letter-spacing: var(--md-label-large-track);
-  font-weight: var(--md-weight-medium);
+  font-size: var(--md-sys-typescale-label-large-size);
+  line-height: var(--md-sys-typescale-label-large-line-height);
+  letter-spacing: var(--md-sys-typescale-label-large-tracking);
+  font-weight: var(--md-sys-typescale-weight-medium);
   cursor: pointer;
   overflow: hidden;
 }
@@ -1839,15 +1830,15 @@ button.tabbar__tab { padding: 0 var(--md-space-4); }
   background: currentColor;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--md-duration-short-2) var(--md-easing-standard);
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
-.browse__page-btn:hover:not(:disabled)::after  { opacity: var(--md-state-hover); }
-.browse__page-btn:active:not(:disabled)::after { opacity: var(--md-state-pressed); }
+.browse__page-btn:hover:not(:disabled)::after  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
+.browse__page-btn:active:not(:disabled)::after { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
 
 .browse__page-btn:disabled {
-  border-color: color-mix(in srgb, var(--md-on-surface) 12%, transparent);
-  color: color-mix(in srgb, var(--md-on-surface) 38%, transparent);
+  border-color: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent);
+  color: color-mix(in srgb, var(--md-sys-color-on-surface) 38%, transparent);
   opacity: 1;
   cursor: not-allowed;
 }
@@ -1885,7 +1876,6 @@ button.tabbar__tab { padding: 0 var(--md-space-4); }
 }
 
 .json__toggle--none { cursor: default; }
-.json__toggle--open { transform: rotate(90deg); }
 .json__toggle:hover { color: var(--accent); }
 
 .json__ellipsis {

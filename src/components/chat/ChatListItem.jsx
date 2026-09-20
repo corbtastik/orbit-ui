@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { relativeTime, DEFAULT_PROJECT } from './conversations.js';
 import { providerLabel } from './providers.js';
+import Icon from '../brand/Icon.jsx';
 
 // The row is a wrapper rather than a single button: a delete control cannot
 // be nested inside the select button, and making the whole row a div with a
@@ -64,7 +65,7 @@ export default function ChatListItem({ conversation, active, onSelect, onDelete,
         title={confirming ? 'Confirm delete' : 'Delete chat'}
         aria-label={confirming ? `Confirm delete ${title}` : `Delete ${title}`}
       >
-        {confirming ? '✓' : '✕'}
+        <Icon name={confirming ? 'check' : 'close'} size={18} />
       </button>
     </div>
   );

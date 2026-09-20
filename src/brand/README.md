@@ -4,11 +4,26 @@
 [Material 3](https://m3.material.io) design system, with the Star Lord colours
 carried over from the theme this replaced.
 
-## What "keep the colours" meant
+## The colours are generated, not written
 
-The palette values are unchanged — the accents are still the twelve source
-colours from yolo-11ty's `themes.json`, and `tokens/colors.css` lists them
-verbatim at the top.
+`tokens/colors.css` is produced by `npm run build:theme`
+(`scripts/build-theme.mjs`), which runs Google's own
+`@material/material-color-utilities`. **Do not edit it by hand.**
+
+M3 colour is algorithmic: `primary-container` is not a colour someone picked,
+it is a specific tone of a specific tonal palette. The previous version of this
+file was derived by eye, which got close-but-wrong values and a scheme that
+could not be regenerated.
+
+Star Lord is kept by seeding each tonal palette separately rather than letting
+one seed derive everything — that would have thrown away the cyan and the navy.
+The five sources are at the top of the generator.
+
+**One consequence worth knowing.** M3's dark scheme puts `primary` at tone 80,
+so the signature `#FF5DA2` is now `primary-container`, and `primary` is the
+paler `#FFB0CA`. That is M3's rule for dark themes, not a Star Lord problem —
+every scheme variant does it, and Material's own dark themes are pastel this
+way. The exact source pink is still in the scheme, in the container role.
 
 What changed is the structure around them. M3 does not have "an accent and a
 border colour"; it has role quartets — `primary` / `on-primary` /

@@ -1,30 +1,27 @@
 /* ============================================================
    Material 3 — Motion
 
-   M3's easing set. `emphasized` is the default for anything
-   the user initiated and will watch; `standard` is for small
-   changes that should not draw the eye. The accelerate and
-   decelerate pairs are for things leaving and entering.
-
-   The durations are M3's named tokens. Most of this app's
-   transitions are `short-4` on `standard`.
+   `emphasized` is M3's default for anything the user started
+   and will watch; `standard` is for small changes that should
+   not draw the eye. The accelerate and decelerate pairs are
+   for things leaving and entering.
    ============================================================ */
 
 :root {
-  --md-easing-emphasized:            cubic-bezier(0.2, 0, 0, 1);
-  --md-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
-  --md-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
-  --md-easing-standard:              cubic-bezier(0.2, 0, 0, 1);
-  --md-easing-standard-decelerate:   cubic-bezier(0, 0, 0, 1);
-  --md-easing-standard-accelerate:   cubic-bezier(0.3, 0, 1, 1);
-  --md-easing-linear:                linear;
+  --md-sys-motion-easing-emphasized:            cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --md-sys-motion-easing-standard:              cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-standard-decelerate:   cubic-bezier(0, 0, 0, 1);
+  --md-sys-motion-easing-standard-accelerate:   cubic-bezier(0.3, 0, 1, 1);
+  --md-sys-motion-easing-linear:                linear;
 
-  --md-duration-short-1:  50ms;
-  --md-duration-short-2:  100ms;
-  --md-duration-short-3:  150ms;
-  --md-duration-short-4:  200ms;
-  --md-duration-medium-1: 250ms;
-  --md-duration-medium-2: 300ms;
-  --md-duration-medium-4: 400ms;
-  --md-duration-long-2:   500ms;
+  --md-sys-motion-duration-short1:  50ms;
+  --md-sys-motion-duration-short2:  100ms;
+  --md-sys-motion-duration-short3:  150ms;
+  --md-sys-motion-duration-short4:  200ms;
+  --md-sys-motion-duration-medium1: 250ms;
+  --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-duration-medium4: 400ms;
+  --md-sys-motion-duration-long2:   500ms;
 }

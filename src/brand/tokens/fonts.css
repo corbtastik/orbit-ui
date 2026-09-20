@@ -6,11 +6,19 @@
      • Space Mono      — technical labels: tool names, model ids
      • Source Code Pro — code
      • Orbitron       — the OrbitAI wordmark, and nothing else
+     • Material Symbols Outlined — the M3 icon set
    All three are free Google Fonts, so there is nothing to
    substitute and no licensed file to drop in later.
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Orbitron:wght@900&family=Source+Code+Pro:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+/* Material Symbols, the M3 icon set. A variable font, so the four axes are
+   settable per icon rather than needing a separate file each: FILL for
+   filled-vs-outlined, wght to match the text beside it, GRAD for optical
+   correction on dark backgrounds, opsz for the rendered size.
+   Only the weights the app uses are requested. */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0&display=block');
 
 :root {
   --font-sans:    "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;

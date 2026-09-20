@@ -17,6 +17,7 @@ import DocumentsView from './components/browse/DocumentsView.jsx';
 import { DEFAULT_PROVIDER } from './components/chat/providers.js';
 import * as chatApi from './api/chat.js';
 import { DEFAULT_PROJECT } from './components/chat/conversations.js';
+import Icon from './components/brand/Icon.jsx';
 
 // Nobody knows what to ask a new chat box, and this one's range is not
 // obvious -- it spans Atlas administration and querying data inside a
@@ -324,7 +325,7 @@ export default function App() {
 
       {!pinned && messages.length > 0 && (
         <button type="button" className="chat__jump" onClick={jumpToLatest}>
-          Jump to latest ↓
+          Jump to latest <Icon name="arrow_downward" size={18} />
         </button>
       )}
 

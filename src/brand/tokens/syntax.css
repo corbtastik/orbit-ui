@@ -1,0 +1,19 @@
+/* ============================================================
+   Syntax colours — Star Lord
+
+   NOT Material. M3 has no opinion on syntax highlighting, so
+   these are the five shSomething values from yolo-11ty's
+   themes.json, verbatim, and they are not generated.
+
+   Used by the Extended JSON viewer in the browse tabs. The
+   surface they sit on is an M3 role; only the token colours
+   themselves come from here.
+   ============================================================ */
+
+:root {
+  --sl-sh-keyword:  #7FD7FF;
+  --sl-sh-string:   #FFE98A;
+  --sl-sh-function: #FF5DA2;
+  --sl-sh-variable: #F3E9FF;
+  --sl-sh-comment:  #8A7FAF;
+}

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import * as chatApi from '../../api/chat.js';
+import Icon from '../brand/Icon.jsx';
 
 // The cluster tree: cluster -> databases -> collections, for whatever is
 // configured as ORBIT_CLUSTER_* in .env.
@@ -11,35 +12,15 @@ import * as chatApi from '../../api/chat.js';
 // opened, closed and reopened should not re-fetch -- the shape of a database
 // does not change on the timescale of a sidebar click.
 
-// Inline rather than an icon dependency: three shapes, each a handful of
-// elements, none of them needed anywhere else in the app.
-const ClusterIcon = () => (
-  <svg className="cluster-tree__icon" viewBox="0 0 16 16" aria-hidden="true">
-    <rect x="2" y="2.5" width="12" height="4.5" rx="1" />
-    <rect x="2" y="9" width="12" height="4.5" rx="1" />
-    <circle className="cluster-tree__icon-pin" cx="4.6" cy="4.75" r="0.85" />
-    <circle className="cluster-tree__icon-pin" cx="4.6" cy="11.25" r="0.85" />
-  </svg>
-);
-
-const DatabaseIcon = () => (
-  <svg className="cluster-tree__icon" viewBox="0 0 16 16" aria-hidden="true">
-    <ellipse cx="8" cy="4" rx="5.25" ry="2.15" />
-    <path d="M2.75 4v8c0 1.2 2.35 2.15 5.25 2.15s5.25-.95 5.25-2.15V4" />
-    <path d="M2.75 8c0 1.2 2.35 2.15 5.25 2.15s5.25-.95 5.25-2.15" />
-  </svg>
-);
-
-const CollectionIcon = () => (
-  <svg className="cluster-tree__icon" viewBox="0 0 16 16" aria-hidden="true">
-    <path d="M1.9 4.4c0-.6.5-1.1 1.1-1.1h3.1l1.4 1.6h5.6c.6 0 1.1.5 1.1 1.1v6c0 .6-.5 1.1-1.1 1.1H3c-.6 0-1.1-.5-1.1-1.1z" />
-  </svg>
-);
+// Material Symbols, not hand-drawn SVGs. These were three inline shapes
+// approximating a server, a cylinder and a folder; the real icon set draws
+// them correctly and keeps their weight in step with the text beside them.
+const ClusterIcon = () => <Icon name="dns" size={20} />;
+const DatabaseIcon = () => <Icon name="database" size={20} />;
+const CollectionIcon = () => <Icon name="folder" size={20} fill />;
 
 const Caret = ({ open }) => (
-  <span className={`cluster-tree__caret ${open ? 'cluster-tree__caret--open' : ''}`} aria-hidden="true">
-    ▸
-  </span>
+  <Icon name="chevron_right" size={20} className={open ? 'icon--rotated' : ''} />
 );
 
 export default function ClusterTree({ onOpenTab }) {
@@ -128,7 +109,7 @@ export default function ClusterTree({ onOpenTab }) {
           aria-label={sectionOpen ? 'Hide clusters' : 'Show clusters'}
           aria-expanded={sectionOpen}
         >
-          {sectionOpen ? '✕' : '›'}
+          <Icon name={sectionOpen ? 'close' : 'chevron_right'} size={20} />
         </button>
       </div>
 

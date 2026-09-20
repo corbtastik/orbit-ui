@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import * as chatApi from '../../api/chat.js';
 import JsonView, { OPEN_TO_DEPTH, OPEN_ALL } from './JsonView.jsx';
 import { formatCount } from './format.js';
+import Icon from '../brand/Icon.jsx';
 
 const PAGE_SIZE = 25;
 
@@ -119,7 +120,7 @@ export default function DocumentsView({ tab }) {
             disabled={!hasPrev || loading}
             onClick={() => setSkip(Math.max(0, skip - PAGE_SIZE))}
           >
-            ‹ Previous
+            <Icon name="chevron_left" size={18} /> Previous
           </button>
           <span className="browse__page-range">
             {formatCount(first)} – {formatCount(last)}
@@ -131,7 +132,7 @@ export default function DocumentsView({ tab }) {
             disabled={!hasNext || loading}
             onClick={() => setSkip(skip + PAGE_SIZE)}
           >
-            Next ›
+            Next <Icon name="chevron_right" size={18} />
           </button>
         </div>
       )}

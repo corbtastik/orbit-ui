@@ -1,5 +1,6 @@
 import React from 'react';
 import ChatListItem from './ChatListItem.jsx';
+import Icon from '../brand/Icon.jsx';
 
 export default function ProjectGroup({
   project,
@@ -23,7 +24,7 @@ export default function ProjectGroup({
           onClick={() => onToggle(project.id)}
           aria-expanded={!collapsed}
         >
-          <span className={`chat-side__caret ${collapsed ? '' : 'chat-side__caret--open'}`}>▸</span>
+          <Icon name="chevron_right" size={20} className={collapsed ? '' : 'icon--rotated'} />
           <span className="chat-side__group-name">{project.name}</span>
           <span className="chat-side__group-count">{conversations.length}</span>
         </button>

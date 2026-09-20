@@ -1,41 +1,38 @@
 /* ============================================================
-   Material 3 — Spacing
+   Spacing and component metrics
 
-   M3 lays out on a 4dp grid. The scale below is that grid;
-   the named component metrics under it are M3's own specified
-   sizes, and they are the reason this file changed: an M3
-   button is 40dp tall with 24dp of side padding, and a
-   navigation drawer item is 56dp tall in a 12dp gutter. Those
-   are not preferences to tune, they are what makes the layout
-   read as M3.
+   NOT --md-sys-*, deliberately. M3 has no system-level spacing
+   token set; layout is on a 4dp grid and each component
+   specifies its own metrics. These are app-level tokens named
+   so they cannot be mistaken for spec tokens.
 
-   Corner radius now lives in shape.css.
+   The metrics below ARE from the M3 component specs, and they
+   are what make a layout read as M3: a button is 40dp tall with
+   24dp of side padding, a drawer item is 56dp in a 12dp gutter.
+   Not preferences to tune.
    ============================================================ */
 
 :root {
-  --md-space-0:  0;
-  --md-space-1:  4px;
-  --md-space-2:  8px;
-  --md-space-3:  12px;
-  --md-space-4:  16px;
-  --md-space-5:  20px;
-  --md-space-6:  24px;
-  --md-space-7:  28px;
-  --md-space-8:  32px;
-  --md-space-10: 40px;
-  --md-space-12: 48px;
-  --md-space-14: 56px;
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  28px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
 
-  /* Component metrics, from the M3 specs. */
-  --md-button-height:      40px;
-  --md-button-padding-x:   24px;
-  --md-icon-button-size:   40px;
-  --md-nav-item-height:    56px;
-  --md-nav-item-gutter:    12px;
-  --md-list-item-1line:    56px;
-  --md-list-item-2line:    72px;
-  --md-text-field-height:  56px;
-  --md-tab-height:         48px;
-  --md-chip-height:        32px;
-  --md-touch-target:       48px;
+  --metric-button-height:     40px;
+  --metric-button-padding-x:  24px;
+  --metric-icon-button-size:  40px;
+  --metric-nav-item-height:   56px;
+  --metric-nav-item-gutter:   12px;
+  --metric-text-field-height: 56px;
+  --metric-tab-height:        48px;
+  --metric-chip-height:       32px;
+  --metric-touch-target:      48px;
 }
