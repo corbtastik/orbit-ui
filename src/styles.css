@@ -1919,15 +1919,28 @@ button.tabbar__tab { padding: 0 var(--space-4); }
 .browse__row--open > td { border-bottom: 0; }
 
 .browse__subrow > td {
-  padding: 0 0 var(--space-3);
+  padding: var(--space-2) 0 var(--space-3);
   background: var(--md-sys-color-surface-container);
 }
 
+/* Sticky so the panel stays in view when the table is scrolled sideways. The
+   cell that opened it is often far from the left edge -- a nested field can
+   sit past the fold -- and a panel anchored to the table's start would open
+   off screen, which reads as nothing having happened.
+
+   The width cap is what makes the sticky work at all: sticky only moves an
+   element within its containing block, and a panel as wide as the table has
+   no slack to move in. */
 .browse__subdoc {
-  margin: 0 var(--space-4);
+  position: sticky;
+  left: var(--space-4);
+  width: min(920px, calc(100% - var(--space-8)));
+  margin-left: var(--space-4);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-surface-container-low);
+  box-shadow: var(--md-sys-elevation-level1);
+  box-sizing: border-box;
 }
 
 .browse__subdoc-head {
