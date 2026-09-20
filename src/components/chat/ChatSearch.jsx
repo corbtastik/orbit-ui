@@ -17,7 +17,11 @@ export const MIN_QUERY_LENGTH = 2;
 /** Whether a query is long enough that results stand in for the chat list. */
 export const isSearching = (q) => (q ?? '').trim().length >= MIN_QUERY_LENGTH;
 
-export default function ChatSearch({ query, onQueryChange, activeId, onSelect }) {
+// `query` defaults rather than being assumed: the effect trims it and
+// md-filled-text-field reads .length off its value, so an undefined prop is
+// two crashes rather than an empty box. Reached during an HMR swap, and by
+// any caller that renders this without wiring the state up.
+export default function ChatSearch({ query = '', onQueryChange, activeId, onSelect }) {
   const [results, setResults] = useState(null);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState(null);
@@ -63,14 +67,14 @@ export default function ChatSearch({ query, onQueryChange, activeId, onSelect })
           className="chat-search__input"
           placeholder="Search chats"
           value={query}
-          onInput={(e) => onQueryChange(e.target.value)}
+          onInput={(e) => onQueryChange?.(e.target.value)}
         >
           <Icon slot="leading-icon" name="search" size={20} />
         </MdFilledTextField>
         {query && (
           <MdIconButton
             className="chat-search__clear"
-            onClick={() => onQueryChange('')}
+            onClick={() => onQueryChange?.('')}
             title="Clear search"
             aria-label="Clear search"
           >
