@@ -10,11 +10,14 @@ import { relativeTime } from './conversations.js';
 // bodies -- it is fetched with the transcripts projected away, and the thing
 // people remember is usually a sentence in the middle of one.
 
-const MIN_QUERY = 2;
 const DEBOUNCE_MS = 220;
 
-export default function ChatSearch({ activeId, onSelect }) {
-  const [query, setQuery] = useState('');
+export const MIN_QUERY_LENGTH = 2;
+
+/** Whether a query is long enough that results stand in for the chat list. */
+export const isSearching = (q) => (q ?? '').trim().length >= MIN_QUERY_LENGTH;
+
+export default function ChatSearch({ query, onQueryChange, activeId, onSelect }) {
   const [results, setResults] = useState(null);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState(null);
@@ -28,7 +31,7 @@ export default function ChatSearch({ activeId, onSelect }) {
     const q = query.trim();
     clearTimeout(timer.current);
 
-    if (q.length < MIN_QUERY) {
+    if (q.length < MIN_QUERY_LENGTH) {
       setResults(null);
       setSearching(false);
       setError(null);
@@ -53,8 +56,6 @@ export default function ChatSearch({ activeId, onSelect }) {
     return () => { cancelled = true; clearTimeout(timer.current); };
   }, [query]);
 
-  const searching_ = query.trim().length >= MIN_QUERY;
-
   return (
     <div className="chat-search">
       <div className="chat-search__field">
@@ -62,14 +63,14 @@ export default function ChatSearch({ activeId, onSelect }) {
           className="chat-search__input"
           placeholder="Search chats"
           value={query}
-          onInput={(e) => setQuery(e.target.value)}
+          onInput={(e) => onQueryChange(e.target.value)}
         >
           <Icon slot="leading-icon" name="search" size={20} />
         </MdFilledTextField>
         {query && (
           <MdIconButton
             className="chat-search__clear"
-            onClick={() => setQuery('')}
+            onClick={() => onQueryChange('')}
             title="Clear search"
             aria-label="Clear search"
           >
@@ -78,7 +79,7 @@ export default function ChatSearch({ activeId, onSelect }) {
         )}
       </div>
 
-      {searching_ && (
+      {isSearching(query) && (
         <div className="chat-search__results">
           {error && <p className="chat-side__empty-group">{error}</p>}
 

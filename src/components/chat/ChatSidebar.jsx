@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import ProjectGroup from './ProjectGroup.jsx';
 import ClusterTree from './ClusterTree.jsx';
-import ChatSearch from './ChatSearch.jsx';
+import ChatSearch, { isSearching } from './ChatSearch.jsx';
 import ChatListItem from './ChatListItem.jsx';
 import OrbitLogo from '../brand/OrbitLogo.jsx';
 import { DEFAULT_PROJECT } from './conversations.js';
@@ -29,6 +29,7 @@ export default function ChatSidebar({
   width,
 }) {
   const [collapsedProjects, setCollapsedProjects] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
   const [creating, setCreating] = useState(false);
   const [draftName, setDraftName] = useState('');
 
@@ -110,8 +111,6 @@ export default function ChatSidebar({
         </MdIconButton>
       </div>
 
-      <ChatSearch activeId={activeId} onSelect={onSelect} />
-
       <div className="chat-side__scroll">
         {/* Above Chats: the tree is what the conversations are about, and it
             is the part that does not grow as chats accumulate. */}
@@ -151,7 +150,14 @@ export default function ChatSidebar({
           </MdIconButton>
         </div>
 
-        {creating && (
+        <ChatSearch
+          query={searchQuery}
+          onQueryChange={setSearchQuery}
+          activeId={activeId}
+          onSelect={onSelect}
+        />
+
+        {!isSearching(searchQuery) && creating && (
           <input
             className="chat-side__project-input"
             autoFocus
@@ -166,7 +172,7 @@ export default function ChatSidebar({
           />
         )}
 
-        {[DEFAULT_GROUP, ...projects].map((p) => (
+        {!isSearching(searchQuery) && [DEFAULT_GROUP, ...projects].map((p) => (
           <ProjectGroup
             key={p.id}
             project={p}

@@ -1012,14 +1012,9 @@ button, input, select, textarea { font-family: inherit; }
 
 /* --- chat search --------------------------------------------------------- */
 
-/* Sits above the scrolling region, not inside it: a search box that scrolls
-   out of view while you read its results is a search box you have to scroll
-   back to in order to change the query. */
+/* At the top of the Chats section, in the same 12dp gutter as the rows it
+   searches -- it scopes that list, and sitting inside it says so. */
 .chat-search {
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
   padding: 0 var(--metric-nav-item-gutter) var(--space-2);
 }
 
@@ -1048,11 +1043,9 @@ button, input, select, textarea { font-family: inherit; }
   height: 32px;
 }
 
-/* Results scroll on their own so the field stays put. */
+/* No scroller of its own: the results are in the sidebar's scroll region
+   now, and nesting a second one would trap the wheel inside it. */
 .chat-search__results {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
   margin-top: var(--space-2);
 }
 
