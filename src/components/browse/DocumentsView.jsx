@@ -145,7 +145,7 @@ export default function DocumentsView({ tab }) {
       )}
 
       {!loading && !error && docs.length > 0 && view === 'table' && (
-        <DocumentsTable docs={docs} startIndex={skip} />
+        <DocumentsTable key={skip} docs={docs} startIndex={skip} />
       )}
 
       {!loading && !error && view === 'json' && docs.map((doc, i) => (

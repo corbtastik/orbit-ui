@@ -1877,6 +1877,109 @@ button.tabbar__tab { padding: 0 var(--space-4); }
   font-style: italic;
 }
 
+/* Expandable cells are buttons. The padding moves onto the button so the whole
+   cell is the target rather than just the text in it. */
+.browse__cell--expandable { padding: 0; }
+
+.browse__cell-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: 100%;
+  padding: 11px var(--space-4);
+  border: 0;
+  background: none;
+  color: var(--md-sys-color-primary);
+  font: inherit;
+  font-style: italic;
+  text-align: left;
+  cursor: pointer;
+}
+
+.browse__cell-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.browse__cell-btn:hover::after  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
+.browse__cell-btn:active::after { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
+
+.browse__cell--open .browse__cell-btn {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+/* The open row and its panel read as one block. */
+.browse__row--open > td { border-bottom: 0; }
+
+.browse__subrow > td {
+  padding: 0 0 var(--space-3);
+  background: var(--md-sys-color-surface-container);
+}
+
+.browse__subdoc {
+  margin: 0 var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.browse__subdoc-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Which row and which field this panel came from. The table scrolls
+   sideways, so the cell that opened it may be off screen. */
+.browse__subdoc-path {
+  flex: 1 1 auto;
+  font-family: var(--font-accent);
+  font-size: var(--md-sys-typescale-label-medium-size);
+  letter-spacing: var(--md-sys-typescale-label-medium-tracking);
+}
+
+.browse__subdoc-close {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-8);
+  height: var(--space-8);
+  padding: 0;
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.browse__subdoc-close::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.browse__subdoc-close:hover::after { opacity: var(--md-sys-state-hover-state-layer-opacity); }
+
+/* The panel holds a full JSON tree, so it must not inherit the table's
+   single-line truncation. */
+.browse__subrow .json { white-space: normal; }
+.browse__subrow td { max-width: none; overflow: visible; text-overflow: clip; }
+
 /* An absent field is blank, not "null". In MongoDB those are different
    things, and a polymorphic collection makes the difference load-bearing. */
 .browse__cell--missing {
