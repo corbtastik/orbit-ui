@@ -872,46 +872,28 @@ button, input, select, textarea { font-family: inherit; }
   outline-offset: -2px;
 }
 
-/* M3 drawer list items. Shorter than a top-level nav item -- a tree row is
-   dense by nature -- but the same pill, gutter and state layer. */
+/* Tree rows are list items too, denser than the top-level drawer items --
+   a tree is dense by nature -- but the same pill and the same ripple. */
 .cluster-tree__row {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  width: calc(100% - var(--space-6));
-  min-height: 40px;
+  --md-list-item-one-line-container-height: 40px;
+  --md-list-item-leading-space: var(--space-3);
+  --md-list-item-trailing-space: var(--space-2);
+  --md-list-item-label-text-color: var(--md-sys-color-on-surface-variant);
+  --md-list-item-label-text-size: var(--md-sys-typescale-label-large-size);
+  --md-list-item-label-text-weight: var(--md-sys-typescale-weight-medium);
+  display: block;
   margin: 0 var(--metric-nav-item-gutter);
-  padding: 0 var(--space-3);
-  border: 0;
   border-radius: var(--md-sys-shape-corner-full);
-  background: none;
-  color: var(--md-sys-color-on-surface-variant);
-  font: inherit;
-  font-size: var(--md-sys-typescale-label-large-size);
-  line-height: var(--md-sys-typescale-label-large-line-height);
-  letter-spacing: var(--md-sys-typescale-label-large-tracking);
-  font-weight: var(--md-sys-typescale-weight-medium);
-  text-align: left;
-  cursor: pointer;
-  box-sizing: border-box;
   overflow: hidden;
 }
 
-.cluster-tree__row::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: currentColor;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+/* Caret and icon travel together in the leading slot, so the icon stays in
+   one column whether or not the row expands. */
+.cluster-tree__lead {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
 }
-
-.cluster-tree__row:hover::before  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
-.cluster-tree__row:active::before { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
-.cluster-tree__row:hover { color: var(--md-sys-color-on-surface); }
 
 /* The database row carries two controls: the caret expands, the name opens a
    tab. They are separate buttons inside one row, so the row itself is a plain
@@ -945,12 +927,24 @@ button, input, select, textarea { font-family: inherit; }
    and must not offer a pointer. */
 .cluster-tree__row--collection { cursor: default; }
 
-.cluster-tree__row--db:hover { color: var(--md-sys-color-on-surface); }
+.cluster-tree__row--db {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding-left: var(--space-6);
+  border-radius: var(--md-sys-shape-corner-full);
+  color: var(--md-sys-color-on-surface-variant);
+}
 
-/* Indentation carries the hierarchy; the pill stays the same shape. */
-.cluster-tree__row--cluster    { padding-left: var(--space-3); color: var(--md-sys-color-on-surface); }
-.cluster-tree__row--db         { padding-left: var(--space-6); }
-.cluster-tree__row--collection { padding-left: var(--space-10); }
+.cluster-tree__row--db:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface)
+              calc(var(--md-sys-state-hover-state-layer-opacity) * 100%), transparent);
+  color: var(--md-sys-color-on-surface);
+}
+
+.cluster-tree__row--cluster    { --md-list-item-label-text-color: var(--md-sys-color-on-surface); }
+.cluster-tree__row--db         { --md-list-item-leading-space: var(--space-6); }
+.cluster-tree__row--collection { --md-list-item-leading-space: var(--space-10); }
 
 /* admin, config, local and Atlas's own __-prefixed databases. Present, because
    hiding them makes a cluster look emptier than it is, but set back so they
@@ -1018,23 +1012,14 @@ button, input, select, textarea { font-family: inherit; }
 }
 
 .chat-side__group-toggle {
+  --md-list-item-one-line-container-height: 48px;
+  --md-list-item-leading-space: var(--space-3);
+  --md-list-item-label-text-size: var(--md-sys-typescale-title-small-size);
+  --md-list-item-label-text-weight: var(--md-sys-typescale-weight-medium);
   flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 6px;
-  background: none;
-  border: 0;
-  color: var(--fg);
-  font-size: var(--fs-code);
-  font-weight: var(--fw-semibold);
-  text-align: left;
-  cursor: pointer;
-  border-radius: var(--radius-control);
-  min-width: 0;
+  border-radius: var(--md-sys-shape-corner-full);
+  overflow: hidden;
 }
-
-.chat-side__group-toggle:hover { background: var(--row-bg); }
 
 .chat-side__group-name {
   flex: 1 1 auto;
@@ -1066,69 +1051,43 @@ button, input, select, textarea { font-family: inherit; }
 
 /* --- conversation rows -------------------------------------------------- */
 
-/* M3 navigation drawer items: a 56dp pill in a 12dp gutter, selected state
-   carried by a secondary-container fill rather than by an edge marker. The
-   accent bar this had before is not an M3 pattern -- the container tone is
-   how a drawer says "you are here", and a bar plus a fill says it twice. */
+/* M3 navigation drawer items. md-list-item brings the height, the ripple and
+   the label type; the pill shape and the selected fill are set here because
+   the component exposes no container-colour token -- its inner container has
+   no background of its own and inherits border-radius, so the host carries
+   both. */
 .chat-side__row {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  min-width: 0;
+  --md-list-item-one-line-container-height: var(--metric-nav-item-height);
+  --md-list-item-leading-space: var(--space-4);
+  --md-list-item-trailing-space: var(--space-2);
+  --md-list-item-label-text-color: var(--md-sys-color-on-surface-variant);
+  --md-list-item-label-text-size: var(--md-sys-typescale-label-large-size);
+  --md-list-item-label-text-weight: var(--md-sys-typescale-weight-medium);
+  --md-list-item-trailing-supporting-text-color: var(--md-sys-color-on-surface-variant);
+  display: block;
   margin: 0 var(--metric-nav-item-gutter) 2px;
   border-radius: var(--md-sys-shape-corner-full);
   overflow: hidden;
 }
 
-.chat-side__item {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-height: var(--metric-nav-item-height);
-  padding: 0 var(--space-2) 0 var(--space-4);
-  background: none;
-  border: 0;
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: var(--md-sys-typescale-label-large-size);
-  line-height: var(--md-sys-typescale-label-large-line-height);
-  letter-spacing: var(--md-sys-typescale-label-large-tracking);
-  font-weight: var(--md-sys-typescale-weight-medium);
-  text-align: left;
-  cursor: pointer;
-  min-width: 0;
-}
-
-/* State layer, not a background swap. */
-.chat-side__row::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--md-sys-color-on-surface);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
-}
-
-.chat-side__row:hover::after  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
-.chat-side__row:active::after { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
-
+/* Selection is a container fill, which is how an M3 drawer says "you are
+   here". The ripple colour follows so it stays visible on the fill. */
 .chat-side__row--active {
+  --md-list-item-label-text-color: var(--md-sys-color-on-secondary-container);
+  --md-list-item-trailing-supporting-text-color: var(--md-sys-color-on-secondary-container);
+  --md-list-item-hover-state-layer-color: var(--md-sys-color-on-secondary-container);
+  --md-list-item-pressed-state-layer-color: var(--md-sys-color-on-secondary-container);
   background: var(--md-sys-color-secondary-container);
 }
 
-.chat-side__row--active .chat-side__item {
-  color: var(--md-sys-color-on-secondary-container);
+/* The move and delete controls, in the item's end slot. */
+.chat-side__row-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
-.chat-side__row--active::after { background: var(--md-sys-color-on-secondary-container); }
-
-.chat-side__row--confirming .chat-side__item {
-  color: var(--fg);
-}
-
-.chat-side__dot {
+.chat-side__row--confirming .chat-side__dot {
   flex: 0 0 auto;
   width: 8px;
   height: 8px;
@@ -1143,42 +1102,6 @@ button, input, select, textarea { font-family: inherit; }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.chat-side__item-time {
-  flex: 0 0 auto;
-  font-size: var(--md-sys-typescale-label-small-size);
-  line-height: var(--md-sys-typescale-label-small-line-height);
-  letter-spacing: var(--md-sys-typescale-label-small-tracking);
-  color: inherit;
-  opacity: 0.7;
-}
-
-/* Hidden until the row is hovered or focused, so the list stays quiet. */
-.chat-side__delete {
-  flex: 0 0 auto;
-  width: 26px;
-  border: 0;
-  border-radius: var(--radius-control);
-  background: none;
-  color: var(--muted);
-  font-size: var(--fs-caption);
-  line-height: 1;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity var(--motion), color var(--motion);
-}
-
-.chat-side__row:hover .chat-side__delete,
-.chat-side__delete:focus-visible { opacity: 1; }
-
-.chat-side__delete:hover { color: var(--danger); background: var(--row-bg); }
-
-.chat-side__delete--confirm {
-  opacity: 1;
-  color: var(--danger);
-  font-size: var(--fs-body-s);
-}
-
 
 /* --- sidebar divider ---------------------------------------------------- */
 
@@ -1284,34 +1207,17 @@ body.is-resizing {
 
 .chat__error button:hover { border-color: var(--accent); }
 
-/* Move-to-project. Quiet until the row is hovered, like the delete control. */
-.chat-side__move {
-  flex: 0 0 auto;
-  max-width: 26px;
-  appearance: none;
-  border: 0;
-  border-radius: var(--radius-control);
-  background: none;
-  color: var(--muted);
-  font: inherit;
-  font-size: var(--fs-micro);
-  cursor: pointer;
-  opacity: 0;
-  padding: 0 4px;
-  transition: opacity var(--motion), color var(--motion);
-  /* a folder-ish caret, since the select text itself is clipped */
-  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
-                    linear-gradient(135deg, currentColor 50%, transparent 50%);
-  background-position: right 9px center, right 4px center;
-  background-size: 5px 5px, 5px 5px;
-  background-repeat: no-repeat;
-  color: transparent;            /* hide the option label, keep the caret */
+.chat-side__move,
+.chat-side__delete {
+  --md-icon-button-icon-size: 18px;
+  width: 32px;
+  height: 32px;
 }
 
-.chat-side__row:hover .chat-side__move,
-.chat-side__move:focus-visible { opacity: 1; }
+.chat-side__delete { --md-icon-button-hover-icon-color: var(--md-sys-color-error); }
 
-.chat-side__move:hover { background: var(--row-bg); }
+/* The destructive action in the confirm dialog. */
+.chat-side__delete-confirm { --md-text-button-label-text-color: var(--md-sys-color-error); }
 
 .chat-side__move option { color: var(--fg); background: var(--panel); }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import ChatListItem from './ChatListItem.jsx';
 import Icon from '../brand/Icon.jsx';
-import { MdIconButton } from '../md/index.jsx';
+import { MdIconButton, MdList, MdListItem } from '../md/index.jsx';
 
 export default function ProjectGroup({
   project,
@@ -19,16 +19,16 @@ export default function ProjectGroup({
   return (
     <section className={`chat-side__group ${isDefault ? 'chat-side__group--default' : ''}`}>
       <div className="chat-side__group-header">
-        <button
+        <MdListItem
           type="button"
           className="chat-side__group-toggle"
           onClick={() => onToggle(project.id)}
           aria-expanded={!collapsed}
         >
-          <Icon name="chevron_right" size={20} className={collapsed ? '' : 'icon--rotated'} />
-          <span className="chat-side__group-name">{project.name}</span>
-          <span className="chat-side__group-count">{conversations.length}</span>
-        </button>
+          <Icon slot="start" name="chevron_right" size={20} className={collapsed ? '' : 'icon--rotated'} />
+          <span slot="headline" className="chat-side__group-name">{project.name}</span>
+          <span slot="trailing-supporting-text">{conversations.length}</span>
+        </MdListItem>
         {/* Starting a chat from inside a project is how conversations get
             filed. Without it, every chat lands loose and the projects stay
             empty. */}
@@ -43,7 +43,7 @@ export default function ProjectGroup({
       </div>
 
       {!collapsed && (
-        <div className="chat-side__items">
+        <MdList className="chat-side__items">
           {conversations.length === 0 ? (
             <p className="chat-side__empty-group">No chats yet</p>
           ) : (
@@ -59,7 +59,7 @@ export default function ProjectGroup({
               />
             ))
           )}
-        </div>
+        </MdList>
       )}
     </section>
   );

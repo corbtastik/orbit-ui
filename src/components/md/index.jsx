@@ -28,6 +28,12 @@ import '@material/web/textfield/filled-text-field.js';
 import '@material/web/select/filled-select.js';
 import '@material/web/select/select-option.js';
 import '@material/web/progress/circular-progress.js';
+import '@material/web/list/list.js';
+import '@material/web/list/list-item.js';
+import '@material/web/menu/menu.js';
+import '@material/web/menu/menu-item.js';
+import '@material/web/dialog/dialog.js';
+import '@material/web/divider/divider.js';
 
 import { MdFilledButton as MdFilledButtonEl } from '@material/web/button/filled-button.js';
 import { MdFilledTonalButton as MdFilledTonalButtonEl } from '@material/web/button/filled-tonal-button.js';
@@ -38,6 +44,12 @@ import { MdFilledTextField as MdFilledTextFieldEl } from '@material/web/textfiel
 import { MdFilledSelect as MdFilledSelectEl } from '@material/web/select/filled-select.js';
 import { MdSelectOption as MdSelectOptionEl } from '@material/web/select/select-option.js';
 import { MdCircularProgress as MdCircularProgressEl } from '@material/web/progress/circular-progress.js';
+import { MdList as MdListEl } from '@material/web/list/list.js';
+import { MdListItem as MdListItemEl } from '@material/web/list/list-item.js';
+import { MdMenu as MdMenuEl } from '@material/web/menu/menu.js';
+import { MdMenuItem as MdMenuItemEl } from '@material/web/menu/menu-item.js';
+import { MdDialog as MdDialogEl } from '@material/web/dialog/dialog.js';
+import { MdDivider as MdDividerEl } from '@material/web/divider/divider.js';
 
 const wrap = (tagName, elementClass, events) =>
   createComponent({ react: React, tagName, elementClass, events });
@@ -62,3 +74,26 @@ export const MdFilledSelect = wrap('md-filled-select', MdFilledSelectEl, {
 
 export const MdSelectOption = wrap('md-select-option', MdSelectOptionEl);
 export const MdCircularProgress = wrap('md-circular-progress', MdCircularProgressEl);
+
+export const MdList = wrap('md-list', MdListEl);
+export const MdListItem = wrap('md-list-item', MdListItemEl);
+export const MdDivider = wrap('md-divider', MdDividerEl);
+
+// A menu closes itself and then tells you; `closed` is the one to listen for
+// if state has to follow. Items raise close-menu, which the menu handles.
+export const MdMenu = wrap('md-menu', MdMenuEl, {
+  onOpening: 'opening',
+  onClosed: 'closed',
+});
+
+export const MdMenuItem = wrap('md-menu-item', MdMenuItemEl);
+
+// `cancel` fires for Escape and the scrim, `closed` after it has finished
+// animating away. Both matter: cancel is where "they did not choose" is
+// distinguishable from "they chose", and closed is when state may be reset.
+export const MdDialog = wrap('md-dialog', MdDialogEl, {
+  onOpen: 'open',
+  onClose: 'close',
+  onClosed: 'closed',
+  onCancel: 'cancel',
+});

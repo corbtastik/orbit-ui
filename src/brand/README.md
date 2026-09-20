@@ -57,8 +57,17 @@ Still hand-built, and staying that way: the navigation drawer, top app bar,
 card, snackbar, tooltip and segmented button. Material Web ships none of them
 and, being in maintenance mode, never will.
 
-Still hand-built for now, pending a later pass: list items, tabs, menus and
-dialogs.
+Lists, menus and dialogs are Material Web too: the drawer rows, project
+headers and cluster tree rows are `md-list-item`, moving a chat to a project
+is an `md-menu`, and deleting one is an `md-dialog`.
+
+`md-list-item` exposes no container-colour token, so the selected-row fill is
+set on the host. That works because its inner container has no background of
+its own and inherits `border-radius` -- worth knowing before anyone tries
+`::part()`.
+
+Still hand-built, pending a decision rather than work: the tab bar. Its tabs
+carry close buttons, which `md-tabs` does not expect.
 
 ## The parts that make it M3
 

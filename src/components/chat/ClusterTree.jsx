@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import * as chatApi from '../../api/chat.js';
 import Icon from '../brand/Icon.jsx';
-import { MdIconButton, MdFilledTextField } from '../md/index.jsx';
+import { MdIconButton, MdFilledTextField, MdList, MdListItem } from '../md/index.jsx';
 
 // The cluster tree: cluster -> databases -> collections, for whatever is
 // configured as ORBIT_CLUSTER_* in .env.
@@ -140,22 +140,24 @@ export default function ClusterTree({ onOpenTab }) {
             const open = !!openClusters[cluster.id];
             return (
               <div key={cluster.id} className="cluster-tree__cluster">
-                <button
+                <MdListItem
                   type="button"
                   className="cluster-tree__row cluster-tree__row--cluster"
                   onClick={() => toggleCluster(cluster.id)}
                   aria-expanded={open}
                 >
-                  <Caret open={open} />
-                  <span className="cluster-tree__icon-wrap">
-                    <ClusterIcon />
-                    <span
-                      className={`cluster-tree__status cluster-tree__status--${cluster.status}`}
-                      title={cluster.status === 'ok' ? 'Connected' : cluster.error}
-                    />
+                  <span slot="start" className="cluster-tree__lead">
+                    <Caret open={open} />
+                    <span className="cluster-tree__icon-wrap">
+                      <ClusterIcon />
+                      <span
+                        className={`cluster-tree__status cluster-tree__status--${cluster.status}`}
+                        title={cluster.status === 'ok' ? 'Connected' : cluster.error}
+                      />
+                    </span>
                   </span>
-                  <span className="cluster-tree__name">{cluster.name}</span>
-                </button>
+                  <span slot="headline" className="cluster-tree__name">{cluster.name}</span>
+                </MdListItem>
 
                 {open && cluster.status === 'error' && (
                   <p className="cluster-tree__note cluster-tree__note--error">{cluster.error}</p>
@@ -221,7 +223,7 @@ export default function ClusterTree({ onOpenTab }) {
                         {dbOpen &&
                           Array.isArray(rows) &&
                           rows.map((c) => (
-                            <button
+                            <MdListItem
                               type="button"
                               key={c.name}
                               className="cluster-tree__row cluster-tree__row--collection"
@@ -236,9 +238,9 @@ export default function ClusterTree({ onOpenTab }) {
                               }
                               title={`Open ${db.name}.${c.name}`}
                             >
-                              <CollectionIcon />
-                              <span className="cluster-tree__name">{c.name}</span>
-                            </button>
+                              <span slot="start"><CollectionIcon /></span>
+                              <span slot="headline" className="cluster-tree__name">{c.name}</span>
+                            </MdListItem>
                           ))}
                       </div>
                     );
