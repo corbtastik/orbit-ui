@@ -18,6 +18,7 @@ import { DEFAULT_PROVIDER } from './components/chat/providers.js';
 import * as chatApi from './api/chat.js';
 import { DEFAULT_PROJECT } from './components/chat/conversations.js';
 import Icon from './components/brand/Icon.jsx';
+import { MdFilledTonalButton, MdTextButton } from './components/md/index.jsx';
 
 // Nobody knows what to ask a new chat box, and this one's range is not
 // obvious -- it spans Atlas administration and querying data inside a
@@ -324,24 +325,25 @@ export default function App() {
       <ActivityBar activity={activity} />
 
       {!pinned && messages.length > 0 && (
-        <button type="button" className="chat__jump" onClick={jumpToLatest}>
-          Jump to latest <Icon name="arrow_downward" size={18} />
-        </button>
+        <MdFilledTonalButton className="chat__jump" onClick={jumpToLatest}>
+          Jump to latest
+          <Icon name="arrow_downward" size={18} slot="icon" />
+        </MdFilledTonalButton>
       )}
 
       {loadError && (
         <div className="chat__error" role="alert">
           <span>{loadError}</span>
-          <button type="button" onClick={() => setLoadError(null)}>Dismiss</button>
+          <MdTextButton onClick={() => setLoadError(null)}>Dismiss</MdTextButton>
         </div>
       )}
 
       {error && (
         <div className="chat__error" role="alert">
           <span>{error}</span>
-          <button type="button" onClick={() => send(messages.at(-2)?.text ?? '')}>
+          <MdTextButton onClick={() => send(messages.at(-2)?.text ?? '')}>
             Retry
-          </button>
+          </MdTextButton>
         </div>
       )}
 

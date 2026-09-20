@@ -41,6 +41,25 @@ The app's three surfaces turned out to already sit on M3's ladder:
     --md-surface-container-high   #1F2347   was the nested panel
     --md-surface-container-highest #2A2E5A  was the border
 
+## Components: @material/web where it exists
+
+Buttons, icon buttons, text fields, select and the progress indicator are
+Google's own `@material/web` elements, wrapped for React in
+`src/components/md/index.jsx`. That file is the only place the dependency is
+touched.
+
+They theme themselves. Material Web's component styles fall back to
+`--md-sys-*`, which is exactly what `tokens/` defines, so the palette and type
+scale flow in with no per-component configuration -- the reason Phase 1's
+rename to the official namespace was worth doing before any component landed.
+
+Still hand-built, and staying that way: the navigation drawer, top app bar,
+card, snackbar, tooltip and segmented button. Material Web ships none of them
+and, being in maintenance mode, never will.
+
+Still hand-built for now, pending a later pass: list items, tabs, menus and
+dialogs.
+
 ## The parts that make it M3
 
 - **Shape.** Seven-step corner scale. Controls are fully rounded, cards are

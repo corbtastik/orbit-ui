@@ -18,15 +18,19 @@
      neutralVariant  #2A2E5A
      error           #FF5252
 
+   primary is pinned to the source colour rather than taken
+   from tone 80 -- see the note in the generator. The other
+   48 roles are generated.
+
    Dark scheme only. The app has no light theme.
    ============================================================ */
 
 :root {
   /* ---- Primary ---- */
-  --md-sys-color-primary: #FFB0CA;
-  --md-sys-color-on-primary: #640035;
-  --md-sys-color-primary-container: #FF5DA2;
-  --md-sys-color-on-primary-container: #650036;
+  --md-sys-color-primary: #FF5DA2;
+  --md-sys-color-on-primary: #3E001F;
+  --md-sys-color-primary-container: #8D004E;
+  --md-sys-color-on-primary-container: #FFD9E3;
 
   /* ---- Secondary ---- */
   --md-sys-color-secondary: #79D1F9;
@@ -104,11 +108,12 @@
   on-surface / surface                             14.38
   on-surface-variant / surface                     10.88
   on-surface-variant / surface-container-highest   7.21
-  on-primary / primary                             7.73
-  on-primary-container / primary-container         4.57
+  on-primary / primary                             5.99
+  on-primary-container / primary-container         7.26
   on-secondary-container / secondary-container     4.55
   on-error-container / error-container             7.22
-  primary / surface                                10.90
+  primary / surface                                6.50
+  primary / surface-container-high                 5.04
   outline / surface  (3:1 bar -- borders)          5.87
 
    Worst text pairing: 4.55:1 (clears the 4.5:1 bar for body text).

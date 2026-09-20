@@ -4,6 +4,7 @@ import ClusterTree from './ClusterTree.jsx';
 import OrbitLogo from '../brand/OrbitLogo.jsx';
 import { DEFAULT_PROJECT } from './conversations.js';
 import Icon from '../brand/Icon.jsx';
+import { MdFilledTonalButton, MdIconButton } from '../md/index.jsx';
 
 // Always present, never created and never deletable. New chats land here when
 // no project was chosen, so the sidebar is never a blank panel with nowhere
@@ -61,15 +62,14 @@ export default function ChatSidebar({
     return (
       <aside className="chat-side chat-side--collapsed">
         <OrbitLogo size={26} />
-        <button
-          type="button"
+        <MdIconButton
           className="chat-side__expand"
           onClick={onToggleCollapsed}
           title="Show chats"
           aria-label="Show chats"
         >
           <Icon name="menu" size={24} />
-        </button>
+        </MdIconButton>
       </aside>
     );
   }
@@ -82,18 +82,18 @@ export default function ChatSidebar({
       </div>
 
       <div className="chat-side__top">
-        <button type="button" className="chat-side__new" onClick={() => onNewChat(null)}>
-          + New chat
-        </button>
-        <button
-          type="button"
+        <MdFilledTonalButton className="chat-side__new" onClick={() => onNewChat(null)}>
+          <Icon name="add" size={18} slot="icon" />
+          New chat
+        </MdFilledTonalButton>
+        <MdIconButton
           className="chat-side__collapse"
           onClick={onToggleCollapsed}
           title="Hide chats"
           aria-label="Hide chats"
         >
           <Icon name="left_panel_close" size={24} />
-        </button>
+        </MdIconButton>
       </div>
 
       <div className="chat-side__scroll">
@@ -103,15 +103,14 @@ export default function ChatSidebar({
 
         <div className="chat-side__section-head">
           <span>Chats</span>
-          <button
-            type="button"
+          <MdIconButton
             className="chat-side__section-add"
             onClick={() => setCreating(true)}
             title="New project"
             aria-label="New project"
           >
-            +
-          </button>
+            <Icon name="create_new_folder" size={20} />
+          </MdIconButton>
         </div>
 
         {creating && (

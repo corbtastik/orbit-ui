@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { MdCircularProgress } from '../md/index.jsx';
 
 // What the assistant is doing, and for how long.
 //
@@ -22,7 +23,10 @@ export default function ActivityBar({ activity }) {
 
   return (
     <div className="chat__activity" role="status" aria-live="polite">
-      <span className="chat__activity-spinner" aria-hidden="true" />
+      {/* M3's own indeterminate spinner: the right stroke, the right easing,
+          and it stops animating under prefers-reduced-motion without this
+          file having to know about that. */}
+      <MdCircularProgress className="chat__activity-spinner" indeterminate aria-hidden="true" />
       <span className="chat__activity-label">
         {label === 'thinking' && 'Thinking'}
         {label === 'answering' && 'Answering'}

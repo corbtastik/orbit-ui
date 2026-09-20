@@ -1,0 +1,64 @@
+// React wrappers around @material/web.
+//
+// Material Web ships custom elements, not React components. React 18 sets
+// unknown props on a custom element as string attributes and cannot bind to
+// custom events declaratively, so `value` would arrive as the literal string
+// and `onInput` would never fire. React 19 handles both natively; this app is
+// on 18, and upgrading React is a bigger decision than adopting a component
+// library.
+//
+// @lit/react's createComponent closes that gap: it sets real properties and
+// maps custom events onto React-style handlers. One file, so the dependency
+// has exactly one seam -- if Material Web ever has to be replaced, or React 19
+// lands and these become unnecessary, this is the only place that changes.
+//
+// The element imports are side-effectful: importing the module registers the
+// custom element. Only the elements this app uses are imported, because each
+// one carries its own styles into the bundle.
+
+import * as React from 'react';
+import { createComponent } from '@lit/react';
+
+import '@material/web/button/filled-button.js';
+import '@material/web/button/filled-tonal-button.js';
+import '@material/web/button/outlined-button.js';
+import '@material/web/button/text-button.js';
+import '@material/web/iconbutton/icon-button.js';
+import '@material/web/textfield/filled-text-field.js';
+import '@material/web/select/filled-select.js';
+import '@material/web/select/select-option.js';
+import '@material/web/progress/circular-progress.js';
+
+import { MdFilledButton as MdFilledButtonEl } from '@material/web/button/filled-button.js';
+import { MdFilledTonalButton as MdFilledTonalButtonEl } from '@material/web/button/filled-tonal-button.js';
+import { MdOutlinedButton as MdOutlinedButtonEl } from '@material/web/button/outlined-button.js';
+import { MdTextButton as MdTextButtonEl } from '@material/web/button/text-button.js';
+import { MdIconButton as MdIconButtonEl } from '@material/web/iconbutton/icon-button.js';
+import { MdFilledTextField as MdFilledTextFieldEl } from '@material/web/textfield/filled-text-field.js';
+import { MdFilledSelect as MdFilledSelectEl } from '@material/web/select/filled-select.js';
+import { MdSelectOption as MdSelectOptionEl } from '@material/web/select/select-option.js';
+import { MdCircularProgress as MdCircularProgressEl } from '@material/web/progress/circular-progress.js';
+
+const wrap = (tagName, elementClass, events) =>
+  createComponent({ react: React, tagName, elementClass, events });
+
+export const MdFilledButton = wrap('md-filled-button', MdFilledButtonEl);
+export const MdFilledTonalButton = wrap('md-filled-tonal-button', MdFilledTonalButtonEl);
+export const MdOutlinedButton = wrap('md-outlined-button', MdOutlinedButtonEl);
+export const MdTextButton = wrap('md-text-button', MdTextButtonEl);
+export const MdIconButton = wrap('md-icon-button', MdIconButtonEl);
+
+// `input` and `change` are the two the fields actually emit. They are native
+// event names, but they have to be declared here or the wrapper will not
+// forward them as props.
+export const MdFilledTextField = wrap('md-filled-text-field', MdFilledTextFieldEl, {
+  onInput: 'input',
+  onChange: 'change',
+});
+
+export const MdFilledSelect = wrap('md-filled-select', MdFilledSelectEl, {
+  onChange: 'change',
+});
+
+export const MdSelectOption = wrap('md-select-option', MdSelectOptionEl);
+export const MdCircularProgress = wrap('md-circular-progress', MdCircularProgressEl);

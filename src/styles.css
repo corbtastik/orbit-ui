@@ -660,90 +660,16 @@ button, input, select, textarea { font-family: inherit; }
   box-sizing: border-box;
 }
 
-/* M3 filled text field: a container tone, rounded at the top only, and an
-   indicator line along the bottom that thickens and takes the primary colour
-   on focus. The asymmetric radius is the spec, not an oversight -- it is what
-   distinguishes a filled field from an outlined one at a glance. */
+/* Layout only. The field's own look -- container tone, indicator line, focus
+   behaviour, label -- belongs to md-filled-text-field, which reads the same
+   --md-sys-* tokens the rest of this file does, so it themes itself. */
 .chat__input {
   flex: 1 1 auto;
-  resize: none;
-  min-height: var(--metric-text-field-height);
-  padding: var(--space-4) var(--space-4);
-  border: 0;
-  border-bottom: 1px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-corner-extra-small) var(--md-sys-shape-corner-extra-small) 0 0;
-  background: var(--md-sys-color-surface-container-highest);
-  color: var(--md-sys-color-on-surface);
-  font: inherit;
-  font-size: var(--md-sys-typescale-body-large-size);
-  line-height: var(--md-sys-typescale-body-large-line-height);
-  letter-spacing: var(--md-sys-typescale-body-large-tracking);
-  max-height: 160px;
-  overflow-y: auto;
-  transition: border-color var(--motion);
+  --md-filled-text-field-container-shape-start-start: var(--md-sys-shape-corner-extra-small);
+  --md-filled-text-field-container-shape-start-end: var(--md-sys-shape-corner-extra-small);
 }
 
-.chat__input::placeholder { color: var(--md-sys-color-on-surface-variant); }
-
-.chat__input:focus {
-  outline: none;
-  border-bottom: 2px solid var(--md-sys-color-primary);
-  /* The extra border pixel would otherwise shift the text up by one. */
-  padding-bottom: calc(var(--space-4) - 1px);
-}
-
-/* M3 filled button: the one primary action on this screen. */
-.chat__send {
-  position: relative;
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--metric-button-height);
-  padding: 0 var(--metric-button-padding-x);
-  border: 0;
-  border-radius: var(--md-sys-shape-corner-full);
-  background: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
-  font-size: var(--md-sys-typescale-label-large-size);
-  line-height: var(--md-sys-typescale-label-large-line-height);
-  letter-spacing: var(--md-sys-typescale-label-large-tracking);
-  font-weight: var(--md-sys-typescale-weight-medium);
-  cursor: pointer;
-  overflow: hidden;
-  transition: box-shadow var(--motion);
-}
-
-.chat__send::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: currentColor;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
-}
-
-.chat__send:hover:not(:disabled)::after  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
-.chat__send:active:not(:disabled)::after { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
-.chat__send:hover:not(:disabled) { box-shadow: var(--md-sys-elevation-level1); }
-
-/* M3 disables by flattening the container to 12% and the label to 38% of
-   on-surface, rather than by fading the whole button. */
-.chat__send:disabled {
-  background: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent);
-  color: color-mix(in srgb, var(--md-sys-color-on-surface) 38%, transparent);
-  box-shadow: none;
-  opacity: 1;
-  cursor: not-allowed;
-}
-
-/* M3 outlined button -- a secondary action beside a filled one. */
-.chat__send--stop {
-  background: transparent;
-  color: var(--md-sys-color-primary);
-  border: 1px solid var(--md-sys-color-outline);
-}
+.chat__send { flex: 0 0 auto; }
 
 /* --- provider selection and provenance -------------------------------- */
 
@@ -755,38 +681,12 @@ button, input, select, textarea { font-family: inherit; }
   justify-content: flex-end;
 }
 
-.chat__provider {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 6px 4px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  background: var(--panel);
-}
-
-.chat__provider-label {
-  font-size: var(--fs-caption);
-  color: var(--muted);
-  white-space: nowrap;
-}
-
+/* The field's own look belongs to md-filled-select. Kept narrow so the app
+   bar does not hand a third of its width to one control. */
 .chat__provider-select {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--fg);
-  font: inherit;
-  font-size: var(--fs-code);
-  font-weight: var(--fw-semibold);
-  padding: 4px 24px 4px 4px;
-  cursor: pointer;
-  /* room for the chevron drawn below */
-  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
-                    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
-  background-position: right 10px center, right 5px center;
-  background-size: 5px 5px, 5px 5px;
-  background-repeat: no-repeat;
+  --md-filled-field-container-shape-start-start: var(--md-sys-shape-corner-extra-small);
+  --md-filled-field-container-shape-start-end: var(--md-sys-shape-corner-extra-small);
+  min-width: 150px;
 }
 
 .chat__provider-select:focus {
@@ -855,42 +755,9 @@ button, input, select, textarea { font-family: inherit; }
   padding-top: 20px;
 }
 
-/* M3 standard icon button: a 40dp circle, no outline, state layer on hover. */
+/* md-icon-button is a 40dp circle with its own state layer; nothing to add. */
 .chat-side__expand,
-.chat-side__collapse {
-  position: relative;
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--metric-icon-button-size);
-  height: var(--metric-icon-button-size);
-  padding: 0;
-  background: none;
-  border: 0;
-  border-radius: var(--md-sys-shape-corner-full);
-  color: var(--md-sys-color-on-surface-variant);
-  cursor: pointer;
-  font-size: var(--md-sys-typescale-body-large-size);
-  line-height: 1;
-  overflow: hidden;
-}
-
-.chat-side__expand::after,
-.chat-side__collapse::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: currentColor;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
-}
-
-.chat-side__expand:hover::after,
-.chat-side__collapse:hover::after { opacity: var(--md-sys-state-hover-state-layer-opacity); }
-.chat-side__expand:hover,
-.chat-side__collapse:hover { color: var(--md-sys-color-on-surface); }
+.chat-side__collapse { flex: 0 0 auto; }
 
 /* Top-left of the sidebar: the mark, then the wordmark. */
 .chat-side__brand {
@@ -916,43 +783,10 @@ button, input, select, textarea { font-family: inherit; }
   padding: 12px 12px 12px;
 }
 
-/* M3 filled-tonal button. Tonal rather than filled because the drawer
-   already has a primary-coloured thing in it -- the mark -- and two
-   primaries in one panel is how an M3 surface stops having a hierarchy. */
-.chat-side__new {
-  position: relative;
-  flex: 1 1 auto;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: var(--metric-button-height);
-  padding: 0 var(--metric-button-padding-x);
-  border: 0;
-  border-radius: var(--md-sys-shape-corner-full);
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
-  font-size: var(--md-sys-typescale-label-large-size);
-  line-height: var(--md-sys-typescale-label-large-line-height);
-  letter-spacing: var(--md-sys-typescale-label-large-tracking);
-  font-weight: var(--md-sys-typescale-weight-medium);
-  text-align: left;
-  cursor: pointer;
-  overflow: hidden;
-}
-
-.chat-side__new::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: currentColor;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
-}
-
-.chat-side__new:hover::after  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
-.chat-side__new:active::after { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
-.chat-side__new:hover { box-shadow: var(--md-sys-elevation-level1); }
+/* Layout only. The pill, the state layer and the elevation on hover all
+   belong to md-filled-tonal-button, which reads the same --md-sys-* tokens
+   this file does. */
+.chat-side__new { flex: 1 1 auto; }
 
 .chat-side__new:hover { border-color: var(--accent); }
 
@@ -979,16 +813,14 @@ button, input, select, textarea { font-family: inherit; }
 
 .chat-side__section-head--plain { padding-top: 20px; }
 
+/* md-icon-button brings the circle and the state layer; these only size it
+   down, since a 40dp target beside a section label is too heavy. */
 .chat-side__section-add,
 .chat-side__group-add {
-  background: none;
-  border: 0;
-  color: var(--muted);
-  font-size: var(--fs-body-s);
-  line-height: 1;
-  padding: 2px 6px;
-  cursor: pointer;
-  border-radius: var(--radius-control);
+  --md-icon-button-icon-size: 20px;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
 }
 
 .chat-side__section-add:hover,
@@ -1022,20 +854,16 @@ button, input, select, textarea { font-family: inherit; }
   margin-bottom: 4px;
 }
 
-/* M3 search bar: a fully rounded container tone, no outline. */
+/* A search field, so it takes the fully-rounded container M3 gives search
+   rather than the filled field's square top. */
 .cluster-tree__search {
+  --md-filled-field-container-shape: var(--md-sys-shape-corner-full);
+  --md-filled-text-field-container-color: var(--md-sys-color-surface-container-high);
+  --md-filled-text-field-active-indicator-height: 0;
+  --md-filled-text-field-focus-active-indicator-height: 0;
+  display: block;
   width: calc(100% - var(--space-6));
-  min-height: var(--metric-button-height);
   margin: 0 var(--metric-nav-item-gutter) var(--space-2);
-  padding: 0 var(--space-4);
-  border: 0;
-  border-radius: var(--md-sys-shape-corner-full);
-  background: var(--md-sys-color-surface-container-high);
-  color: var(--md-sys-color-on-surface);
-  font: inherit;
-  font-size: var(--md-sys-typescale-body-large-size);
-  letter-spacing: var(--md-sys-typescale-body-large-tracking);
-  box-sizing: border-box;
 }
 
 .cluster-tree__search::placeholder { color: var(--muted); }
@@ -1411,26 +1239,15 @@ body.is-resizing {
   border-color: var(--danger);
 }
 
-/* Floats above the composer. Only shown once the reader has scrolled away
-   from the bottom, so it never covers anything they were reading. */
+/* Floats over the transcript, so position is ours; the pill is the
+   component's. */
 .chat__jump {
   position: absolute;
   left: 50%;
-  bottom: 190px;
+  bottom: 150px;
   transform: translateX(-50%);
   z-index: 3;
-  padding: 7px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  background: var(--panel);
-  color: var(--fg);
-  font-size: var(--fs-caption);
-  font-weight: var(--fw-semibold);
-  cursor: pointer;
-  box-shadow: var(--elev-2);
 }
-
-.chat__jump:hover { border-color: var(--accent); }
 
 .chat__error {
   flex: 0 0 auto;
@@ -1532,16 +1349,13 @@ body.is-resizing {
   box-sizing: border-box;
 }
 
+/* Size only -- the stroke, the easing and the reduced-motion behaviour are
+   the component's. */
 .chat__activity-spinner {
-  width: 11px;
-  height: 11px;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: var(--radius-circle);
-  animation: chat-spin 0.7s linear infinite;
+  --md-circular-progress-size: 16px;
+  --md-circular-progress-active-indicator-width: 14;
+  flex: 0 0 auto;
 }
-
-@keyframes chat-spin { to { transform: rotate(360deg); } }
 
 .chat__activity-label { color: var(--fg); }
 
@@ -1643,16 +1457,11 @@ button.tabbar__tab { padding: 0 var(--space-4); }
 .tabbar__kind { color: var(--accent); font-size: var(--fs-caption); }
 
 .tabbar__close {
-  padding: 0 var(--space-3) 0 var(--space-1);
-  border: 0;
-  background: none;
-  color: var(--muted);
-  font-size: var(--fs-micro);
-  line-height: 1;
-  cursor: pointer;
+  --md-icon-button-icon-size: 18px;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
 }
-
-.tabbar__close:hover { color: var(--danger); }
 
 /* Hidden, not unmounted -- see the note in App.jsx. */
 .chat__pane {
@@ -2062,8 +1871,8 @@ button.tabbar__tab { padding: 0 var(--space-4); }
   overflow-x: auto;
 }
 
-/* Upper right of the card. Sticky on the horizontal axis so it stays in view
-   when a wide document scrolls sideways underneath it. */
+/* Sticky on the horizontal axis so it stays in view when a wide document
+   scrolls sideways underneath it. */
 .browse__doc-expand {
   position: sticky;
   float: right;
@@ -2071,23 +1880,6 @@ button.tabbar__tab { padding: 0 var(--space-4); }
   left: 100%;
   z-index: 1;
   margin-left: var(--space-3);
-  padding: 0 var(--space-3);
-  min-height: var(--space-8);
-  border: 0;
-  border-radius: var(--md-sys-shape-corner-full);
-  background: transparent;
-  color: var(--md-sys-color-primary);
-  font-family: var(--md-ref-typeface-plain);
-  font-size: var(--md-sys-typescale-label-medium-size);
-  line-height: var(--space-8);
-  letter-spacing: var(--md-sys-typescale-label-medium-tracking);
-  font-weight: var(--md-sys-typescale-weight-medium);
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.browse__doc-expand:hover {
-  background: color-mix(in srgb, var(--md-sys-color-primary) calc(var(--md-sys-state-hover-state-layer-opacity) * 100%), transparent);
 }
 
 .browse__pager {
@@ -2098,43 +1890,7 @@ button.tabbar__tab { padding: 0 var(--space-4); }
   padding: 16px 0 8px;
 }
 
-/* M3 outlined button. */
-.browse__page-btn {
-  position: relative;
-  min-height: var(--metric-button-height);
-  padding: 0 var(--space-6);
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-corner-full);
-  background: transparent;
-  color: var(--md-sys-color-primary);
-  font: inherit;
-  font-size: var(--md-sys-typescale-label-large-size);
-  line-height: var(--md-sys-typescale-label-large-line-height);
-  letter-spacing: var(--md-sys-typescale-label-large-tracking);
-  font-weight: var(--md-sys-typescale-weight-medium);
-  cursor: pointer;
-  overflow: hidden;
-}
-
-.browse__page-btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: currentColor;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
-}
-
-.browse__page-btn:hover:not(:disabled)::after  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
-.browse__page-btn:active:not(:disabled)::after { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
-
-.browse__page-btn:disabled {
-  border-color: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent);
-  color: color-mix(in srgb, var(--md-sys-color-on-surface) 38%, transparent);
-  opacity: 1;
-  cursor: not-allowed;
-}
+.browse__page-btn { flex: 0 0 auto; }
 
 .browse__page-range {
   font-size: var(--fs-code);

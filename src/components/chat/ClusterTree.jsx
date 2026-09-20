@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import * as chatApi from '../../api/chat.js';
 import Icon from '../brand/Icon.jsx';
+import { MdIconButton, MdFilledTextField } from '../md/index.jsx';
 
 // The cluster tree: cluster -> databases -> collections, for whatever is
 // configured as ORBIT_CLUSTER_* in .env.
@@ -101,8 +102,7 @@ export default function ClusterTree({ onOpenTab }) {
         <span>
           Clusters{clusters.length > 0 && ` (${clusters.length})`}
         </span>
-        <button
-          type="button"
+        <MdIconButton
           className="chat-side__section-add"
           onClick={() => setSectionOpen((v) => !v)}
           title={sectionOpen ? 'Hide clusters' : 'Show clusters'}
@@ -110,17 +110,17 @@ export default function ClusterTree({ onOpenTab }) {
           aria-expanded={sectionOpen}
         >
           <Icon name={sectionOpen ? 'close' : 'chevron_right'} size={20} />
-        </button>
+        </MdIconButton>
       </div>
 
       {sectionOpen && (
         <>
           {clusters.length > 0 && (
-            <input
+            <MdFilledTextField
               className="cluster-tree__search"
               placeholder="Search clusters"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onInput={(e) => setQuery(e.target.value)}
             />
           )}
 

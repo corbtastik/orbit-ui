@@ -90,7 +90,36 @@ const GROUPS = [
 ];
 
 const kebab = (s) => s.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
-const role = (name) => hexFromArgb(MaterialDynamicColors[name].getArgb(scheme)).toUpperCase();
+const tone = (palette, t) => hexFromArgb(palette.tone(t)).toUpperCase();
+
+// --- One deliberate deviation from the spec ---------------------------------
+//
+// M3's dark scheme takes `primary` from tone 80 of the primary palette, which
+// for this palette is #FFB0CA -- a pastel. Star Lord's accent is #FF5DA2, and
+// that colour is the brand; being spec-correct about the tone would mean the
+// app no longer looks like itself.
+//
+// So `primary` is pinned to the source and the three roles that pair with it
+// are re-derived to suit, from the same tonal palette the generator built.
+// Nothing here is hand-picked: #FF5DA2 is tone 63, which is darker than the
+// tone 80 the spec assumes, so its ink has to come down with it.
+//
+//   on-primary            tone 10, not the spec's tone 20 -- 5.99:1 against a
+//                         tone-63 primary where tone 20 gives only 4.61:1
+//   primary-container     tone 30, the spec's own container tone. It can no
+//                         longer be the source colour, which now IS primary.
+//   on-primary-container  tone 90, as the spec says
+//
+// Everything else in the scheme is untouched and still generated.
+const PINNED = {
+  primary: SOURCE.primary,
+  onPrimary: tone(scheme.primaryPalette, 10),
+  primaryContainer: tone(scheme.primaryPalette, 30),
+  onPrimaryContainer: tone(scheme.primaryPalette, 90),
+};
+
+const role = (name) =>
+  PINNED[name] ?? hexFromArgb(MaterialDynamicColors[name].getArgb(scheme)).toUpperCase();
 
 // --- Contrast, checked rather than assumed -----------------------------------
 // M3 guarantees its on-* pairs, but the surface ladder against on-surface-variant
@@ -115,6 +144,7 @@ const CHECKS = [
   ['on-secondary-container / secondary-container', 'onSecondaryContainer', 'secondaryContainer'],
   ['on-error-container / error-container', 'onErrorContainer', 'errorContainer'],
   ['primary / surface', 'primary', 'surface'],
+  ['primary / surface-container-high', 'primary', 'surfaceContainerHigh'],
   ['outline / surface  (3:1 bar -- borders)', 'outline', 'surface'],
 ];
 
@@ -141,6 +171,10 @@ const lines = [
   '   tonal palette:',
   '',
   ...Object.entries(SOURCE).map(([k, v]) => `     ${k.padEnd(15)} ${v}`),
+  '',
+  '   primary is pinned to the source colour rather than taken',
+  '   from tone 80 -- see the note in the generator. The other',
+  '   48 roles are generated.',
   '',
   '   Dark scheme only. The app has no light theme.',
   '   ============================================================ */',

@@ -1,6 +1,7 @@
 import React from 'react';
 import ChatListItem from './ChatListItem.jsx';
 import Icon from '../brand/Icon.jsx';
+import { MdIconButton } from '../md/index.jsx';
 
 export default function ProjectGroup({
   project,
@@ -31,15 +32,14 @@ export default function ProjectGroup({
         {/* Starting a chat from inside a project is how conversations get
             filed. Without it, every chat lands loose and the projects stay
             empty. */}
-        <button
-          type="button"
+        <MdIconButton
           className="chat-side__group-add"
           onClick={() => onNewChat(project.id)}
           title={`New chat in ${project.name}`}
           aria-label={`New chat in ${project.name}`}
         >
-          +
-        </button>
+          <Icon name="add" size={20} />
+        </MdIconButton>
       </div>
 
       {!collapsed && (

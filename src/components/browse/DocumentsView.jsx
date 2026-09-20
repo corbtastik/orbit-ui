@@ -4,6 +4,7 @@ import JsonView, { OPEN_TO_DEPTH, OPEN_ALL } from './JsonView.jsx';
 import { formatCount } from './format.js';
 import Icon from '../brand/Icon.jsx';
 import DocumentsTable from './DocumentsTable.jsx';
+import { MdOutlinedButton, MdTextButton } from '../md/index.jsx';
 
 const PAGE_SIZE = 25;
 
@@ -53,15 +54,14 @@ function DocumentCard({ doc }) {
 
   return (
     <article className="browse__doc">
-      <button
-        type="button"
+      <MdTextButton
         className="browse__doc-expand"
         onClick={() => setExpanded((v) => !v)}
         title={expanded ? 'Collapse to the top level' : 'Expand every level'}
         aria-expanded={expanded}
       >
         {expanded ? 'Collapse all' : 'Expand all'}
-      </button>
+      </MdTextButton>
 
       {/* Keyed on the mode: openDepth only seeds each row's own toggle, so
           changing it has to rebuild the tree to take effect. Remounting also
@@ -158,26 +158,27 @@ export default function DocumentsView({ tab }) {
 
       {(hasPrev || hasNext) && (
         <div className="browse__pager">
-          <button
-            type="button"
+          <MdOutlinedButton
             className="browse__page-btn"
             disabled={!hasPrev || loading}
             onClick={() => setSkip(Math.max(0, skip - PAGE_SIZE))}
           >
-            <Icon name="chevron_left" size={18} /> Previous
-          </button>
+            <Icon name="chevron_left" size={18} slot="icon" />
+            Previous
+          </MdOutlinedButton>
           <span className="browse__page-range">
             {formatCount(first)} – {formatCount(last)}
             {total != null && <> of ~{formatCount(total)}</>}
           </span>
-          <button
-            type="button"
+          <MdOutlinedButton
             className="browse__page-btn"
             disabled={!hasNext || loading}
             onClick={() => setSkip(skip + PAGE_SIZE)}
+            trailing-icon
           >
-            Next <Icon name="chevron_right" size={18} />
-          </button>
+            Next
+            <Icon name="chevron_right" size={18} slot="icon" />
+          </MdOutlinedButton>
         </div>
       )}
     </div>
