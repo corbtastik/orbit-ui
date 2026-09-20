@@ -3,8 +3,40 @@ import * as chatApi from '../../api/chat.js';
 import JsonView, { OPEN_TO_DEPTH, OPEN_ALL } from './JsonView.jsx';
 import { formatCount } from './format.js';
 import Icon from '../brand/Icon.jsx';
+import DocumentsTable from './DocumentsTable.jsx';
 
 const PAGE_SIZE = 25;
+
+const VIEWS = [
+  { id: 'table', label: 'Table', icon: 'table_rows' },
+  { id: 'json', label: 'JSON', icon: 'data_object' },
+];
+
+// M3 single-select segmented button. Two segments, the selected one filled
+// with secondary-container and carrying a check -- the check is the spec's
+// selection marker, not decoration, and it is what makes the control readable
+// when both labels are short.
+function ViewToggle({ value, onChange }) {
+  return (
+    <div className="segmented" role="group" aria-label="Document view">
+      {VIEWS.map((v) => {
+        const selected = v.id === value;
+        return (
+          <button
+            key={v.id}
+            type="button"
+            className={`segmented__seg ${selected ? 'segmented__seg--selected' : ''}`}
+            aria-pressed={selected}
+            onClick={() => onChange(v.id)}
+          >
+            <Icon name={selected ? 'check' : v.icon} size={18} />
+            {v.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 // One page of documents from a collection. Read-only.
 //
@@ -49,6 +81,10 @@ export default function DocumentsView({ tab }) {
   const [skip, setSkip] = useState(0);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  // Table first: it is the view that answers "what is in here" at a glance.
+  // Kept across page turns -- only `skip` changes, so this does not remount --
+  // and reset per collection, because the component is keyed by tab.
+  const [view, setView] = useState('table');
 
   // Reset to the first page when the tab points somewhere else, or a
   // collection opened at page 3 would show page 3 of a different collection.
@@ -87,6 +123,10 @@ export default function DocumentsView({ tab }) {
 
   return (
     <div className="browse">
+      <div className="browse__viewbar">
+        <ViewToggle value={view} onChange={setView} />
+      </div>
+
       <header className="browse__head">
         <h2 className="browse__title">{tab.coll}</h2>
         <p className="browse__sub">
@@ -104,7 +144,11 @@ export default function DocumentsView({ tab }) {
         </p>
       )}
 
-      {!loading && !error && docs.map((doc, i) => (
+      {!loading && !error && docs.length > 0 && view === 'table' && (
+        <DocumentsTable docs={docs} />
+      )}
+
+      {!loading && !error && view === 'json' && docs.map((doc, i) => (
         // Documents are keyed by position: _id is the usual key, but a
         // collection is not obliged to have one on every document and this
         // view must render whatever is actually stored. Keying on skip too

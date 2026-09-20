@@ -1756,6 +1756,135 @@ button.tabbar__tab { padding: 0 var(--space-4); }
 
 .browse__link:hover { text-decoration: underline; }
 
+/* --- segmented button ---------------------------------------------------- */
+
+/* M3 single-select segmented button. Material Web does not ship one, so this
+   is built to the spec: 40dp tall, fully rounded outer ends, square joins, a
+   shared 1dp outline rather than one per segment, and the selected segment
+   filled with secondary-container. */
+.browse__viewbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-4);
+}
+
+.segmented {
+  display: inline-flex;
+  align-items: stretch;
+  height: var(--metric-button-height);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-full);
+  overflow: hidden;
+}
+
+.segmented__seg {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
+  border: 0;
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--md-sys-typescale-label-large-font);
+  font-size: var(--md-sys-typescale-label-large-size);
+  line-height: var(--md-sys-typescale-label-large-line-height);
+  letter-spacing: var(--md-sys-typescale-label-large-tracking);
+  font-weight: var(--md-sys-typescale-label-large-weight);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* The divider between segments is a border on the joins, not a gap: the
+   segments share one outline, which is what makes it read as one control. */
+.segmented__seg + .segmented__seg {
+  border-left: 1px solid var(--md-sys-color-outline);
+}
+
+.segmented__seg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.segmented__seg:hover::after  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
+.segmented__seg:active::after { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
+
+.segmented__seg--selected {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+
+/* --- documents, table view ------------------------------------------------ */
+
+/* Columns are the union of the page's keys, so this is wide by nature and
+   scrolls inside its own box. */
+.browse__table--docs {
+  font-family: var(--font-accent);
+  font-size: var(--md-sys-typescale-body-small-size);
+  letter-spacing: 0;
+}
+
+.browse__table--docs th,
+.browse__table--docs td {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The row number is the page's position, so it is set back from the data and
+   pinned while the table scrolls sideways. */
+.browse__th--num,
+.browse__td--num {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: 1%;
+  text-align: right;
+  color: var(--md-sys-color-on-surface-variant);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.browse__table--docs thead .browse__th--num {
+  background: var(--md-sys-color-surface-container);
+  z-index: 2;
+}
+
+/* Value kinds, coloured with the same syntax tokens the JSON view uses so a
+   string looks like a string in both. */
+.browse__cell--string  { color: var(--sl-sh-string); }
+.browse__cell--number  { color: var(--sl-sh-string); }
+.browse__cell--boolean { color: var(--sl-sh-function); }
+.browse__cell--date    { color: var(--sl-sh-keyword); }
+.browse__cell--id      { color: var(--sl-sh-keyword); }
+.browse__cell--null    { color: var(--sl-sh-comment); font-style: italic; }
+
+/* A subdocument or array shows its size rather than its contents -- one line
+   cannot hold the contents, and the count is the useful summary. */
+.browse__cell--object,
+.browse__cell--array {
+  color: var(--md-sys-color-on-surface-variant);
+  font-style: italic;
+}
+
+/* An absent field is blank, not "null". In MongoDB those are different
+   things, and a polymorphic collection makes the difference load-bearing. */
+.browse__cell--missing {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    color-mix(in srgb, var(--md-sys-color-on-surface) 4%, transparent) 5px,
+    color-mix(in srgb, var(--md-sys-color-on-surface) 4%, transparent) 10px
+  );
+}
+
+
 /* --- documents --- */
 
 /* M3 filled card: container tone, 12dp corners, no outline. */
