@@ -1846,6 +1846,11 @@ button.tabbar__tab { padding: 0 var(--space-4); }
   z-index: 1;
   width: 1%;
   text-align: right;
+  /* Numbering runs on across pages, so it reaches six or seven digits deep
+     into a large collection. Tabular figures keep the column aligned as it
+     widens instead of jittering per row. */
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   color: var(--md-sys-color-on-surface-variant);
   background: var(--md-sys-color-surface-container-low);
 }

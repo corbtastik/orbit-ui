@@ -9,7 +9,7 @@ import { cellValue, deriveColumns } from './ejson.js';
 // than "null", so "the field is absent" and "the field is set to null" stay
 // distinguishable, which in MongoDB is a real difference.
 
-export default function DocumentsTable({ docs }) {
+export default function DocumentsTable({ docs, startIndex = 0 }) {
   const columns = deriveColumns(docs);
 
   if (columns.length === 0) {
@@ -21,9 +21,11 @@ export default function DocumentsTable({ docs }) {
       <table className="browse__table browse__table--docs">
         <thead>
           <tr>
-            {/* Row numbers are the page's, not the collection's -- the
-                header says so rather than implying a stable document id. */}
-            <th className="browse__th--num" scope="col">#</th>
+            {/* Numbering continues across pages -- page two starts at 26 --
+                so the column agrees with the range the pager reports rather
+                than restarting and implying a different set of documents.
+                It is a position in the result set, not a document id. */}
+            <th className="browse__th--num" scope="col" title="Position in the collection">#</th>
             {columns.map((c) => (
               <th key={c} scope="col" className="browse__th--left">{c}</th>
             ))}
@@ -32,7 +34,7 @@ export default function DocumentsTable({ docs }) {
         <tbody>
           {docs.map((doc, i) => (
             <tr key={i}>
-              <td className="browse__td--num">{i + 1}</td>
+              <td className="browse__td--num">{startIndex + i + 1}</td>
               {columns.map((c) => {
                 // Object.hasOwn, not a truthiness check: a field holding 0,
                 // "" or false is present, and must not render as missing.
