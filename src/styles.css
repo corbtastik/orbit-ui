@@ -1841,9 +1841,6 @@ button.tabbar__tab { padding: 0 var(--space-4); }
    pinned while the table scrolls sideways. */
 .browse__th--num,
 .browse__td--num {
-  position: sticky;
-  left: 0;
-  z-index: 1;
   width: 1%;
   text-align: right;
   /* Numbering runs on across pages, so it reaches six or seven digits deep
@@ -1855,7 +1852,17 @@ button.tabbar__tab { padding: 0 var(--space-4); }
   background: var(--md-sys-color-surface-container-low);
 }
 
-.browse__table--docs thead .browse__th--num {
+/* Only the top-level table pins its number column -- it is the one that
+   scrolls sideways under a fixed header. A nested table sits inside a panel
+   that is itself sticky, so pinning again would fight it. */
+.browse__th--sticky,
+.browse__td--sticky {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.browse__table--docs thead .browse__th--sticky {
   background: var(--md-sys-color-surface-container);
   z-index: 2;
 }
@@ -1988,10 +1995,46 @@ button.tabbar__tab { padding: 0 var(--space-4); }
 
 .browse__subdoc-close:hover::after { opacity: var(--md-sys-state-hover-state-layer-opacity); }
 
-/* The panel holds a full JSON tree, so it must not inherit the table's
-   single-line truncation. */
-.browse__subrow .json { white-space: normal; }
-.browse__subrow td { max-width: none; overflow: visible; text-overflow: clip; }
+.browse__subrow > td { max-width: none; overflow: visible; text-overflow: clip; }
+
+/* A nested table is the same component as the outer one, so it needs the
+   outer table's chrome switched off: no card border of its own, and a header
+   that reads as a sub-header rather than competing with the real one. */
+.browse__table--nested {
+  width: auto;
+  min-width: 100%;
+  background: transparent;
+}
+
+.browse__table--nested thead th {
+  position: static;
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  font-size: var(--md-sys-typescale-label-small-size);
+  letter-spacing: var(--md-sys-typescale-label-small-tracking);
+  text-transform: none;
+}
+
+.browse__table--nested td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 50%, transparent);
+}
+
+.browse__table--nested tbody tr:last-child > td { border-bottom: 0; }
+
+/* Deeper levels scroll on their own rather than widening the panel. */
+.browse__subdoc-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.browse__subdoc-empty {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  color: var(--md-sys-color-on-surface-variant);
+  font-style: italic;
+}
 
 /* An absent field is blank, not "null". In MongoDB those are different
    things, and a polymorphic collection makes the difference load-bearing. */

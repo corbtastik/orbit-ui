@@ -27,7 +27,7 @@ const WRAPPERS = {
   $undefined: () => undefined,
 };
 
-const isPlainObject = (v) =>
+export const isPlainObject = (v) =>
   v !== null && typeof v === 'object' && !Array.isArray(v);
 
 /** A $date is special: its inner value may itself be a {$numberLong}. */
