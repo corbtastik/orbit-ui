@@ -180,6 +180,17 @@ export default function App() {
     }
   };
 
+  // Pinning does not touch updatedAt server-side, so the sort order of the
+  // main list is unaffected -- the row just moves into the Pinned section.
+  const handleTogglePin = async (id, pinned) => {
+    try {
+      const updated = await chatApi.setPinned(id, pinned);
+      setConversations((prev) => prev.map((c) => (c.id === id ? { ...c, ...updated } : c)));
+    } catch (err) {
+      setLoadError(err.message);
+    }
+  };
+
   const handleCreateProject = async (name) => {
     try {
       const project = await chatApi.createProject(name);
@@ -269,6 +280,7 @@ export default function App() {
         onCreateProject={handleCreateProject}
         onDelete={handleDeleteChat}
         onMove={handleMoveChat}
+        onTogglePin={handleTogglePin}
         onOpenTab={openTab}
         width={sidebarWidth}
       />

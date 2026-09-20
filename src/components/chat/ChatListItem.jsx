@@ -9,6 +9,7 @@ import {
   MdMenuItem,
   MdDialog,
   MdTextButton,
+  MdDivider,
 } from '../md/index.jsx';
 
 // One conversation in the drawer, as an M3 list item.
@@ -16,8 +17,8 @@ import {
 // The item carries the select action; the move and delete controls sit in its
 // `end` slot. They cannot be nested inside the item's own button, so the row
 // is a list item with interactive children rather than a single control.
-export default function ChatListItem({ conversation, active, onSelect, onDelete, onMove, projects = [] }) {
-  const { id, title, updatedAt, provider, projectId } = conversation;
+export default function ChatListItem({ conversation, active, onSelect, onDelete, onMove, onTogglePin, projects = [] }) {
+  const { id, title, updatedAt, provider, projectId, pinnedAt } = conversation;
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
@@ -64,6 +65,15 @@ export default function ChatListItem({ conversation, active, onSelect, onDelete,
                 open={menuOpen}
                 onClosed={() => setMenuOpen(false)}
               >
+                {onTogglePin && (
+                  <>
+                    <MdMenuItem onClick={() => onTogglePin(id, !pinnedAt)}>
+                      <Icon slot="start" name={pinnedAt ? 'keep_off' : 'keep'} size={20} />
+                      <span slot="headline">{pinnedAt ? 'Unpin' : 'Pin'}</span>
+                    </MdMenuItem>
+                    <MdDivider />
+                  </>
+                )}
                 <MdMenuItem
                   selected={(projectId ?? DEFAULT_PROJECT) === DEFAULT_PROJECT}
                   onClick={() => onMove(id, DEFAULT_PROJECT)}

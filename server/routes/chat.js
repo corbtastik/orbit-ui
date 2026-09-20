@@ -53,9 +53,36 @@ const outConversation = (c, { withMessages = false } = {}) => ({
   provider: c.provider ?? null,
   createdAt: c.createdAt,
   updatedAt: c.updatedAt,
+  // Null rather than absent when unpinned, so the client can sort on it
+  // without special-casing conversations written before pinning existed.
+  pinnedAt: c.pinnedAt ?? null,
   messageCount: c.messages?.length ?? 0,
   ...(withMessages ? { messages: c.messages ?? [] } : {}),
 });
+
+/** How much text to show either side of a match. */
+const SNIPPET_PAD = 60;
+
+/**
+ * The first place the query appears, with a little context. Returns null when
+ * only the title matched -- the title is already on screen, so repeating it as
+ * a snippet says nothing.
+ */
+function snippet(conversation, rx) {
+  for (const message of conversation.messages ?? []) {
+    const text = typeof message?.text === "string" ? message.text : "";
+    const at = text.search(rx);
+    if (at === -1) continue;
+
+    const from = Math.max(0, at - SNIPPET_PAD);
+    const to = Math.min(text.length, at + SNIPPET_PAD);
+    return {
+      role: message.role ?? null,
+      text: (from > 0 ? "…" : "") + text.slice(from, to).trim() + (to < text.length ? "…" : ""),
+    };
+  }
+  return null;
+}
 
 export default function makeChatRouter({ getDb }) {
   const router = express.Router();
@@ -126,6 +153,46 @@ export default function makeChatRouter({ getDb }) {
     }
   });
 
+  /**
+   * GET /chat/conversations/search?q=...
+   *
+   * Searches titles and message text, and returns a snippet of the match so a
+   * result says *why* it matched -- a list of titles is not much use when the
+   * thing you remember is a sentence in the middle of a transcript.
+   *
+   * A case-insensitive regex, not a $text index. Text indexes stem and match
+   * whole words, which is wrong for what people actually search here: cluster
+   * and collection names, hyphenated identifiers, fragments like "corbs-".
+   * Regex matches substrings, which is what the box appears to promise.
+   *
+   * The cost is a collection scan. Acceptable at the scale one person's chat
+   * history reaches; if it stops being acceptable, the fix is a $text index
+   * on title and messages.text plus a prefix index, not a bigger regex.
+   */
+  router.get("/chat/conversations/search", async (req, res) => {
+    const q = String(req.query.q ?? "").trim();
+    if (q.length < 2) return res.json({ results: [] });
+
+    try {
+      // Escaped: a search box is user input, and an unescaped "(" is a
+      // syntax error the driver would raise as a 500.
+      const rx = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+
+      const rows = await conversations()
+        .find(
+          { owner: OWNER, $or: [{ title: rx }, { "messages.text": rx }] },
+          { projection: { messages: { $slice: 200 } } }
+        )
+        .sort({ updatedAt: -1 })
+        .limit(50)
+        .toArray();
+
+      res.json({ results: rows.map((c) => ({ ...outConversation(c), match: snippet(c, rx) })) });
+    } catch (err) {
+      fail(res, err, "could not search conversations");
+    }
+  });
+
   router.get("/chat/conversations/:id", async (req, res) => {
     try {
       const id = oid(req.params.id);
@@ -167,12 +234,27 @@ export default function makeChatRouter({ getDb }) {
       const id = oid(req.params.id);
       if (!id) return res.status(400).json({ error: "invalid conversation id" });
 
-      const set = { updatedAt: new Date() };
-      if (typeof req.body?.title === "string") set.title = req.body.title.slice(0, 200);
+      const set = {};
+      // Pinning is not an edit. Bumping updatedAt would reorder the sidebar
+      // and make pinning a chat look like using it.
+      if (typeof req.body?.title === "string") {
+        set.title = req.body.title.slice(0, 200);
+        set.updatedAt = new Date();
+      }
+      if ("pinned" in (req.body ?? {})) {
+        // A timestamp, not a flag: pinned chats sort by when they were
+        // pinned, so the newest pin goes to the top of its own section.
+        set.pinnedAt = req.body.pinned ? new Date() : null;
+      }
       if ("projectId" in (req.body ?? {})) {
         const pid = normaliseProjectId(req.body.projectId);
         if (!pid) return res.status(400).json({ error: "invalid project id" });
         set.projectId = pid;
+        set.updatedAt = new Date();
+      }
+
+      if (Object.keys(set).length === 0) {
+        return res.status(400).json({ error: "nothing to update" });
       }
 
       const doc = await conversations().findOneAndUpdate(

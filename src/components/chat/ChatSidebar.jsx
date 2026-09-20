@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import ProjectGroup from './ProjectGroup.jsx';
 import ClusterTree from './ClusterTree.jsx';
+import ChatSearch from './ChatSearch.jsx';
+import ChatListItem from './ChatListItem.jsx';
 import OrbitLogo from '../brand/OrbitLogo.jsx';
 import { DEFAULT_PROJECT } from './conversations.js';
 import Icon from '../brand/Icon.jsx';
-import { MdFilledTonalButton, MdIconButton } from '../md/index.jsx';
+import { MdFilledTonalButton, MdIconButton, MdList } from '../md/index.jsx';
 
 // Always present, never created and never deletable. New chats land here when
 // no project was chosen, so the sidebar is never a blank panel with nowhere
@@ -14,6 +16,7 @@ const DEFAULT_GROUP = { id: DEFAULT_PROJECT, name: 'default' };
 export default function ChatSidebar({
   projects,
   conversations,
+  onTogglePin,
   activeId,
   collapsed,
   onToggleCollapsed,
@@ -29,6 +32,16 @@ export default function ChatSidebar({
   const [creating, setCreating] = useState(false);
   const [draftName, setDraftName] = useState('');
 
+  // Pinned chats are lifted out of the project grouping rather than listed in
+  // both places. Seeing the same chat twice in one sidebar is worse than
+  // losing sight of which project it belongs to.
+  const pinned = useMemo(
+    () => conversations
+      .filter((c) => c.pinnedAt)
+      .sort((a, b) => new Date(b.pinnedAt) - new Date(a.pinnedAt)),
+    [conversations]
+  );
+
   const byProject = useMemo(() => {
     const map = new Map([DEFAULT_GROUP, ...projects].map((p) => [p.id, []]));
     const loose = [];
@@ -37,6 +50,7 @@ export default function ChatSidebar({
       (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
     );
     for (const c of sorted) {
+      if (c.pinnedAt) continue;
       // A conversation pointing at a project that no longer exists falls back
       // to default rather than vanishing from the list.
       if (map.has(c.projectId)) map.get(c.projectId).push(c);
@@ -96,10 +110,34 @@ export default function ChatSidebar({
         </MdIconButton>
       </div>
 
+      <ChatSearch activeId={activeId} onSelect={onSelect} />
+
       <div className="chat-side__scroll">
         {/* Above Chats: the tree is what the conversations are about, and it
             is the part that does not grow as chats accumulate. */}
         <ClusterTree onOpenTab={onOpenTab} />
+
+        {pinned.length > 0 && (
+          <section className="chat-side__group">
+            <div className="chat-side__section-head">
+              <span>Pinned</span>
+            </div>
+            <MdList className="chat-side__items">
+              {pinned.map((c) => (
+                <ChatListItem
+                  key={c.id}
+                  conversation={c}
+                  active={c.id === activeId}
+                  onSelect={onSelect}
+                  onDelete={onDelete}
+                  onMove={onMove}
+                  onTogglePin={onTogglePin}
+                  projects={projects}
+                />
+              ))}
+            </MdList>
+          </section>
+        )}
 
         <div className="chat-side__section-head">
           <span>Chats</span>
@@ -141,6 +179,7 @@ export default function ChatSidebar({
             onNewChat={onNewChat}
             onDelete={onDelete}
             onMove={onMove}
+            onTogglePin={onTogglePin}
             projects={projects}
           />
         ))}

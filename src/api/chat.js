@@ -38,6 +38,15 @@ export const appendTurns = (id, body) =>
   request(`/chat/conversations/${id}/turns`, { method: 'POST', body: JSON.stringify(body) })
     .then((r) => r.conversation);
 
+// Matches titles and message text. Returns each conversation plus a snippet
+// of the match, so a result can say why it matched.
+export const searchConversations = (q) =>
+  request(`/chat/conversations/search?q=${encodeURIComponent(q)}`).then((r) => r.results);
+
+export const setPinned = (id, pinned) =>
+  request(`/chat/conversations/${id}`, { method: 'PATCH', body: JSON.stringify({ pinned }) })
+    .then((r) => r.conversation);
+
 export const deleteConversation = (id) =>
   request(`/chat/conversations/${id}`, { method: 'DELETE' });
 

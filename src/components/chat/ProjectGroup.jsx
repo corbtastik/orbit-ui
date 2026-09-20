@@ -13,6 +13,7 @@ export default function ProjectGroup({
   onNewChat,
   onDelete,
   onMove,
+  onTogglePin,
   projects,
   isDefault,
 }) {
@@ -55,6 +56,7 @@ export default function ProjectGroup({
                 onSelect={onSelect}
                 onDelete={onDelete}
                 onMove={onMove}
+                onTogglePin={onTogglePin}
                 projects={projects}
               />
             ))
