@@ -1,28 +1,10 @@
 import { describe, it, expect } from 'vitest';
+import { readContext, contextFromMessages } from '../../shared/connectionContext.js';
 
-// Mirrors readContext in server/providers/orbit.js. The server module is ESM
-// under node and not imported here, so this is kept in step by hand -- if the
-// inference rules change there, they change here too.
-//
-// The behaviour that matters is that context only ever ADDS. A call that names
-// a database does not mean the cluster changed, and a call with no database
-// argument does not mean the database was cleared: the absence of an argument
-// is not a change of context, and treating it as one would make the header
-// flicker empty every time a tool took no arguments.
-function readContext(previous, toolName, input) {
-  const next = { ...previous };
-  const args = input ?? {};
-  if (toolName === 'connect') {
-    const target = args.name ?? args.connection ?? args.connectionString;
-    if (typeof target === 'string' && target) next.connection = target;
-  }
-  if (typeof args.connection === 'string' && args.connection) next.connection = args.connection;
-  if (typeof args.database === 'string' && args.database) next.database = args.database;
-  if (typeof args.collection === 'string' && args.collection) next.collection = args.collection;
-  const groupId = args.params?.groupId;
-  if (typeof groupId === 'string' && groupId) next.groupId = groupId;
-  return next;
-}
+// Imported, not reimplemented. This file used to carry its own copy of the
+// inference rules with a comment asking whoever changed the server to change
+// them here too, which is how a test ends up asserting behaviour the app no
+// longer has.
 
 describe('connection context inference', () => {
   it('learns the connection from connect', () => {
@@ -54,8 +36,76 @@ describe('connection context inference', () => {
     expect(readContext(before, 'find', { database: 42 })).toEqual(before);
   });
 
+  // Atlas admin tools carry the project and nothing else. The indicator
+  // renders it, so a conversation that only ever ran those is not blank.
   it('reads the Atlas project from path params', () => {
     expect(readContext({}, 'manage_clusters', { action: 'list', params: { groupId: 'abc' } }))
       .toEqual({ groupId: 'abc' });
+  });
+});
+
+describe('context replayed from a stored transcript', () => {
+  // The bug this fixes: context was live-session only, so loading a
+  // conversation that had plainly connected showed "not connected yet".
+  it('rebuilds what the live session would have shown', () => {
+    const messages = [
+      { role: 'user', text: 'what is in orbitai?' },
+      {
+        role: 'assistant',
+        retrievals: [
+          { tool: 'connect', input: { name: 'atlas' } },
+          { tool: 'list-collections', input: { connection: 'atlas', database: 'orbitai' } },
+        ],
+      },
+    ];
+    expect(contextFromMessages(messages)).toEqual({ connection: 'atlas', database: 'orbitai' });
+  });
+
+  // Transcripts stored before the array existed kept one call in `retrieval`.
+  it('reads the legacy single-call shape', () => {
+    const messages = [{ role: 'assistant', retrieval: { tool: 'connect', input: { name: 'atlas' } } }];
+    expect(contextFromMessages(messages)).toEqual({ connection: 'atlas' });
+  });
+
+  it('carries context across turns, latest wins', () => {
+    const messages = [
+      { role: 'assistant', retrievals: [{ tool: 'connect', input: { name: 'atlas' } }] },
+      { role: 'assistant', retrievals: [{ tool: 'find', input: { database: 'incidents' } }] },
+      { role: 'assistant', retrievals: [{ tool: 'find', input: { database: 'orbitai' } }] },
+    ];
+    expect(contextFromMessages(messages)).toEqual({ connection: 'atlas', database: 'orbitai' });
+  });
+
+  // Before arguments were stored whole they were a `query` string clipped at
+  // 200 characters. Short ones still parse; long ones are cut mid-token and
+  // must not be guessed at.
+  it('recovers arguments from the legacy query string', () => {
+    const messages = [{
+      role: 'assistant',
+      retrievals: [{ tool: 'find', query: '{"connection":"atlas","database":"orbitai"}' }],
+    }];
+    expect(contextFromMessages(messages)).toEqual({ connection: 'atlas', database: 'orbitai' });
+  });
+
+  it('ignores a legacy query that was truncated mid-token', () => {
+    const messages = [{
+      role: 'assistant',
+      retrievals: [{ tool: 'find', query: '{"connection":"atlas","database":"incid' }],
+    }];
+    expect(contextFromMessages(messages)).toEqual({});
+  });
+
+  it('prefers stored arguments over the legacy string when both exist', () => {
+    const messages = [{
+      role: 'assistant',
+      retrievals: [{ tool: 'find', input: { database: 'new' }, query: '{"database":"old"}' }],
+    }];
+    expect(contextFromMessages(messages)).toEqual({ database: 'new' });
+  });
+
+  it('is empty for a transcript with no tool calls', () => {
+    expect(contextFromMessages([{ role: 'user', text: 'hello' }])).toEqual({});
+    expect(contextFromMessages([])).toEqual({});
+    expect(contextFromMessages(undefined)).toEqual({});
   });
 });

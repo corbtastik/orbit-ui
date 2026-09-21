@@ -57,6 +57,8 @@ src/
   components/md/        React wrappers around @material/web
   components/brand/     the OrbitAI mark and the icon component
   brand/                design tokens — see src/brand/README.md
+shared/
+  connectionContext.js  tool calls -> what a conversation is pointed at
 scripts/
   build-theme.mjs       generates src/brand/tokens/colors.css
 ```
@@ -102,7 +104,11 @@ scripts/
 - **Connection context is inferred, not declared.** The MCP server holds the
   connection state and does not report it, so the header reads it off the tool
   calls going past. It only ever adds: a call with no `database` argument does
-  not mean the database was cleared.
+  not mean the database was cleared. The rule lives in
+  `shared/connectionContext.js` because it has to run on the server, in the
+  client when a transcript loads, and in the tests — replayed from the stored
+  calls rather than persisted, so it needs no schema change and lights up
+  conversations recorded before the indicator existed.
 - **Paging uses `skip`.** Fine at these depths, expensive thousands of documents
   in. A range query is the fix if that ever matters.
 

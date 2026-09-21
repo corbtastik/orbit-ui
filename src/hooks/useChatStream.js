@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { mockTransport } from '../components/chat/transports/mock.js';
 import { sseTransport } from '../components/chat/transports/sse.js';
+import { contextFromMessages } from '../../shared/connectionContext.js';
 
 // OrbitAI is the only provider offered, so it is the only mapping here.
 //
@@ -169,9 +170,15 @@ export function useChatStream({ provider, transport, conversationId, initialMess
     abortRef.current?.abort();
     setMessages(next);
     setError(null);
-    // A different conversation is a different MCP session, so what the last
-    // one was pointed at says nothing about this one.
-    setContext({});
+    // Replayed from the transcript being loaded rather than cleared.
+    //
+    // The indicator used to be live-session only: it filled in as a turn ran
+    // and was wiped on every switch, so opening an existing conversation --
+    // or just reloading the page -- showed "not connected yet" over a chat
+    // that had plainly connected. The tool calls are stored with their
+    // arguments, so what the session would have shown can simply be
+    // recomputed.
+    setContext(contextFromMessages(next));
   }, []);
 
   return { messages, isStreaming, error, activity, context, send, stop, reset };

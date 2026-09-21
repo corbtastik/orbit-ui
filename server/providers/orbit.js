@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { listAnthropicTools, callTool, isReachable, mcpUrl } from "../mcp/client.js";
 import { log } from "../lib/log.js";
 import { SYSTEM } from "./systemPrompt.js";
+import { readContext } from "../../shared/connectionContext.js";
 
 // "Orbit" is Claude with OrbitAI's MCP tools attached. An MCP server serves
 // tools, not completions, so the model is still Claude and the API key is
@@ -29,41 +30,6 @@ const MAX_ITERATIONS = Number(process.env.ORBIT_MAX_ITERATIONS ?? 30);
 // document limit. The full text is always in logs/orbit.log -- this is the
 // copy that has to be affordable to keep.
 const MAX_OUTPUT_CHARS = 4000;
-
-/**
- * What the conversation is currently pointed at, read off the tool traffic.
- *
- * There is nothing to ask: the MCP server holds the connection state and does
- * not report it, and the model chooses a cluster by calling `connect` and a
- * database by naming one in an argument. So context is inferred from what
- * actually went over the wire, which has the advantage of being what happened
- * rather than what was intended.
- *
- * Only ever adds. A call that names a database does not mean the cluster
- * changed, and a `find` with no database argument does not mean there is no
- * database -- absence of an argument is not a change of context.
- */
-function readContext(previous, toolName, input) {
-  const next = { ...previous };
-  const args = input ?? {};
-
-  // `connect` is the one that changes cluster, and the argument it uses has
-  // been both `name` and `connection` across OrbitAI versions.
-  if (toolName === "connect") {
-    const target = args.name ?? args.connection ?? args.connectionString;
-    if (typeof target === "string" && target) next.connection = target;
-  }
-  if (typeof args.connection === "string" && args.connection) next.connection = args.connection;
-
-  if (typeof args.database === "string" && args.database) next.database = args.database;
-  if (typeof args.collection === "string" && args.collection) next.collection = args.collection;
-
-  // Atlas tools carry the project as a path parameter rather than an argument.
-  const groupId = args.params?.groupId;
-  if (typeof groupId === "string" && groupId) next.groupId = groupId;
-
-  return next;
-}
 
 const clip = (text) =>
   text.length <= MAX_OUTPUT_CHARS

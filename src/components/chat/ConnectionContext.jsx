@@ -12,7 +12,14 @@ import Icon from '../brand/Icon.jsx';
 // The values come from the server, which reads them off the tool calls as they
 // go past. Nothing here is declared; it is all observed.
 
+// Ordered widest to narrowest, the way the connection itself narrows.
+//
+// groupId was collected by the server and then rendered by nothing, so a
+// conversation answered entirely by Atlas admin tools -- manage_projects,
+// manage_clusters -- ran its tools successfully and still read "not connected
+// yet". Those tools carry the project and nothing else.
 const PARTS = [
+  { key: 'groupId', icon: 'workspaces', title: 'Atlas project' },
   { key: 'connection', icon: 'dns', title: 'Connection' },
   { key: 'database', icon: 'database', title: 'Database' },
   { key: 'collection', icon: 'folder', title: 'Collection' },
