@@ -24,6 +24,13 @@ API_PORT=7002
 UI_PORT=7001
 
 mkdir -p logs
+
+# Truncated per run. These are tee'd copies of stdout for diagnosing a failed
+# start; appending across runs means the tail printed on failure can easily be
+# the *previous* run's error, which is worse than no log at all.
+: > logs/api.out
+: > logs/ui.out
+
 PIDS=()
 
 cleanup() {
@@ -67,14 +74,50 @@ ui_up() { curl -s -m 2 -o /dev/null "http://localhost:${UI_PORT}/" 2>/dev/null; 
 # Waits on a predicate rather than sleeping a fixed amount. The API has to
 # reach Atlas before it is ready to answer anything.
 wait_for() {
-  local name="$1" probe="$2" limit="${3:-45}" i=0
+  local name="$1" probe="$2" pid="$3" logfile="$4" limit="${5:-45}" i=0
   while [ "$i" -lt "$limit" ]; do
     if "$probe"; then return 0; fi
+
+    # A process that has already died will never answer, so waiting out the
+    # timeout only delays the message. This matters more than it sounds:
+    # `node --watch` does not exit when the script it runs throws -- it parks
+    # and waits for a file change -- so a failed API stays alive as a process
+    # that never listens, and the old loop sat here for the full limit and
+    # then reported a timeout rather than the actual error.
+    if [ -n "$pid" ] && ! kill -0 "$pid" 2>/dev/null; then
+      echo "✘ $name exited before it was ready"
+      fail_with_log "$logfile"
+      return 1
+    fi
+
+    # ...and `node --watch` specifically does not die: when the script throws
+    # it prints this and sits waiting for a file change. The process is alive,
+    # the port never opens, and without this the loop waits out the full
+    # timeout before saying anything.
+    if [ -n "$logfile" ] && grep -q "Waiting for file changes before restarting" "$logfile" 2>/dev/null; then
+      echo "✘ $name crashed on startup and is parked waiting for a file change"
+      fail_with_log "$logfile"
+      return 1
+    fi
+
     i=$((i + 1))
     sleep 1
   done
-  echo "✘ $name did not come up within ${limit}s -- see logs/"
+
+  echo "✘ $name did not come up within ${limit}s"
+  fail_with_log "$logfile"
   return 1
+}
+
+# The reason is almost always in the process's own log, and making someone go
+# and find it is the difference between a five-second fix and a puzzle.
+fail_with_log() {
+  local logfile="$1"
+  [ -f "$logfile" ] || return 0
+  echo ""
+  echo "  last lines of ${logfile}:"
+  tail -n 12 "$logfile" | sed 's/^/    /'
+  echo ""
 }
 
 # --- preflight ---------------------------------------------------------------
@@ -113,15 +156,17 @@ echo "▸ Starting API on :${API_PORT}..."
 # node directly rather than `npm run server`: npm would be the process we hold
 # a PID for, and killing it does not reliably take node with it.
 node --watch server/index.js > >(tee -a logs/api.out | tag api) 2>&1 &
-PIDS+=($!)
-wait_for "API" api_up
+API_PID=$!
+PIDS+=($API_PID)
+wait_for "API" api_up "$API_PID" logs/api.out
 
 # --- UI ----------------------------------------------------------------------
 
 echo "▸ Starting UI on :${UI_PORT}..."
 ./node_modules/.bin/vite > >(tee -a logs/ui.out | tag ui) 2>&1 &
-PIDS+=($!)
-wait_for "UI" ui_up
+UI_PID=$!
+PIDS+=($UI_PID)
+wait_for "UI" ui_up "$UI_PID" logs/ui.out
 
 echo ""
 echo "▸ Ready:  http://localhost:${UI_PORT}"

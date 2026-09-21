@@ -51,6 +51,19 @@ import { MdMenuItem as MdMenuItemEl } from '@material/web/menu/menu-item.js';
 import { MdDialog as MdDialogEl } from '@material/web/dialog/dialog.js';
 import { MdDivider as MdDividerEl } from '@material/web/divider/divider.js';
 
+// One hazard worth knowing before adding props to any of these.
+//
+// createComponent assigns every prop it does not recognise as an EVENT to the
+// element as a PROPERTY -- `el[name] = value` -- rather than as an attribute.
+// So a prop whose name collides with a read-only DOM property throws, and it
+// throws inside a layout effect, which unmounts the React tree and leaves a
+// blank page with the reason only in the console.
+//
+// `form` is the one this app hit: it is a getter-only property on every
+// form-associated custom element, so <MdTextButton form="..."> is fatal.
+// `labels`, `validity`, `validationMessage` and `elements` are the same shape
+// of trap. Where an attribute is genuinely needed, set it with a ref rather
+// than passing it as a prop.
 const wrap = (tagName, elementClass, events) =>
   createComponent({ react: React, tagName, elementClass, events });
 

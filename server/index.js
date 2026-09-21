@@ -34,14 +34,57 @@ async function main() {
     process.exit(1);
   }
 
+  // Connecting does NOT gate the server starting.
+  //
+  // This used to `await client.connect()` and exit on failure, so an Atlas
+  // blip meant the API never listened, start-all.sh waited for a port that
+  // would never open, and the UI never came up at all. Chat history being
+  // unreachable is a reason for the history to be unavailable -- it is not a
+  // reason to be unable to browse clusters or read the page.
+  //
+  // Retried in the background instead, so the app heals on its own when Atlas
+  // comes back rather than needing a restart.
   const client = new MongoClient(MONGODB_URI);
-  await client.connect();
+  let dbReady = false;
+  let dbError = null;
+
+  const connectWithRetry = async () => {
+    // Backs off to a minute: an outage lasts minutes, and hammering it every
+    // second fills the log without arriving any sooner.
+    let delay = 1000;
+    for (;;) {
+      try {
+        await client.connect();
+        await client.db(DB_NAME).command({ ping: 1 });
+        dbReady = true;
+        dbError = null;
+        console.log("[BOOT] Connected", { uri: redact(MONGODB_URI), db: DB_NAME });
+        return;
+      } catch (err) {
+        dbReady = false;
+        dbError = err?.message ?? String(err);
+        log(`chat history unavailable, retrying in ${delay}ms: ${dbError}`);
+        await new Promise((r) => setTimeout(r, delay));
+        delay = Math.min(delay * 2, 60000);
+      }
+    }
+  };
+  connectWithRetry();
 
   // Routes take this rather than the client, so none of them can reach a
   // database this app did not intend to touch.
-  const getDb = (dbName = DB_NAME) => client.db(dbName);
-
-  console.log("[BOOT] Connected", { uri: redact(MONGODB_URI), db: DB_NAME });
+  //
+  // Throws while the connection is down rather than returning a client whose
+  // every operation would hang until the driver's own timeout -- the route
+  // above it turns that into a 503 immediately.
+  const getDb = (dbName = DB_NAME) => {
+    if (!dbReady) {
+      const err = new Error("chat history is unavailable");
+      err.status = 503;
+      throw err;
+    }
+    return client.db(dbName);
+  };
 
   const app = express();
   app.use(cors());
@@ -67,12 +110,18 @@ async function main() {
     res.json({ ok: 1 });
   });
 
+  // Reports the database separately from the process. start-all.sh waits on
+  // this, and the API being up with history degraded is a healthy state --
+  // answering 500 here would put us back to never starting the UI.
   app.get("/health", async (_req, res) => {
+    if (!dbReady) {
+      return res.json({ ok: 1, db: DB_NAME, chatHistory: "unavailable", error: dbError });
+    }
     try {
       await getDb().command({ ping: 1 });
-      res.json({ ok: 1, db: DB_NAME });
+      res.json({ ok: 1, db: DB_NAME, chatHistory: "ok" });
     } catch (e) {
-      res.status(500).json({ ok: 0, error: e?.message });
+      res.json({ ok: 1, db: DB_NAME, chatHistory: "unavailable", error: e?.message });
     }
   });
 

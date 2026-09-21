@@ -87,6 +87,13 @@ scripts/
 - **An absent field is not a null field.** The table renders absent as an empty
   hatched cell and null as `null`. Presence is tested with `Object.hasOwn`, not
   truthiness — a field holding `0`, `""` or `false` is present.
+- **Neither database gates startup.** The API listens before chat history is
+  connected and retries in the background with backoff, so an Atlas blip
+  degrades history rather than preventing the app from starting. `/health`
+  answers `ok:1` with `chatHistory: "unavailable"`; routes that need it return
+  503, and the sidebar offers a retry. Browsed clusters were already per-cluster
+  tolerant. Verified by starting against a dead database and bringing a real
+  one up underneath without restarting.
 - **Tool calls are kept per turn, not per message.** The transcript stores an
   array of them with full arguments; results are clipped to 4,000 characters
   before they leave the server, because twenty uncapped results a turn would

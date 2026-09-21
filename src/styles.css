@@ -286,12 +286,21 @@ button, input, select, textarea { font-family: inherit; }
    so it owns the viewport rather than being positioned into a slot. */
 #root { height: 100%; }
 
-.chat-view { position: relative; }
-
 
 /* --- app shell ----------------------------------------------------------- */
 
-.chat-view { position: relative; }
+/* sidebar | main. Absolute rather than height:100% so the two columns are
+   pinned to the viewport and only the transcript scrolls.
+
+   This lived in a second .chat-view rule further down the file and was lost
+   with the retrieval styles around it. Kept here, once, where the shell is. */
+.chat-view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow: hidden;
+  background: var(--md-sys-color-surface);
+}
 
 .chat__main {
   position: relative;            /* anchors the jump-to-latest button */

@@ -90,6 +90,14 @@ export default function makeChatRouter({ getDb }) {
   const conversations = () => getDb().collection(CONVERSATIONS);
 
   const fail = (res, err, message, code = 500) => {
+    // A database that is simply not connected is a 503 with its own message,
+    // not a 500 blamed on the operation. The UI shows it as "history is
+    // unavailable" rather than "could not list conversations", which is the
+    // difference between a reader waiting for it to come back and a reader
+    // thinking their chats are gone.
+    if (err?.status === 503) {
+      return res.status(503).json({ error: "chat history is unavailable" });
+    }
     console.error(`[chat] ${message}:`, err?.message ?? err);
     res.status(code).json({ error: message });
   };

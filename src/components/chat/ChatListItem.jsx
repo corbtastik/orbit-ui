@@ -25,6 +25,12 @@ export default function ChatListItem({ conversation, active, onSelect, onDelete,
   const [renaming, setRenaming] = useState(false);
   const [draft, setDraft] = useState(title);
 
+  const saveRename = () => {
+    const next = draft.trim();
+    setRenaming(false);
+    if (next && next !== title) onRename(id, next);
+  };
+
   // md-menu anchors by element id, so each row needs one of its own -- two
   // rows sharing an anchor id would open every menu against the first.
   const anchorId = `move-${useId().replace(/:/g, '')}`;
@@ -118,12 +124,15 @@ export default function ChatListItem({ conversation, active, onSelect, onDelete,
           that way forever. */}
       <MdDialog open={renaming} onClosed={() => setRenaming(false)}>
         <div slot="headline">Rename chat</div>
-        <form slot="content" id="rename-form" method="dialog" onSubmit={(e) => {
-          e.preventDefault();
-          const next = draft.trim();
-          setRenaming(false);
-          if (next && next !== title) onRename(id, next);
-        }}>
+        {/* No `form` attribute linking the button to this form, and no
+            type="submit". @lit/react assigns every prop as a PROPERTY, and
+            `form` is a read-only getter on a form-associated custom element,
+            so passing it throws inside a layout effect -- which unmounts the
+            whole tree and leaves a blank page.
+
+            Both paths call saveRename instead: the form's onSubmit keeps
+            Enter working, and the button calls it directly. */}
+        <form slot="content" onSubmit={(e) => { e.preventDefault(); saveRename(); }}>
           <MdFilledTextField
             className="chat-side__rename-input"
             label="Title"
@@ -133,7 +142,7 @@ export default function ChatListItem({ conversation, active, onSelect, onDelete,
         </form>
         <div slot="actions">
           <MdTextButton onClick={() => setRenaming(false)}>Cancel</MdTextButton>
-          <MdTextButton type="submit" form="rename-form">Save</MdTextButton>
+          <MdTextButton onClick={saveRename}>Save</MdTextButton>
         </div>
       </MdDialog>
 

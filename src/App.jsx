@@ -94,22 +94,26 @@ export default function App() {
     setPinned(distance < 48);
   }, []);
 
-  // Load the sidebar once. Failures are surfaced rather than leaving an
-  // empty list that looks like "no history" when it is really "no server".
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [ps, cs] = await Promise.all([chatApi.listProjects(), chatApi.listConversations()]);
-        if (cancelled) return;
-        setProjects(ps);
-        setConversations(cs);
-      } catch (err) {
-        if (!cancelled) setLoadError(err.message);
-      }
-    })();
-    return () => { cancelled = true; };
+  // Failures are surfaced rather than leaving an empty list that looks like
+  // "no history" when it is really "no server".
+  //
+  // Callable rather than inline, because the server retries its own database
+  // connection in the background: when chat history comes back there needs to
+  // be a way to pick it up without reloading the page.
+  const loadSidebar = useCallback(async () => {
+    try {
+      const [ps, cs] = await Promise.all([chatApi.listProjects(), chatApi.listConversations()]);
+      setProjects(ps);
+      setConversations(cs);
+      setLoadError(null);
+      return true;
+    } catch (err) {
+      setLoadError(err.message);
+      return false;
+    }
   }, []);
+
+  useEffect(() => { loadSidebar(); }, [loadSidebar]);
 
   const jumpToLatest = useCallback(() => {
     const el = scrollRef.current;
@@ -391,6 +395,7 @@ export default function App() {
       {loadError && (
         <div className="chat__error" role="alert">
           <span>{loadError}</span>
+          <MdTextButton onClick={loadSidebar}>Retry</MdTextButton>
           <MdTextButton onClick={() => setLoadError(null)}>Dismiss</MdTextButton>
         </div>
       )}
