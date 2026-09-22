@@ -1,7 +1,7 @@
 # Design notes
 
 Why this app is put together the way it is, and the things that will bite
-someone changing it. For getting it running, see [README.md](README.md).
+someone changing it. For getting it running, see [README.md](../README.md).
 
 ## What it is
 
@@ -194,7 +194,7 @@ scripts/
 
 Material 3, on the Star Lord palette from
 [yolo-11ty](https://github.com/corbtastik/yolo-11ty). The full account is in
-[src/brand/README.md](src/brand/README.md); the short version:
+[src/brand/README.md](../src/brand/README.md); the short version:
 
 **Colours are generated, not written.** `src/brand/tokens/colors.css` comes from
 `npm run build:theme`, which runs Google's `material-color-utilities` over five

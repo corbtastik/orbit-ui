@@ -64,6 +64,7 @@ src/brand/  Material 3 design tokens
 
 ## More
 
-- [DESIGN.md](DESIGN.md) — architecture, the design system, and the
+- [docs/DESIGN.md](docs/DESIGN.md) — architecture, the design system, and the
   non-obvious constraints worth knowing before changing things
+- [docs/EXAMPLES.md](docs/EXAMPLES.md) — demo prompts for the incidents data
 - [src/brand/README.md](src/brand/README.md) — theme tokens and components
