@@ -9,6 +9,8 @@ vi.mock('../api/chat.js', () => ({
     databases: [{ name: 'incidents' }, { name: 'orbitai' }] }]),
   listCollections: async (_c, db) =>
     db === 'incidents' ? [{ name: 'incident_events' }] : [{ name: 'chat_projects' }],
+  listStores: async () => ([{ id: 's1', name: 'localdev', status: 'ok',
+    buckets: [{ name: 'mock-incident-media' }, { name: 'mock-json' }] }]),
   searchConversations: async () => ([
     { id: 'x1', title: 'About incidents', updatedAt: new Date().toISOString(),
       match: { role: 'user', text: 'the incidents database' } },
@@ -22,6 +24,8 @@ const ENTRIES = [
   { kind: 'database',   id: 'd', label: 'incidents',       path: ['corbs-demo'] },
   { kind: 'collection', id: 'k', label: 'incident_events', path: ['corbs-demo', 'incidents'] },
   { kind: 'collection', id: 'j', label: 'fix_events',      path: ['corbs-demo', 'incidents'] },
+  { kind: 'store',      id: 's', label: 'localdev',        path: [] },
+  { kind: 'bucket',     id: 'b', label: 'incident-media',  path: ['localdev'] },
 ];
 
 describe('ranking across the index', () => {
@@ -44,6 +48,22 @@ describe('ranking across the index', () => {
     expect(searchIndex(ENTRIES, 'corbs-demo / incidents / fix').map((e) => e.label)).toContain('fix_events');
   });
 
+  // Clusters and buckets rank against each other on the same scale: a query
+  // should surface the best match regardless of which tree it lives in.
+  it('ranks storage and cluster entries together', () => {
+    const labels = searchIndex(ENTRIES, 'incident').map((e) => e.label);
+    expect(labels).toContain('incident-media');
+    expect(labels).toContain('incident_events');
+    // Exact-ish beats deeper: the database still leads.
+    expect(labels[0]).toBe('incidents');
+  });
+
+  // A store is as shallow as a cluster, a bucket as shallow as a database.
+  it('treats a bucket as shallower than a collection', () => {
+    const kinds = searchIndex(ENTRIES, 'incident').map((e) => e.kind);
+    expect(kinds.indexOf('bucket')).toBeLessThan(kinds.indexOf('collection'));
+  });
+
   it('ignores a query below the minimum', () => {
     expect(searchIndex(ENTRIES, 'i')).toEqual([]);
     expect(searchIndex(null, 'incidents')).toEqual([]);
@@ -58,11 +78,27 @@ describe('the palette', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('groups cluster hits and chat hits separately', async () => {
+  it('groups clusters, object storage and chats separately', async () => {
     render(<CommandPalette {...props} />);
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'incident' } });
     await waitFor(() => expect(screen.getByText('Clusters')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Object Storage')).toBeTruthy());
     await waitFor(() => expect(screen.getByText('Chats')).toBeTruthy());
+  });
+
+  // The bug the generic grouping exists to prevent: with a third group
+  // between clusters and chats, the old `browseHits.length + i` arithmetic
+  // selected a row from the wrong group.
+  it('opens a bucket tab on click', async () => {
+    const onOpenTab = vi.fn();
+    render(<CommandPalette {...props} onOpenTab={onOpenTab} />);
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'mock-json' } });
+    await waitFor(() => expect(screen.getByText('mock-json')).toBeTruthy());
+
+    fireEvent.click(screen.getByText('mock-json').closest('.palette__row'));
+    expect(onOpenTab).toHaveBeenCalledWith(expect.objectContaining({
+      kind: 'bucket', storeId: 's1', bucket: 'mock-json',
+    }));
   });
 
   // Enter on a collection opens it as a tab; the palette closes behind it.
@@ -88,9 +124,9 @@ describe('the palette', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  // The arrow keys run through both groups as one list, so the caller never
+  // The arrow keys run through every group as one list, so the caller never
   // has to know which group the cursor is in.
-  it('moves the cursor across both groups', async () => {
+  it('moves the cursor across all groups', async () => {
     const { container } = render(<CommandPalette {...props} />);
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: 'incident' } });

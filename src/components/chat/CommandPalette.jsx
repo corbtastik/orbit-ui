@@ -4,14 +4,12 @@ import Icon from '../brand/Icon.jsx';
 import { useBrowseIndex, searchIndex, MIN_QUERY_LENGTH } from '../../hooks/useBrowseIndex.js';
 import { relativeTime } from './conversations.js';
 
-// One search across both halves of the app: what the clusters hold, and what
-// was said about them.
+// One search across the whole sidebar: what the clusters hold, what the object
+// stores hold, and what was said about any of it.
 //
-// A palette rather than a single box at the top of the sidebar. The tree's own
-// filter narrows in place, which is a different and genuinely useful thing --
-// you keep your bearings while it hides what does not match -- and turning it
-// into a result list would lose that. The inline boxes stay; this is the way
-// in when you do not want to look for the box first.
+// Reached from the box at the top of the sidebar and from the shortcut. There
+// is one search surface and two ways in, which is why neither tree carries a
+// filter of its own any more.
 
 const DEBOUNCE_MS = 200;
 
@@ -30,7 +28,16 @@ function highlight(text, query) {
   );
 }
 
-const ICON = { cluster: 'dns', database: 'database', collection: 'folder' };
+const ICON = {
+  cluster: 'dns', database: 'database', collection: 'folder',
+  store: 'cloud', bucket: 'folder_open',
+};
+
+// Which display group each kind belongs to, in the order the groups appear.
+const GROUP = {
+  cluster: 'Clusters', database: 'Clusters', collection: 'Clusters',
+  store: 'Object Storage', bucket: 'Object Storage',
+};
 
 export default function CommandPalette({ open, onClose, onOpenTab, onSelectChat }) {
   const [query, setQuery] = useState('');
@@ -89,14 +96,38 @@ export default function CommandPalette({ open, onClose, onOpenTab, onSelectChat 
   }, [query]);
 
   // One flat list behind the grouped display, so the arrow keys run straight
-  // through both groups without the caller tracking which it is in.
-  const flat = useMemo(
-    () => [
-      ...browseHits.map((e) => ({ kind: 'browse', entry: e })),
-      ...chats.map((c) => ({ kind: 'chat', chat: c })),
-    ],
-    [browseHits, chats]
-  );
+  // through every group without the caller tracking which it is in.
+  //
+  // Each row carries its own flat index. The arithmetic this replaces --
+  // `browseHits.length + i` at the second group's call site -- only worked
+  // while there were exactly two groups, and silently selects the wrong row
+  // the moment a third appears between them.
+  const sections = useMemo(() => {
+    const byGroup = new Map();
+    for (const entry of browseHits) {
+      const label = GROUP[entry.kind] ?? 'Results';
+      if (!byGroup.has(label)) byGroup.set(label, []);
+      byGroup.get(label).push({ kind: 'browse', entry, key: entry.id });
+    }
+
+    const out = [];
+    // Fixed order, so the groups do not reshuffle as the query changes.
+    for (const label of ['Clusters', 'Object Storage']) {
+      if (byGroup.has(label)) out.push({ label, rows: byGroup.get(label) });
+    }
+    if (chats.length) {
+      out.push({
+        label: 'Chats',
+        rows: chats.map((c) => ({ kind: 'chat', chat: c, key: c.id })),
+      });
+    }
+
+    let i = 0;
+    for (const section of out) for (const row of section.rows) row.index = i++;
+    return out;
+  }, [browseHits, chats]);
+
+  const flat = useMemo(() => sections.flatMap((s) => s.rows), [sections]);
 
   useEffect(() => { setCursor(0); }, [query]);
 
@@ -106,14 +137,22 @@ export default function CommandPalette({ open, onClose, onOpenTab, onSelectChat 
       onSelectChat(row.chat.id);
     } else {
       const { entry } = row;
-      // A cluster on its own has no tab to open -- the tree is where it lives
-      // -- so it opens the tree instead of nothing.
-      if (entry.kind === 'cluster') return onClose();
-      onOpenTab(
-        entry.kind === 'collection'
-          ? { kind: 'collection', clusterId: entry.cluster.id, clusterName: entry.cluster.name, db: entry.db, coll: entry.coll }
-          : { kind: 'database', clusterId: entry.cluster.id, clusterName: entry.cluster.name, db: entry.db }
-      );
+      // A cluster or a store on its own has no tab to open -- the tree is
+      // where each lives -- so it closes rather than opening nothing.
+      if (entry.kind === 'cluster' || entry.kind === 'store') return onClose();
+
+      if (entry.kind === 'bucket') {
+        onOpenTab({
+          kind: 'bucket', storeId: entry.store.id, storeName: entry.store.name,
+          bucket: entry.bucket,
+        });
+      } else {
+        onOpenTab(
+          entry.kind === 'collection'
+            ? { kind: 'collection', clusterId: entry.cluster.id, clusterName: entry.cluster.name, db: entry.db, coll: entry.coll }
+            : { kind: 'database', clusterId: entry.cluster.id, clusterName: entry.cluster.name, db: entry.db }
+        );
+      }
     }
     onClose();
   };
@@ -138,7 +177,7 @@ export default function CommandPalette({ open, onClose, onOpenTab, onSelectChat 
         className="palette"
         role="dialog"
         aria-modal="true"
-        aria-label="Search clusters and chats"
+        aria-label="Search clusters, object storage and chats"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="palette__field">
@@ -146,7 +185,7 @@ export default function CommandPalette({ open, onClose, onOpenTab, onSelectChat 
           <input
             ref={inputRef}
             className="palette__input"
-            placeholder="Search clusters, databases, collections and chats…"
+            placeholder="Search databases, collections, buckets and chats…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -165,55 +204,45 @@ export default function CommandPalette({ open, onClose, onOpenTab, onSelectChat 
             <p className="palette__hint">Nothing matches “{query.trim()}”.</p>
           )}
 
-          {browseHits.length > 0 && (
-            <>
-              <div className="palette__group">Clusters</div>
-              {browseHits.map((e, i) => (
+          {sections.map((section) => (
+            <React.Fragment key={section.label}>
+              <div className="palette__group">{section.label}</div>
+              {section.rows.map((row) => (
                 <button
-                  key={e.id}
+                  key={row.key}
                   type="button"
-                  className={`palette__row ${cursor === i ? 'palette__row--active' : ''}`}
-                  onMouseEnter={() => setCursor(i)}
-                  onClick={() => activate(flat[i])}
+                  className={`palette__row ${cursor === row.index ? 'palette__row--active' : ''}`}
+                  onMouseEnter={() => setCursor(row.index)}
+                  onClick={() => activate(row)}
                 >
-                  <Icon name={ICON[e.kind]} size={18} />
-                  <span className="palette__label">{highlight(e.label, query)}</span>
-                  {e.path.length > 0 && <span className="palette__path">{e.path.join(' / ')}</span>}
-                  <span className="palette__kind">{e.kind}</span>
+                  {row.kind === 'chat' ? (
+                    <>
+                      <Icon name="chat_bubble" size={18} />
+                      <span className="palette__label">{highlight(row.chat.title, query)}</span>
+                      {/* Only when the match was in the transcript -- a title
+                          match needs no snippet, the title is right there. */}
+                      {row.chat.match && (
+                        <span className="palette__path">
+                          <span className="palette__role">{row.chat.match.role}</span>
+                          {highlight(row.chat.match.text, query)}
+                        </span>
+                      )}
+                      <span className="palette__kind">{relativeTime(row.chat.updatedAt)}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Icon name={ICON[row.entry.kind]} size={18} />
+                      <span className="palette__label">{highlight(row.entry.label, query)}</span>
+                      {row.entry.path.length > 0 && (
+                        <span className="palette__path">{row.entry.path.join(' / ')}</span>
+                      )}
+                      <span className="palette__kind">{row.entry.kind}</span>
+                    </>
+                  )}
                 </button>
               ))}
-            </>
-          )}
-
-          {chats.length > 0 && (
-            <>
-              <div className="palette__group">Chats</div>
-              {chats.map((c, i) => {
-                const index = browseHits.length + i;
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    className={`palette__row ${cursor === index ? 'palette__row--active' : ''}`}
-                    onMouseEnter={() => setCursor(index)}
-                    onClick={() => activate(flat[index])}
-                  >
-                    <Icon name="chat_bubble" size={18} />
-                    <span className="palette__label">{highlight(c.title, query)}</span>
-                    {/* Only when the match was in the transcript -- a title
-                        match needs no snippet, the title is right there. */}
-                    {c.match && (
-                      <span className="palette__path">
-                        <span className="palette__role">{c.match.role}</span>
-                        {highlight(c.match.text, query)}
-                      </span>
-                    )}
-                    <span className="palette__kind">{relativeTime(c.updatedAt)}</span>
-                  </button>
-                );
-              })}
-            </>
-          )}
+            </React.Fragment>
+          ))}
 
           {/* Said rather than silently applied -- a capped index that does not
               report itself reads as a complete one. */}

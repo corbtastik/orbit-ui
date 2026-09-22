@@ -1,13 +1,19 @@
 import { useCallback, useRef, useState } from 'react';
 import * as chatApi from '../api/chat.js';
 
-// A flat, searchable index of everything the cluster tree can reach.
+// A flat, searchable index of everything the sidebar's trees can reach:
+// clusters, databases and collections, plus object stores and their buckets.
 //
 // The tree's own filter only ever matched cluster and database names, because
 // collections are fetched when a database is expanded and an unexpanded one
 // has none in memory. So searching for a collection found nothing until you
 // had already navigated to it -- which is the moment you no longer need to
 // search. This enumerates them up front instead.
+//
+// Objects are deliberately absent. A bucket's contents are unbounded and
+// paged forward-only, so indexing them means walking every page of every
+// bucket on the chance the reader searches for one. Buckets are the unit the
+// palette can open anyway.
 //
 // Built on first use rather than at startup: it costs a call per database, and
 // a session that never opens the palette should not pay for it. Cached for the
@@ -33,10 +39,28 @@ export function useBrowseIndex() {
 
     setBuilding(true);
     inFlight.current = (async () => {
+      // Run together and settled separately: an unreachable object store must
+      // not cost the cluster half its index, nor the other way round.
+      const [clusterRows, storeRows] = await Promise.all([
+        chatApi.listClusters().catch(() => []),
+        chatApi.listStores().catch(() => []),
+      ]);
+
       const out = [];
       let capped = false;
+
+      for (const s of storeRows) {
+        out.push({ kind: 'store', id: `s:${s.id}`, label: s.name, path: [], store: s });
+        for (const b of s.buckets ?? []) {
+          out.push({
+            kind: 'bucket', id: `b:${s.id}/${b.name}`, label: b.name,
+            path: [s.name], store: s, bucket: b.name,
+          });
+        }
+      }
+
       try {
-        const clusters = await chatApi.listClusters();
+        const clusters = clusterRows;
 
         // Clusters and databases come from one call, so they are indexed even
         // if the collection pass below is cut short.
@@ -76,8 +100,8 @@ export function useBrowseIndex() {
           }
         }
       } catch {
-        // No clusters configured, or the API is unreachable. An empty index
-        // simply means the palette shows chats only.
+        // A database that would not enumerate. Whatever was collected before
+        // it -- stores, buckets, clusters -- stays in the index.
       }
 
       setEntries(out);
@@ -113,7 +137,9 @@ export function searchIndex(entries, query, limit = 8) {
   const tokens = q.split(/[^a-z0-9_.-]+/i).filter(Boolean);
   if (!tokens.length) return [];
 
-  const DEPTH = { cluster: 0, database: 1, collection: 2 };
+  // Shallower things win ties, so a database ranks above its own
+  // collections and a store above its buckets.
+  const DEPTH = { cluster: 0, store: 0, database: 1, bucket: 1, collection: 2 };
 
   return entries
     .map((e) => {
@@ -130,7 +156,18 @@ export function searchIndex(entries, query, limit = 8) {
       return null;
     })
     .filter(Boolean)
-    .sort((a, b) => (a.score - b.score) || (DEPTH[a.e.kind] - DEPTH[b.e.kind]) || a.e.label.localeCompare(b.e.label))
+    .sort(
+      (a, b) =>
+        (a.score - b.score) ||
+        (DEPTH[a.e.kind] - DEPTH[b.e.kind]) ||
+        // Shorter wins: among equal-scoring prefix matches, the shorter label
+        // carries less text the reader did not type, so it is the closer
+        // match. Alphabetical alone put "incident-media" above "incidents"
+        // for the query "incident", on nothing better than "-" sorting
+        // before "s".
+        (a.e.label.length - b.e.label.length) ||
+        a.e.label.localeCompare(b.e.label)
+    )
     .slice(0, limit)
     .map((r) => r.e);
 }
