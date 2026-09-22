@@ -915,10 +915,62 @@ button, input, select, textarea { font-family: inherit; }
 
 .chat-side__new:hover { border-color: var(--accent); }
 
-.chat-side__scroll {
+/* Two panes that scroll independently, divided by a draggable handle. One
+   shared scroller would mean a long cluster tree pushes the chat list off the
+   bottom -- which is the thing the divider exists to prevent. */
+.chat-side__panes {
   flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chat-side__pane {
+  min-height: 0;
   overflow-y: auto;
-  padding: var(--space-1) 0 var(--space-4);
+  overscroll-behavior: contain;
+}
+
+/* The clusters pane takes the split as a flex basis; the chats pane takes
+   whatever is left, so the two always fill the sidebar exactly. */
+.chat-side__pane--chats {
+  flex: 1 1 auto;
+  padding-bottom: var(--space-4);
+}
+
+/* A 5px grab target around a 1px line -- the line is what you see, the target
+   is what you hit. The same trade the vertical resizer makes. */
+.chat-side__section-resizer {
+  flex: 0 0 auto;
+  position: relative;
+  height: 5px;
+  margin: 2px 0;
+  cursor: row-resize;
+  background: none;
+  border: 0;
+}
+
+.chat-side__section-resizer::before {
+  content: "";
+  position: absolute;
+  left: var(--space-3);
+  right: var(--space-3);
+  top: 2px;
+  height: 1px;
+  background: var(--md-sys-color-outline-variant);
+  transition: background var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.chat-side__section-resizer:hover::before,
+.chat-side__section-resizer:focus-visible::before {
+  background: var(--md-sys-color-primary);
+  height: 2px;
+}
+
+.chat-side__section-resizer:focus-visible {
+  outline: 2px solid var(--md-sys-color-secondary);
+  outline-offset: -2px;
 }
 
 /* M3 drawer section header, and the section's collapse control. The heading
@@ -1370,10 +1422,20 @@ body.is-resizing .chat-side__resizer::after {
 .chat-side__resizer:focus-visible { outline: none; }
 
 /* While dragging, keep the cursor consistent and stop the pointer selecting
-   transcript text as it sweeps across. */
-body.is-resizing {
-  cursor: col-resize;
+   transcript text as it sweeps across. Two classes because the two resizers
+   move on different axes and a col-resize cursor on a horizontal drag reads
+   as a bug. */
+body.is-resizing,
+body.is-resizing-rows {
   user-select: none;
+}
+
+body.is-resizing      { cursor: col-resize; }
+body.is-resizing-rows { cursor: row-resize; }
+
+body.is-resizing-rows .chat-side__section-resizer::before {
+  background: var(--md-sys-color-primary);
+  height: 2px;
 }
 
 /* --- streaming states --------------------------------------------------- */

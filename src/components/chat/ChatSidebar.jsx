@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import ProjectGroup from './ProjectGroup.jsx';
 import ClusterTree from './ClusterTree.jsx';
 import ChatSearch, { isSearching } from './ChatSearch.jsx';
 import SectionHead from './SectionHead.jsx';
+import SectionResizer, { SPLIT_DEFAULT, clampSplit } from './SectionResizer.jsx';
 import { useCollapsedSections } from '../../hooks/useCollapsedSections.js';
 import ChatListItem from './ChatListItem.jsx';
 import OrbitLogo from '../brand/OrbitLogo.jsx';
@@ -14,6 +15,19 @@ import { MdFilledTonalButton, MdIconButton, MdList } from '../md/index.jsx';
 // no project was chosen, so the sidebar is never a blank panel with nowhere
 // obvious to put anything.
 const DEFAULT_GROUP = { id: DEFAULT_PROJECT, name: 'default' };
+
+// Remembered like the sidebar's width: a split you set once should not be
+// something you re-drag every session.
+const SPLIT_KEY = 'orbit.chat.sectionSplit';
+
+function readSplit() {
+  try {
+    const raw = window.localStorage.getItem(SPLIT_KEY);
+    return raw ? clampSplit(Number(raw)) : SPLIT_DEFAULT;
+  } catch {
+    return SPLIT_DEFAULT;
+  }
+}
 
 export default function ChatSidebar({
   searchInputRef,
@@ -35,6 +49,19 @@ export default function ChatSidebar({
   const [collapsedProjects, setCollapsedProjects] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const { isOpen, toggle } = useCollapsedSections();
+
+  // How much of the sidebar the Clusters pane gets. A fraction rather than a
+  // pixel height, so the split survives a window resize.
+  const [split, setSplit] = useState(readSplit);
+  const panesRef = useRef(null);
+
+  const resize = (next) => {
+    setSplit(next);
+    try { window.localStorage.setItem(SPLIT_KEY, String(next)); } catch { /* private mode */ }
+  };
+
+  // Only meaningful when both panes are actually showing something.
+  const splitActive = isOpen('clusters') && (isOpen('pinned') || isOpen('chats'));
   const [creating, setCreating] = useState(false);
   const [draftName, setDraftName] = useState('');
 
@@ -116,14 +143,35 @@ export default function ChatSidebar({
         </MdIconButton>
       </div>
 
-      <div className="chat-side__scroll">
-        {/* Above Chats: the tree is what the conversations are about, and it
-            is the part that does not grow as chats accumulate. */}
-        <ClusterTree
-          onOpenTab={onOpenTab}
-          sectionOpen={isOpen('clusters')}
-          onToggleSection={() => toggle('clusters')}
-        />
+      {/* Two panes that scroll independently, with a draggable divider. One
+          shared scroller would mean growing the cluster tree pushes the chat
+          list off the bottom, which is the thing the divider exists to stop. */}
+      <div className="chat-side__panes" ref={panesRef}>
+        <div
+          className="chat-side__pane chat-side__pane--clusters"
+          // Only while both panes are open: a collapsed Chats should let
+          // Clusters have the whole sidebar rather than sit at 40% of it.
+          style={splitActive ? { flex: `0 0 ${split * 100}%` } : undefined}
+        >
+          {/* Above Chats: the tree is what the conversations are about, and it
+              is the part that does not grow as chats accumulate. */}
+          <ClusterTree
+            onOpenTab={onOpenTab}
+            sectionOpen={isOpen('clusters')}
+            onToggleSection={() => toggle('clusters')}
+          />
+        </div>
+
+        {splitActive && (
+          <SectionResizer
+            split={split}
+            onResize={resize}
+            onReset={() => resize(SPLIT_DEFAULT)}
+            containerRef={panesRef}
+          />
+        )}
+
+        <div className="chat-side__pane chat-side__pane--chats">
 
         {pinned.length > 0 && (
           <section className="chat-side__group">
@@ -220,7 +268,7 @@ export default function ChatSidebar({
           />
         ))}
         </>)}
-
+        </div>
       </div>
     </aside>
   );
