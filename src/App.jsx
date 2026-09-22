@@ -13,6 +13,7 @@ import SidebarResizer, {
   clampSidebarWidth,
 } from './components/chat/SidebarResizer.jsx';
 import ConnectionContext from './components/chat/ConnectionContext.jsx';
+import CommandPalette from './components/chat/CommandPalette.jsx';
 import TabBar from './components/browse/TabBar.jsx';
 import CollectionsTable from './components/browse/CollectionsTable.jsx';
 import DocumentsView from './components/browse/DocumentsView.jsx';
@@ -73,6 +74,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('chat');
   const scrollRef = useRef(null);
   const searchInputRef = useRef(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   // Where each conversation was last read, so switching away and back does
   // not dump you at the bottom of a transcript you were part-way through.
   const scrollMemory = useRef(new Map());
@@ -255,7 +257,11 @@ export default function App() {
   // handlers they call -- these are const arrow functions, so referencing one
   // earlier is a temporal dead zone error at render, not a hoisted no-op.
   useHotkeys({
-    'mod+k': () => {
+    // Opens the palette, which searches clusters and chats together. The
+    // sidebar's own boxes still narrow their own section in place -- this is
+    // the way in when you do not want to go looking for one first.
+    'mod+k': () => setPaletteOpen(true),
+    'mod+shift+f': () => {
       setSidebarCollapsed(false);
       // focus() on a Material field forwards into its shadow input.
       searchInputRef.current?.focus?.();
@@ -432,6 +438,13 @@ export default function App() {
         </div>
       ))}
       </div>
+
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        onOpenTab={openTab}
+        onSelectChat={handleSelect}
+      />
     </div>
   );
 }

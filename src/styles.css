@@ -1259,6 +1259,140 @@ body.is-resizing-rows .chat-side__section-resizer::after {
 }
 
 
+/* --- command palette ----------------------------------------------------- */
+
+/* Overlaid rather than docked. The sidebar's own boxes narrow their section
+   in place, which is a different job; this one searches across both halves
+   and needs the room to show a path and a snippet side by side. */
+.palette__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  /* Sat high rather than centred: the list grows downward, and a centred
+     panel jumps as results arrive. */
+  padding-top: 12vh;
+  background: rgb(0 0 0 / 0.45);
+}
+
+.palette {
+  display: flex;
+  flex-direction: column;
+  width: min(640px, calc(100vw - var(--space-8)));
+  max-height: 60vh;
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-high);
+  box-shadow: var(--md-sys-elevation-level3);
+  overflow: hidden;
+}
+
+.palette__field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-4);
+  min-height: var(--metric-text-field-height);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* A plain input, not a Material field: the palette is its own container, and
+   a filled field inside it would draw a second box around the first. */
+.palette__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: var(--md-sys-color-on-surface);
+  font-family: inherit;
+  font-size: var(--md-sys-typescale-body-large-size);
+  letter-spacing: var(--md-sys-typescale-body-large-tracking);
+}
+
+.palette__input:focus { outline: none; }
+.palette__input::placeholder { color: var(--md-sys-color-on-surface-variant); }
+
+.palette__kbd {
+  padding: 2px var(--space-2);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  font-family: var(--font-accent);
+  font-size: var(--md-sys-typescale-label-small-size);
+}
+
+.palette__results {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-2) 0;
+}
+
+.palette__group {
+  padding: var(--space-2) var(--space-4) var(--space-1);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-label-small-size);
+  letter-spacing: var(--md-sys-typescale-label-small-tracking);
+  text-transform: uppercase;
+}
+
+.palette__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  background: none;
+  color: var(--md-sys-color-on-surface);
+  font: inherit;
+  font-size: var(--md-sys-typescale-body-medium-size);
+  text-align: left;
+  cursor: pointer;
+}
+
+/* One highlight, driven by the cursor rather than by :hover, so the keyboard
+   and the pointer cannot disagree about which row is selected. */
+.palette__row--active { background: var(--md-sys-color-secondary-container); }
+.palette__row--active .palette__path,
+.palette__row--active .palette__kind { color: var(--md-sys-color-on-secondary-container); }
+
+.palette__label {
+  flex: 0 0 auto;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Where the thing lives, or what the chat said. Takes the slack so the label
+   and the kind stay put. */
+.palette__path {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-body-small-size);
+}
+
+.palette__kind {
+  flex: 0 0 auto;
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: var(--font-accent);
+  font-size: var(--md-sys-typescale-label-small-size);
+  letter-spacing: var(--md-sys-typescale-label-small-tracking);
+}
+
+.palette__hint {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-body-small-size);
+}
+
+
 /* --- chat search --------------------------------------------------------- */
 
 /* At the top of the Chats section, in the same 12dp gutter as the rows it
