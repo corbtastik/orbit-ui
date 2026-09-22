@@ -43,6 +43,12 @@ describe('the split between the sidebar panes', () => {
     expect(SPLIT_DEFAULT).toBeGreaterThan(SPLIT_MIN);
   });
 
+  // Note on what these can and cannot cover: jsdom implements no
+  // PointerEvent, so clientX/clientY are undefined on synthetic pointer
+  // events and a simulated drag computes NaN. The pointer arithmetic is
+  // therefore only exercised in a real browser; what is testable here is the
+  // state around it -- bounds, rounding, keyboard, and the body class.
+  //
   // The width resizer sets `is-resizing`, which forces col-resize. A
   // horizontal drag must not inherit that cursor.
   it('marks the body with its own axis class while dragging', () => {

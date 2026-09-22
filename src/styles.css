@@ -934,38 +934,64 @@ button, input, select, textarea { font-family: inherit; }
 
 /* The clusters pane takes the split as a flex basis; the chats pane takes
    whatever is left, so the two always fill the sidebar exactly. */
+/* A floor on each, so neither can be dragged away entirely -- the split
+   bounds do most of this, but a short window can still squeeze them. */
+.chat-side__pane--clusters { min-height: 88px; }
+
 .chat-side__pane--chats {
   flex: 1 1 auto;
+  min-height: 120px;
   padding-bottom: var(--space-4);
 }
 
-/* A 5px grab target around a 1px line -- the line is what you see, the target
-   is what you hit. The same trade the vertical resizer makes. */
+/* The divider needs to look like a handle, not like a border.
+   
+   It was a 1px outline-variant hairline, which measures 1.83:1 against the
+   sidebar -- present, draggable, and effectively invisible. A control nobody
+   can see is a control that does not work, so this is a grip: a short bar in
+   the centre, the width of a thumb, at a contrast you can actually find. */
 .chat-side__section-resizer {
   flex: 0 0 auto;
   position: relative;
-  height: 5px;
-  margin: 2px 0;
+  height: 10px;
   cursor: row-resize;
   background: none;
   border: 0;
 }
 
+/* The hairline across the full width -- the section boundary. */
 .chat-side__section-resizer::before {
   content: "";
   position: absolute;
   left: var(--space-3);
   right: var(--space-3);
-  top: 2px;
+  top: 50%;
   height: 1px;
   background: var(--md-sys-color-outline-variant);
-  transition: background var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
-.chat-side__section-resizer:hover::before,
-.chat-side__section-resizer:focus-visible::before {
+/* The grip -- what says "drag me". Centred, and wide enough to read as a
+   handle rather than as a speck. */
+.chat-side__section-resizer::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 32px;
+  height: 4px;
+  transform: translate(-50%, -50%);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-outline);
+  transition:
+    background var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard),
+    width var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.chat-side__section-resizer:hover::after,
+.chat-side__section-resizer:focus-visible::after,
+body.is-resizing-rows .chat-side__section-resizer::after {
   background: var(--md-sys-color-primary);
-  height: 2px;
+  width: 48px;
 }
 
 .chat-side__section-resizer:focus-visible {
@@ -1432,11 +1458,6 @@ body.is-resizing-rows {
 
 body.is-resizing      { cursor: col-resize; }
 body.is-resizing-rows { cursor: row-resize; }
-
-body.is-resizing-rows .chat-side__section-resizer::before {
-  background: var(--md-sys-color-primary);
-  height: 2px;
-}
 
 /* --- streaming states --------------------------------------------------- */
 
