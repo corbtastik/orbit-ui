@@ -11,6 +11,9 @@
 # and then fails every question is a worse outcome than not starting at all.
 #
 #   cd ~/dev/github/corbtastik/orbit && ./start-server.sh
+#
+# Object storage (ORBIT_OBJECT_*) is treated the same way but is optional: it
+# is probed and warned about, never started, and never fatal.
 
 set -euo pipefail
 
@@ -65,6 +68,22 @@ mcp_up() {
 }
 
 api_up() { curl -s -m 2 "http://127.0.0.1:${API_PORT}/health" 2>/dev/null | grep -q '"ok":1'; }
+
+# Object storage, if any is configured. Read from .env rather than hardcoded:
+# the endpoint is whatever ORBIT_OBJECT_1_ENDPOINT says, and there may be none.
+object_endpoint() {
+  sed -n 's/^ORBIT_OBJECT_1_ENDPOINT=\(.*\)/\1/p' .env 2>/dev/null \
+    | head -1 | tr -d '"'"'"'' | sed 's#/*$##'
+}
+
+# -k because a local MinIO signs its own certificate; this only asks whether
+# something is listening and speaking S3. Anonymous, so AccessDenied is a pass
+# -- it proves the endpoint answered.
+object_up() {
+  local endpoint="$1" code
+  code=$(curl -sk -m 2 -o /dev/null -w '%{http_code}' "${endpoint}/minio/health/live" 2>/dev/null) || true
+  [ "${code:-000}" != "000" ]
+}
 
 # localhost, not 127.0.0.1: vite binds [::1] only, so an IPv4 probe never
 # connects and this would wait out the timeout on a UI that is already up.
@@ -143,6 +162,20 @@ else
   echo "  Start it in its own terminal, from its own repo:"
   echo "    cd ~/dev/github/corbtastik/orbit && ./start-server.sh"
   exit 1
+fi
+
+# Warned about, never fatal, and skipped entirely when nothing is configured.
+# Object storage is optional: without it the sidebar simply has no Object
+# Storage section, which is a working app rather than a broken one. MinIO is
+# also not ours to start, the same as the MCP server above.
+OBJECT_ENDPOINT="$(object_endpoint)"
+if [ -n "$OBJECT_ENDPOINT" ]; then
+  if object_up "$OBJECT_ENDPOINT"; then
+    echo "▸ Object storage up at ${OBJECT_ENDPOINT}"
+  else
+    echo "⚠ Nothing is answering ${OBJECT_ENDPOINT} -- the Object Storage section"
+    echo "  will show an error. Start MinIO, or comment out ORBIT_OBJECT_1_* in .env."
+  fi
 fi
 
 if api_up; then

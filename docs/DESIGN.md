@@ -24,15 +24,15 @@ belong to the OrbitAI MCP server. This app never sees those credentials.
 │                                   │                        │           │
 └───────────────────────────────────┼────────────────────────┼───────────┘
                                     │                        │
-                   ┌────────────────┴───────┐                │
-                   ▼                        ▼                ▼
-          ┌─────────────────┐   ┌──────────────────┐  ┌──────────────┐
-          │ Anthropic API   │   │ Atlas            │  │ Atlas        │
-          │ (the model)     │   │ chat history +   │  │ (tools)      │
-          │ ANTHROPIC_API_  │   │ browsed clusters │  │ MCP's own    │
-          │ KEY             │   │ MONGODB_URI /    │  │ credentials  │
-          └─────────────────┘   │ ORBIT_CLUSTER_*  │  └──────────────┘
-                                └──────────────────┘
+        ┌───────────────┬───────────┴───────────┐            │
+        ▼               ▼                       ▼            ▼
+┌───────────────┐ ┌──────────────────┐ ┌────────────────┐ ┌──────────────┐
+│ Anthropic API │ │ Atlas            │ │ object store   │ │ Atlas        │
+│ (the model)   │ │ chat history +   │ │ S3-compatible  │ │ (tools)      │
+│               │ │ browsed clusters │ │ MinIO / AIStor │ │              │
+│ ANTHROPIC_    │ │ MONGODB_URI /    │ │ ORBIT_OBJECT_* │ │ MCP's own    │
+│ API_KEY       │ │ ORBIT_CLUSTER_*  │ │ (SigV4)        │ │ credentials  │
+└───────────────┘ └──────────────────┘ └────────────────┘ └──────────────┘
 ```
 
 The browser holds no credentials and never reaches :3600 or Atlas directly. It
@@ -99,19 +99,24 @@ document views keep working when the model or the MCP server is unavailable.
   per token.
 
 
-## Three MongoDB relationships, deliberately separate
+## Four data relationships, deliberately separate
 
 | | Who connects | Access |
 |---|---|---|
 | `MONGODB_URI` | orbit-ui API | read/write, the `orbitai` database only |
 | `ORBIT_CLUSTER_*` | orbit-ui API | read-only: `listDatabases`, `listCollections`, `$collStats`, `find` |
+| `ORBIT_OBJECT_*` | orbit-ui API | read-only: `ListBuckets`, `ListObjectsV2`, `HeadObject` |
 | MCP credentials | orbit-mcp-server | all 87 tools, **including the 11 destructive ones** |
 
-The third never passes through orbit-ui, and it is the one with no scoping.
+The last never passes through orbit-ui, and it is the one with no scoping.
 
-They may all point at the same cluster, and on a dev machine they usually do.
-That is a coincidence of one setup, not a design: they are configured apart so
-they can stop coinciding without anything being rewired.
+The three MongoDB ones may all point at the same cluster, and on a dev machine
+they usually do. That is a coincidence of one setup, not a design: they are
+configured apart so they can stop coinciding without anything being rewired.
+
+`ORBIT_OBJECT_*` is the odd one out — S3, not MongoDB, and optional. With none
+configured the sidebar has no Object Storage section at all, which is a
+working app rather than a degraded one.
 
 The sidebar tree deliberately does **not** go through the MCP server. `connect`
 mutates per-conversation session state there, so a sidebar click could
@@ -125,13 +130,16 @@ server/
   routes/chat.js        projects and conversations
   routes/chatStream.js  SSE endpoint, abort wiring
   routes/clusters.js    the sidebar tree and browse views (read-only)
+  routes/storage.js     the object-storage tree and bucket views (read-only)
   clusters/registry.js  ORBIT_CLUSTER_* -> connections
+  storage/registry.js   ORBIT_OBJECT_* -> S3-compatible endpoints
+  storage/sigv4.js      request signing, no SDK
   providers/orbit.js    the Claude + MCP tool loop
   mcp/client.js         per-conversation MCP sessions
 src/
   App.jsx               shell, tabs
-  components/chat/      transcript, composer, sidebar, cluster tree
-  components/browse/    collections table, paged documents, EJSON viewer
+  components/chat/      transcript, composer, sidebar, cluster and object trees
+  components/browse/    collections table, paged documents, objects, EJSON viewer
   components/md/        React wrappers around @material/web
   components/brand/     the OrbitAI mark and the icon component
   brand/                design tokens — see src/brand/README.md
