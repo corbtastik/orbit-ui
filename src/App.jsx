@@ -73,7 +73,6 @@ export default function App() {
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState('chat');
   const scrollRef = useRef(null);
-  const searchInputRef = useRef(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   // Where each conversation was last read, so switching away and back does
   // not dump you at the bottom of a transcript you were part-way through.
@@ -257,15 +256,11 @@ export default function App() {
   // handlers they call -- these are const arrow functions, so referencing one
   // earlier is a temporal dead zone error at render, not a hoisted no-op.
   useHotkeys({
-    // Opens the palette, which searches clusters and chats together. The
-    // sidebar's own boxes still narrow their own section in place -- this is
-    // the way in when you do not want to go looking for one first.
+    // Both open the palette: it is the only search surface, so the second
+    // binding is muscle memory from when the sidebar had its own box rather
+    // than a different destination.
     'mod+k': () => setPaletteOpen(true),
-    'mod+shift+f': () => {
-      setSidebarCollapsed(false);
-      // focus() on a Material field forwards into its shadow input.
-      searchInputRef.current?.focus?.();
-    },
+    'mod+shift+f': () => setPaletteOpen(true),
     'mod+shift+o': () => handleNewChat(null),
     'mod+/': () => setSidebarCollapsed((v) => !v),
   });
@@ -330,7 +325,7 @@ export default function App() {
         conversations={conversations}
         activeId={activeId}
         collapsed={sidebarCollapsed}
-        searchInputRef={searchInputRef}
+        onOpenSearch={() => setPaletteOpen(true)}
         onToggleCollapsed={() => setSidebarCollapsed((v) => !v)}
         onSelect={handleSelect}
         onNewChat={handleNewChat}

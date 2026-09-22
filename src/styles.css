@@ -379,7 +379,7 @@ button, input, select, textarea { font-family: inherit; }
 
 /* The matched text inside a search snippet. <mark> defaults to a yellow that
    belongs to no palette; this is the theme's own. */
-.chat-search__mark {
+.palette__mark {
   padding: 0 2px;
   border-radius: 2px;
   background: var(--md-sys-color-primary-container);
@@ -1393,66 +1393,62 @@ body.is-resizing-rows .chat-side__section-resizer::after {
 }
 
 
-/* --- chat search --------------------------------------------------------- */
+/* --- sidebar search ----------------------------------------------------- */
 
-/* At the top of the Chats section, in the same 12dp gutter as the rows it
-   searches -- it scopes that list, and sitting inside it says so. */
-.chat-search {
-  padding: 0 var(--metric-nav-item-gutter) var(--space-2);
-}
-
-.chat-search__field {
-  position: relative;
+/* A button dressed as a search field. It sits above the pane split because it
+   searches both panes, not either one. */
+.sidebar-search {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
+  gap: var(--space-3);
+  width: calc(100% - 24px);
+  margin: 0 12px;
+  padding: 0 var(--space-3);
+  height: 40px;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: inherit;
+  font-size: var(--md-sys-typescale-body-medium-size);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--md-sys-motion-duration-short4)
+              var(--md-sys-motion-easing-standard);
 }
 
-/* M3's search bar shape: fully rounded, no indicator line. */
-.chat-search__input {
-  --md-filled-field-container-shape: var(--md-sys-shape-corner-full);
-  --md-filled-text-field-container-color: var(--md-sys-color-surface-container-high);
-  --md-filled-text-field-active-indicator-height: 0;
-  --md-filled-text-field-focus-active-indicator-height: 0;
-  --md-filled-text-field-trailing-space: var(--space-10);
-  flex: 1 1 auto;
-  min-width: 0;
+/* Hand-rolled rather than md-*: the state layer is the only thing a Material
+   button would add here, and it would also bring a shape and a label slot
+   that fight the field it is imitating. */
+.sidebar-search:hover {
+  background: color-mix(
+    in srgb,
+    var(--md-sys-color-on-surface) calc(var(--md-sys-state-hover-state-layer-opacity) * 100%),
+    var(--md-sys-color-surface-container-high)
+  );
 }
 
-.chat-search__clear {
-  --md-icon-button-icon-size: 18px;
-  position: absolute;
-  right: var(--space-1);
-  width: 32px;
-  height: 32px;
+.sidebar-search:focus-visible {
+  outline: 2px solid var(--md-sys-color-secondary);
+  outline-offset: 2px;
 }
 
-/* No scroller of its own: the results are in the sidebar's scroll region
-   now, and nesting a second one would trap the wheel inside it. */
-.chat-search__results {
-  margin-top: var(--space-2);
+.sidebar-search__label { flex: 1 1 auto; }
+
+/* The shortcut is shown because nobody presses a key combination they have
+   never seen. */
+.sidebar-search__kbd {
+  padding: 2px 6px;
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: var(--font-accent);
+  font-size: var(--md-sys-typescale-label-small-size);
 }
 
-.chat-search__list { --md-list-container-color: transparent; }
-
-/* A hit is two lines, so it takes the taller list-item height rather than
-   squeezing the snippet onto the title's line. */
-.chat-search__hit {
-  --md-list-item-two-line-container-height: 72px;
-  --md-list-item-supporting-text-color: var(--md-sys-color-on-surface-variant);
-  --md-list-item-supporting-text-size: var(--md-sys-typescale-body-small-size);
-  margin-left: 0;
-  margin-right: 0;
-}
-
-.chat-search__snippet {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Which side of the conversation the match came from. */
-.chat-search__role {
+/* Which side of the conversation a snippet match came from. */
+.palette__role {
   margin-right: var(--space-2);
   color: var(--md-sys-color-primary);
   font-family: var(--font-accent);

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import ProjectGroup from './ProjectGroup.jsx';
 import ClusterTree from './ClusterTree.jsx';
-import ChatSearch, { isSearching } from './ChatSearch.jsx';
+import SidebarSearch from './SidebarSearch.jsx';
 import SectionHead from './SectionHead.jsx';
 import SectionResizer, { SPLIT_DEFAULT, clampSplit } from './SectionResizer.jsx';
 import { useCollapsedSections } from '../../hooks/useCollapsedSections.js';
@@ -30,7 +30,7 @@ function readSplit() {
 }
 
 export default function ChatSidebar({
-  searchInputRef,
+  onOpenSearch,
   projects,
   conversations,
   onTogglePin,
@@ -47,7 +47,6 @@ export default function ChatSidebar({
   width,
 }) {
   const [collapsedProjects, setCollapsedProjects] = useState({});
-  const [searchQuery, setSearchQuery] = useState('');
   const { isOpen, toggle } = useCollapsedSections();
 
   // How much of the sidebar the Clusters pane gets. A fraction rather than a
@@ -117,6 +116,14 @@ export default function ChatSidebar({
         <OrbitLogo size={26} />
         <MdIconButton
           className="chat-side__expand"
+          onClick={onOpenSearch}
+          title="Search"
+          aria-label="Search"
+        >
+          <Icon name="search" size={22} />
+        </MdIconButton>
+        <MdIconButton
+          className="chat-side__expand"
           onClick={onToggleCollapsed}
           title="Show chats"
           aria-label="Show chats"
@@ -133,6 +140,8 @@ export default function ChatSidebar({
         <OrbitLogo size={34} />
         <span className="orbit-wordmark chat-side__wordmark">OrbitAI</span>
       </div>
+
+      <SidebarSearch onOpen={onOpenSearch} />
 
       <div className="chat-side__top">
         <MdFilledTonalButton className="chat-side__new" onClick={() => onNewChat(null)}>
@@ -222,15 +231,7 @@ export default function ChatSidebar({
         />
 
         {isOpen('chats') && (<>
-        <ChatSearch
-          inputRef={searchInputRef}
-          query={searchQuery}
-          onQueryChange={setSearchQuery}
-          activeId={activeId}
-          onSelect={onSelect}
-        />
-
-        {!isSearching(searchQuery) && creating && (
+        {creating && (
           <input
             className="chat-side__project-input"
             autoFocus
@@ -245,13 +246,13 @@ export default function ChatSidebar({
           />
         )}
 
-        {!isSearching(searchQuery) && conversations.length === 0 && (
+        {conversations.length === 0 && (
           <p className="chat-side__empty-group">
             No chats yet. Ask something to start one.
           </p>
         )}
 
-        {!isSearching(searchQuery) && conversations.length > 0 &&
+        {conversations.length > 0 &&
           [DEFAULT_GROUP, ...projects].map((p) => (
           <ProjectGroup
             key={p.id}

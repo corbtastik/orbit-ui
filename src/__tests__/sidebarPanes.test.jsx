@@ -13,7 +13,7 @@ afterEach(cleanup);
 const props = {
   projects: [], conversations: [], activeId: null, collapsed: false,
   onToggleCollapsed() {}, onSelect() {}, onNewChat() {}, onCreateProject() {},
-  onDelete() {}, onMove() {}, width: 260,
+  onDelete() {}, onMove() {}, width: 260, onOpenSearch() {},
 };
 
 describe('the sidebar panes', () => {
@@ -56,5 +56,33 @@ describe('the sidebar panes', () => {
 
     fireEvent.keyDown(resizer(container), { key: 'ArrowDown' });
     expect(clusters(container).getAttribute('style')).toContain('flex');
+  });
+});
+
+// The sidebar had two boxes that each searched half the app: a chat box that
+// could not find a collection, and a tree filter that could not find a chat.
+// Both are now one button onto the palette, which searches both.
+describe('the sidebar search', () => {
+  const open = () => screen.getByRole('button', { name: /Search/ });
+
+  it('opens the palette rather than searching in place', () => {
+    let opened = 0;
+    render(<ChatSidebar {...props} onOpenSearch={() => { opened += 1; }} />);
+
+    fireEvent.click(open());
+    expect(opened).toBe(1);
+  });
+
+  // The collapsed rail carries the same control, but it is an md-icon-button
+  // and jsdom cannot construct one: ElementInternals has no setFormValue
+  // there, so @material/web's form-associated mixin throws in the constructor
+  // and the whole rail renders empty. That is the source of this file's
+  // pre-existing unhandled errors too. Verified in a browser instead.
+
+  // It shows the shortcut because nobody presses a key combination they have
+  // never seen.
+  it('advertises the shortcut', () => {
+    const { container } = render(<ChatSidebar {...props} />);
+    expect(container.querySelector('.sidebar-search__kbd').textContent).toBe('\u2318K');
   });
 });

@@ -15,6 +15,21 @@ import { relativeTime } from './conversations.js';
 
 const DEBOUNCE_MS = 200;
 
+// The only place chats are searched now, so it shows a few more than a
+// secondary list would.
+const MAX_CHATS = 8;
+
+/** The text with every occurrence of the query marked. */
+function highlight(text, query) {
+  const q = query.trim();
+  if (!q) return text;
+  const rx = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'ig');
+  // The split keeps the captured separators at the odd indices.
+  return String(text).split(rx).map((part, i) =>
+    i % 2 === 1 ? <mark key={i} className="palette__mark">{part}</mark> : part
+  );
+}
+
 const ICON = { cluster: 'dns', database: 'database', collection: 'folder' };
 
 export default function CommandPalette({ open, onClose, onOpenTab, onSelectChat }) {
@@ -62,7 +77,7 @@ export default function CommandPalette({ open, onClose, onOpenTab, onSelectChat 
     timer.current = setTimeout(async () => {
       try {
         const rows = await chatApi.searchConversations(q);
-        if (!cancelled) setChats(rows.slice(0, 6));
+        if (!cancelled) setChats(rows.slice(0, MAX_CHATS));
       } catch {
         if (!cancelled) setChats([]);
       } finally {
@@ -162,7 +177,7 @@ export default function CommandPalette({ open, onClose, onOpenTab, onSelectChat 
                   onClick={() => activate(flat[i])}
                 >
                   <Icon name={ICON[e.kind]} size={18} />
-                  <span className="palette__label">{e.label}</span>
+                  <span className="palette__label">{highlight(e.label, query)}</span>
                   {e.path.length > 0 && <span className="palette__path">{e.path.join(' / ')}</span>}
                   <span className="palette__kind">{e.kind}</span>
                 </button>
@@ -184,8 +199,15 @@ export default function CommandPalette({ open, onClose, onOpenTab, onSelectChat 
                     onClick={() => activate(flat[index])}
                   >
                     <Icon name="chat_bubble" size={18} />
-                    <span className="palette__label">{c.title}</span>
-                    {c.match && <span className="palette__path">{c.match.text}</span>}
+                    <span className="palette__label">{highlight(c.title, query)}</span>
+                    {/* Only when the match was in the transcript -- a title
+                        match needs no snippet, the title is right there. */}
+                    {c.match && (
+                      <span className="palette__path">
+                        <span className="palette__role">{c.match.role}</span>
+                        {highlight(c.match.text, query)}
+                      </span>
+                    )}
                     <span className="palette__kind">{relativeTime(c.updatedAt)}</span>
                   </button>
                 );
