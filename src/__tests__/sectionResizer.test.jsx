@@ -16,7 +16,7 @@ describe('the split between the sidebar panes', () => {
 
   it('nudges with the arrow keys and reports itself as a percentage', () => {
     const onResize = vi.fn();
-    render(<SectionResizer split={0.4} onResize={onResize} onReset={() => {}} containerRef={{ current: null }} />);
+    render(<SectionResizer split={0.4} onResize={onResize} onReset={() => {}} />);
     const bar = screen.getByRole('separator', { name: /resize the clusters and chats panes/i });
 
     expect(bar.getAttribute('aria-orientation')).toBe('horizontal');
@@ -30,14 +30,14 @@ describe('the split between the sidebar panes', () => {
 
   it('will not nudge past its bounds', () => {
     const onResize = vi.fn();
-    render(<SectionResizer split={SPLIT_MIN} onResize={onResize} onReset={() => {}} containerRef={{ current: null }} />);
+    render(<SectionResizer split={SPLIT_MIN} onResize={onResize} onReset={() => {}} />);
     fireEvent.keyDown(screen.getByRole('separator'), { key: 'ArrowUp' });
     expect(onResize).toHaveBeenLastCalledWith(SPLIT_MIN);
   });
 
   it('resets on double-click', () => {
     const onReset = vi.fn();
-    render(<SectionResizer split={0.7} onResize={() => {}} onReset={onReset} containerRef={{ current: null }} />);
+    render(<SectionResizer split={0.7} onResize={() => {}} onReset={onReset} />);
     fireEvent.doubleClick(screen.getByRole('separator'));
     expect(onReset).toHaveBeenCalledTimes(1);
     expect(SPLIT_DEFAULT).toBeGreaterThan(SPLIT_MIN);
@@ -52,7 +52,7 @@ describe('the split between the sidebar panes', () => {
   // The width resizer sets `is-resizing`, which forces col-resize. A
   // horizontal drag must not inherit that cursor.
   it('marks the body with its own axis class while dragging', () => {
-    render(<SectionResizer split={0.4} onResize={() => {}} onReset={() => {}} containerRef={{ current: { clientHeight: 500 } }} />);
+    render(<SectionResizer split={0.4} onResize={() => {}} onReset={() => {}} />);
     const bar = screen.getByRole('separator');
     bar.setPointerCapture = vi.fn();
     bar.releasePointerCapture = vi.fn();

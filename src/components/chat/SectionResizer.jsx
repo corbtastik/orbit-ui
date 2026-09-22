@@ -20,27 +20,36 @@ export const SPLIT_DEFAULT = 0.4;
 export const clampSplit = (v) =>
   Math.round(Math.min(SPLIT_MAX, Math.max(SPLIT_MIN, v)) * 1e4) / 1e4;
 
-export default function SectionResizer({ split, onResize, onReset, containerRef }) {
+export default function SectionResizer({ split, onResize, onReset }) {
   const startRef = useRef({ y: 0, split: 0, height: 0 });
 
   const handlePointerDown = useCallback((e) => {
+    // The container is this element's own parent rather than a ref threaded
+    // down from the sidebar. A ref that arrives null -- not yet attached, or
+    // simply not passed -- silently fell back to a height of 1, which turns
+    // every pixel of movement into a 100% jump and feels exactly like a
+    // control that does not work. The parent is always there by the time a
+    // pointer can reach the child.
+    const container = e.currentTarget.parentElement;
     startRef.current = {
       y: e.clientY,
       split,
-      // Measured once at grab rather than per move: the container's height
-      // does not change mid-drag, and reading it on every pointermove forces
-      // a layout on each one.
-      height: containerRef.current?.clientHeight || 1,
+      // Measured once at grab: it cannot change mid-drag, and reading it on
+      // every pointermove forces a layout each time.
+      height: container?.clientHeight || 0,
     };
     e.currentTarget.setPointerCapture(e.pointerId);
     // Its own class: the sidebar's width resizer sets `is-resizing`, which
     // forces a col-resize cursor -- wrong for a divider that moves vertically.
     document.body.classList.add('is-resizing-rows');
-  }, [split, containerRef]);
+  }, [split]);
 
   const handlePointerMove = useCallback((e) => {
     if (!e.currentTarget.hasPointerCapture?.(e.pointerId)) return;
     const { y, split: startSplit, height } = startRef.current;
+    // A zero height means the measurement failed; doing nothing is right,
+    // where dividing by it would throw the split to an extreme.
+    if (!height) return;
     onResize(clampSplit(startSplit + (e.clientY - y) / height));
   }, [onResize]);
 

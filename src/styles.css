@@ -953,10 +953,17 @@ button, input, select, textarea { font-family: inherit; }
 .chat-side__section-resizer {
   flex: 0 0 auto;
   position: relative;
+  z-index: 2;
   height: 10px;
   cursor: row-resize;
   background: none;
   border: 0;
+  /* Without this the browser may claim the gesture as a scroll -- the handle
+     sits between two scrollable panes -- and cancel the pointer mid-drag,
+     which reads as a handle that does not respond. The sidebar's width
+     resizer gets away without it only because nothing scrolls vertically
+     where it lives. */
+  touch-action: none;
 }
 
 /* The hairline across the full width -- the section boundary. */
@@ -1095,11 +1102,11 @@ body.is-resizing-rows .chat-side__section-resizer::after {
    ORBIT_CLUSTER_* in .env. Indentation carries the hierarchy, so the three
    row variants differ only in padding-left and weight. */
 
+/* No bottom border: the resizer below it is the boundary now, and the two
+   together read as two lines a few pixels apart. */
 .cluster-tree {
   flex: 0 0 auto;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 4px;
+  padding-bottom: var(--space-2);
 }
 
 /* A search field, so it takes the fully-rounded container M3 gives search

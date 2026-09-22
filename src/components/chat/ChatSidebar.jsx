@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import ProjectGroup from './ProjectGroup.jsx';
 import ClusterTree from './ClusterTree.jsx';
 import ChatSearch, { isSearching } from './ChatSearch.jsx';
@@ -53,7 +53,6 @@ export default function ChatSidebar({
   // How much of the sidebar the Clusters pane gets. A fraction rather than a
   // pixel height, so the split survives a window resize.
   const [split, setSplit] = useState(readSplit);
-  const panesRef = useRef(null);
 
   const resize = (next) => {
     setSplit(next);
@@ -146,7 +145,7 @@ export default function ChatSidebar({
       {/* Two panes that scroll independently, with a draggable divider. One
           shared scroller would mean growing the cluster tree pushes the chat
           list off the bottom, which is the thing the divider exists to stop. */}
-      <div className="chat-side__panes" ref={panesRef}>
+      <div className="chat-side__panes">
         <div
           className="chat-side__pane chat-side__pane--clusters"
           // Only while both panes are open: a collapsed Chats should let
@@ -167,7 +166,6 @@ export default function ChatSidebar({
             split={split}
             onResize={resize}
             onReset={() => resize(SPLIT_DEFAULT)}
-            containerRef={panesRef}
           />
         )}
 
