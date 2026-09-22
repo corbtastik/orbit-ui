@@ -934,9 +934,12 @@ button, input, select, textarea { font-family: inherit; }
 
 /* The clusters pane takes the split as a flex basis; the chats pane takes
    whatever is left, so the two always fill the sidebar exactly. */
-/* A floor on each, so neither can be dragged away entirely -- the split
-   bounds do most of this, but a short window can still squeeze them. */
-.chat-side__pane--clusters { min-height: 88px; }
+/* A floor while it is sized by the split -- the bounds do most of this, but a
+   short window can still squeeze it. Collapsed, the pane has no inline flex
+   basis and must be free to shrink to its header, so the floor is scoped to
+   the sized case. */
+.chat-side__pane--clusters[style] { min-height: 88px; }
+.chat-side__pane--clusters { flex: 0 0 auto; }
 
 .chat-side__pane--chats {
   flex: 1 1 auto;

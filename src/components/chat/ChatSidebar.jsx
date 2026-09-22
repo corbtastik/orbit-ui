@@ -55,12 +55,19 @@ export default function ChatSidebar({
   const [split, setSplit] = useState(readSplit);
 
   const resize = (next) => {
+    // Dragging the divider is a request for room, so a collapsed Clusters
+    // opens rather than growing a pane with nothing in it.
+    if (!isOpen('clusters')) toggle('clusters');
     setSplit(next);
     try { window.localStorage.setItem(SPLIT_KEY, String(next)); } catch { /* private mode */ }
   };
 
-  // Only meaningful when both panes are actually showing something.
-  const splitActive = isOpen('clusters') && (isOpen('pinned') || isOpen('chats'));
+  // The divider is always there. It used to require both panes expanded,
+  // which meant collapsing Clusters made it vanish -- and a handle that
+  // disappears depending on unrelated state reads as a broken handle, not as
+  // a deliberate one. Collapsed, the pane sizes to its header instead, and
+  // dragging opens it.
+  const splitSized = isOpen('clusters');
   const [creating, setCreating] = useState(false);
   const [draftName, setDraftName] = useState('');
 
@@ -150,7 +157,7 @@ export default function ChatSidebar({
           className="chat-side__pane chat-side__pane--clusters"
           // Only while both panes are open: a collapsed Chats should let
           // Clusters have the whole sidebar rather than sit at 40% of it.
-          style={splitActive ? { flex: `0 0 ${split * 100}%` } : undefined}
+          style={splitSized ? { flex: `0 0 ${split * 100}%` } : undefined}
         >
           {/* Above Chats: the tree is what the conversations are about, and it
               is the part that does not grow as chats accumulate. */}
@@ -161,13 +168,11 @@ export default function ChatSidebar({
           />
         </div>
 
-        {splitActive && (
-          <SectionResizer
+        <SectionResizer
             split={split}
             onResize={resize}
             onReset={() => resize(SPLIT_DEFAULT)}
-          />
-        )}
+        />
 
         <div className="chat-side__pane chat-side__pane--chats">
 
