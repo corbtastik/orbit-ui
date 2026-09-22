@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import ProjectGroup from './ProjectGroup.jsx';
 import ClusterTree from './ClusterTree.jsx';
+import ObjectTree from './ObjectTree.jsx';
 import SidebarSearch from './SidebarSearch.jsx';
 import SectionHead from './SectionHead.jsx';
 import SectionResizer, { SPLIT_DEFAULT, clampSplit } from './SectionResizer.jsx';
@@ -174,6 +175,17 @@ export default function ChatSidebar({
             onOpenTab={onOpenTab}
             sectionOpen={isOpen('clusters')}
             onToggleSection={() => toggle('clusters')}
+          />
+
+          {/* Shares the Clusters pane rather than claiming a third one. The
+              sidebar's split is a single fraction between two panes, and
+              Pinned and Chats already share the lower one -- sections and
+              panes are not the same thing here. Renders nothing at all when
+              no store is configured. */}
+          <ObjectTree
+            onOpenTab={onOpenTab}
+            sectionOpen={isOpen('storage')}
+            onToggleSection={() => toggle('storage')}
           />
         </div>
 

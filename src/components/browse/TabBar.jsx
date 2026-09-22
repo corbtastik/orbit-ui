@@ -12,6 +12,18 @@ import { MdIconButton } from '../md/index.jsx';
 // is already built to the M3 primary-tab spec -- 48dp, label-large, an inset
 // 3dp indicator -- on the same tokens everything else uses.
 
+// One entry per tab kind. The ternary chain this replaces fell through to
+// tab.db for any kind it did not know about, so a bucket tab rendered a blank
+// label and an aria-label reading "Close undefined".
+const DESCRIBE = {
+  collection: (t) => ({ icon: 'folder', label: t.coll, title: `${t.db}.${t.coll}` }),
+  database: (t) => ({ icon: 'database', label: t.db, title: t.db }),
+  bucket: (t) => ({ icon: 'folder_open', label: t.bucket, title: `${t.storeName}/${t.bucket}` }),
+};
+
+const describe = (tab) =>
+  DESCRIBE[tab.kind]?.(tab) ?? { icon: 'help', label: tab.kind, title: tab.kind };
+
 export default function TabBar({ tabs, activeId, onSelect, onClose }) {
   return (
     <div className="tabbar" role="tablist">
@@ -25,7 +37,9 @@ export default function TabBar({ tabs, activeId, onSelect, onClose }) {
         Chat
       </button>
 
-      {tabs.map((tab) => (
+      {tabs.map((tab) => {
+        const { icon, label, title } = describe(tab);
+        return (
         <span
           key={tab.id}
           className={`tabbar__tab ${activeId === tab.id ? 'tabbar__tab--active' : ''}`}
@@ -36,21 +50,22 @@ export default function TabBar({ tabs, activeId, onSelect, onClose }) {
             className="tabbar__label"
             aria-selected={activeId === tab.id}
             onClick={() => onSelect(tab.id)}
-            title={tab.kind === 'collection' ? `${tab.db}.${tab.coll}` : tab.db}
+            title={title}
           >
-            <Icon name={tab.kind === 'collection' ? 'folder' : 'database'} size={18} />
-            {tab.kind === 'collection' ? tab.coll : tab.db}
+            <Icon name={icon} size={18} />
+            {label}
           </button>
           <MdIconButton
             className="tabbar__close"
             onClick={() => onClose(tab.id)}
             title="Close tab"
-            aria-label={`Close ${tab.kind === 'collection' ? tab.coll : tab.db}`}
+            aria-label={`Close ${label}`}
           >
             <Icon name="close" size={18} />
           </MdIconButton>
         </span>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -38,11 +38,14 @@ Everything lives in `.env` — see `.env.example` for the full list.
 | `ANTHROPIC_API_KEY` | required |
 | `MONGODB_URI` | required — where chat history is stored |
 | `ORBIT_CLUSTER_1_URI` | a cluster for the sidebar tree; add more by number |
+| `ORBIT_OBJECT_1_ENDPOINT` | optional — an S3-compatible store for the sidebar |
 | `ORBIT_MCP_URL` | defaults to `http://127.0.0.1:3600/mcp` |
 
-These are three separate connections on purpose. `MONGODB_URI` stores
-conversations, `ORBIT_CLUSTER_*` is browsed read-only, and the OrbitAI tools
-reach Atlas with the MCP server's own credentials, which this app never sees.
+The MongoDB settings are three separate connections on purpose. `MONGODB_URI`
+stores conversations, `ORBIT_CLUSTER_*` is browsed read-only, and the OrbitAI
+tools reach Atlas with the MCP server's own credentials, which this app never
+sees. `ORBIT_OBJECT_*` is a fourth thing again: S3-compatible object storage,
+also browsed read-only, and hidden entirely when nothing is configured.
 
 ## Scripts
 

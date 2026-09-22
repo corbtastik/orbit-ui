@@ -70,3 +70,27 @@ export const listDocuments = (clusterId, dbName, collName, { skip = 0, limit = 2
     `/chat/clusters/${clusterId}/databases/${encodeURIComponent(dbName)}` +
       `/collections/${encodeURIComponent(collName)}/documents?skip=${skip}&limit=${limit}`
   );
+
+// --- object storage (the sidebar tree) --------------------------------------
+// Read-only. Buckets arrive with the store; objects are fetched when a bucket
+// is opened. See server/storage/registry.js.
+
+export const listStores = () =>
+  request('/chat/storage').then((r) => r.stores);
+
+// Paging is forward-only: `token` comes from a previous page's `nextToken` and
+// there is no way to address a page without having walked to it.
+export const listObjects = (storeId, bucket, { prefix = '', token = '', limit = 50 } = {}) => {
+  const q = new URLSearchParams({ limit: String(limit) });
+  if (prefix) q.set('prefix', prefix);
+  if (token) q.set('token', token);
+  return request(
+    `/chat/storage/${storeId}/buckets/${encodeURIComponent(bucket)}/objects?${q}`
+  );
+};
+
+export const statObject = (storeId, bucket, key) =>
+  request(
+    `/chat/storage/${storeId}/buckets/${encodeURIComponent(bucket)}/stat` +
+      `?key=${encodeURIComponent(key)}`
+  );

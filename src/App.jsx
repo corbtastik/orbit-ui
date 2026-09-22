@@ -14,6 +14,7 @@ import SidebarResizer, {
 } from './components/chat/SidebarResizer.jsx';
 import ConnectionContext from './components/chat/ConnectionContext.jsx';
 import CommandPalette from './components/chat/CommandPalette.jsx';
+import ObjectsTable from './components/browse/ObjectsTable.jsx';
 import TabBar from './components/browse/TabBar.jsx';
 import CollectionsTable from './components/browse/CollectionsTable.jsx';
 import DocumentsView from './components/browse/DocumentsView.jsx';
@@ -51,10 +52,17 @@ const newId = (prefix) => `${prefix}-new-${nextId++}`;
 
 // Tab identity is the thing being looked at, so opening the same database
 // twice focuses the tab that is already there rather than stacking a second.
-const tabId = (tab) =>
-  tab.kind === 'collection'
-    ? `coll:${tab.clusterId}/${tab.db}/${tab.coll}`
-    : `db:${tab.clusterId}/${tab.db}`;
+//
+// One entry per kind rather than a ternary chain. The prefixes matter: they
+// keep the namespaces apart, so a bucket named like a database cannot collide
+// with it and quietly show the wrong tab.
+const TAB_ID = {
+  collection: (t) => `coll:${t.clusterId}/${t.db}/${t.coll}`,
+  database: (t) => `db:${t.clusterId}/${t.db}`,
+  bucket: (t) => `bucket:${t.storeId}/${t.bucket}`,
+};
+
+const tabId = (tab) => TAB_ID[tab.kind]?.(tab) ?? `${tab.kind}:${JSON.stringify(tab)}`;
 
 export default function App() {
   const [projects, setProjects] = useState([]);
@@ -422,14 +430,14 @@ export default function App() {
 
       {tabs.map((tab) => tab.id !== activeTab ? null : (
         <div className="browse__pane" key={tab.id}>
-          {tab.kind === 'collection' ? (
-            <DocumentsView tab={tab} />
-          ) : (
+          {tab.kind === 'collection' && <DocumentsView tab={tab} />}
+          {tab.kind === 'database' && (
             <CollectionsTable
               tab={tab}
               onOpenCollection={(coll) => openTab({ ...tab, kind: 'collection', coll })}
             />
           )}
+          {tab.kind === 'bucket' && <ObjectsTable tab={tab} />}
         </div>
       ))}
       </div>

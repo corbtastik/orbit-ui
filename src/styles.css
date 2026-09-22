@@ -1931,6 +1931,54 @@ button.tabbar__tab { padding: 0 var(--space-4); }
 
 .browse__link:hover { text-decoration: underline; }
 
+/* --- object browser ------------------------------------------------------ */
+
+/* A bucket row has no twisty, so its name starts where the database rows'
+   carets do rather than indenting past a control that is not there. */
+.cluster-tree__open--flush { padding-left: var(--space-1); }
+
+/* The icon in a table cell sits on the text baseline rather than above it. */
+.browse__row-icon {
+  margin-right: var(--space-2);
+  vertical-align: -3px;
+}
+
+/* Objects are not links: opening one means serving its bytes, which is not
+   built. Styled as plain text so it does not invite a click that does
+   nothing. */
+.browse__object-name {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Hex, and long. Monospace so a column of them lines up, and dimmed because
+   it is the least interesting thing in the row. */
+.browse__etag {
+  font-family: var(--font-accent);
+  font-size: var(--md-sys-typescale-label-small-size);
+}
+
+.browse__crumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: 0 var(--space-4) var(--space-3);
+  font-size: var(--md-sys-typescale-body-small-size);
+}
+
+.browse__crumb-sep { color: var(--muted); }
+.browse__crumb-current { color: var(--md-sys-color-on-surface); }
+
+/* Page N of an unknown total: S3 gives a forward token and no count, so
+   there is no "of 12" to show here. */
+.browse__pager-label {
+  color: var(--muted);
+  font-size: var(--fs-code);
+  font-variant-numeric: tabular-nums;
+}
+
 /* --- segmented button ---------------------------------------------------- */
 
 /* M3 single-select segmented button. Material Web does not ship one, so this

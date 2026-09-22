@@ -14,7 +14,9 @@ import { MongoClient } from "mongodb";
 import makeChatRouter from "./routes/chat.js";
 import makeChatStreamRouter from "./routes/chatStream.js";
 import makeClustersRouter from "./routes/clusters.js";
+import makeStorageRouter from "./routes/storage.js";
 import { loadClusters, closeClusters } from "./clusters/registry.js";
+import { loadStores } from "./storage/registry.js";
 import { log } from "./lib/log.js";
 
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -137,6 +139,13 @@ async function main() {
   const configured = loadClusters();
   console.log("[BOOT] Clusters", configured.map((c) => c.name));
   app.use(makeClustersRouter());
+
+  // /chat/storage -- S3-compatible object stores, read from ORBIT_OBJECT_* in
+  // .env. Optional: none configured means the sidebar hides the section, the
+  // same way an unconfigured cluster list does.
+  const objectStores = loadStores();
+  console.log("[BOOT] Object stores", objectStores.map((s) => s.name));
+  app.use(makeStorageRouter());
 
   app.listen(PORT, () => console.log(`OrbitAI UI API listening on http://localhost:${PORT}`));
 
