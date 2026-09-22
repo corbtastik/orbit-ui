@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import * as chatApi from '../../api/chat.js';
 import Icon from '../brand/Icon.jsx';
+import SectionHead from './SectionHead.jsx';
 import { MdIconButton, MdFilledTextField, MdList, MdListItem } from '../md/index.jsx';
 
 // The cluster tree: cluster -> databases -> collections, for whatever is
@@ -24,12 +25,11 @@ const Caret = ({ open }) => (
   <Icon name="chevron_right" size={20} className={open ? 'icon--rotated' : ''} />
 );
 
-export default function ClusterTree({ onOpenTab }) {
+export default function ClusterTree({ onOpenTab, sectionOpen = true, onToggleSection }) {
   const [clusters, setClusters] = useState([]);
   const [loadError, setLoadError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
-  const [sectionOpen, setSectionOpen] = useState(true);
 
   // Keyed "clusterId/dbName" so two clusters with a database of the same name
   // do not share an expansion state.
@@ -98,20 +98,12 @@ export default function ClusterTree({ onOpenTab }) {
 
   return (
     <section className="cluster-tree">
-      <div className="chat-side__section-head">
-        <span>
-          Clusters{clusters.length > 0 && ` (${clusters.length})`}
-        </span>
-        <MdIconButton
-          className="chat-side__section-add"
-          onClick={() => setSectionOpen((v) => !v)}
-          title={sectionOpen ? 'Hide clusters' : 'Show clusters'}
-          aria-label={sectionOpen ? 'Hide clusters' : 'Show clusters'}
-          aria-expanded={sectionOpen}
-        >
-          <Icon name={sectionOpen ? 'close' : 'chevron_right'} size={20} />
-        </MdIconButton>
-      </div>
+      <SectionHead
+        label="Clusters"
+        count={clusters.length || null}
+        open={sectionOpen}
+        onToggle={onToggleSection}
+      />
 
       {sectionOpen && (
         <>

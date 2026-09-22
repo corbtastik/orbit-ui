@@ -2,6 +2,8 @@ import React, { useState, useMemo } from 'react';
 import ProjectGroup from './ProjectGroup.jsx';
 import ClusterTree from './ClusterTree.jsx';
 import ChatSearch, { isSearching } from './ChatSearch.jsx';
+import SectionHead from './SectionHead.jsx';
+import { useCollapsedSections } from '../../hooks/useCollapsedSections.js';
 import ChatListItem from './ChatListItem.jsx';
 import OrbitLogo from '../brand/OrbitLogo.jsx';
 import { DEFAULT_PROJECT } from './conversations.js';
@@ -32,6 +34,7 @@ export default function ChatSidebar({
 }) {
   const [collapsedProjects, setCollapsedProjects] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const { isOpen, toggle } = useCollapsedSections();
   const [creating, setCreating] = useState(false);
   const [draftName, setDraftName] = useState('');
 
@@ -116,13 +119,21 @@ export default function ChatSidebar({
       <div className="chat-side__scroll">
         {/* Above Chats: the tree is what the conversations are about, and it
             is the part that does not grow as chats accumulate. */}
-        <ClusterTree onOpenTab={onOpenTab} />
+        <ClusterTree
+          onOpenTab={onOpenTab}
+          sectionOpen={isOpen('clusters')}
+          onToggleSection={() => toggle('clusters')}
+        />
 
         {pinned.length > 0 && (
           <section className="chat-side__group">
-            <div className="chat-side__section-head">
-              <span>Pinned</span>
-            </div>
+            <SectionHead
+              label="Pinned"
+              count={pinned.length}
+              open={isOpen('pinned')}
+              onToggle={() => toggle('pinned')}
+            />
+            {isOpen('pinned') && (
             <MdList className="chat-side__items">
               {pinned.map((c) => (
                 <ChatListItem
@@ -138,21 +149,28 @@ export default function ChatSidebar({
                 />
               ))}
             </MdList>
+            )}
           </section>
         )}
 
-        <div className="chat-side__section-head">
-          <span>Chats</span>
-          <MdIconButton
-            className="chat-side__section-add"
-            onClick={() => setCreating(true)}
-            title="New project"
-            aria-label="New project"
-          >
-            <Icon name="create_new_folder" size={20} />
-          </MdIconButton>
-        </div>
+        <SectionHead
+          label="Chats"
+          count={conversations.length}
+          open={isOpen('chats')}
+          onToggle={() => toggle('chats')}
+          actions={
+            <MdIconButton
+              className="chat-side__section-add"
+              onClick={() => setCreating(true)}
+              title="New project"
+              aria-label="New project"
+            >
+              <Icon name="create_new_folder" size={20} />
+            </MdIconButton>
+          }
+        />
 
+        {isOpen('chats') && (<>
         <ChatSearch
           inputRef={searchInputRef}
           query={searchQuery}
@@ -201,6 +219,7 @@ export default function ChatSidebar({
             projects={projects}
           />
         ))}
+        </>)}
 
       </div>
     </aside>

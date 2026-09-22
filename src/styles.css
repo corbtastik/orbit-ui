@@ -921,19 +921,64 @@ button, input, select, textarea { font-family: inherit; }
   padding: var(--space-1) 0 var(--space-4);
 }
 
-/* M3 drawer section header: title-small, sentence case, in the same 12dp
-   gutter as the items below it. M3 does not shout section labels in caps. */
+/* M3 drawer section header, and the section's collapse control. The heading
+   is the toggle; trailing actions sit beside it rather than inside, because a
+   button inside a button is invalid and "new project" must not also collapse
+   the section it belongs to. */
 .chat-side__section-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--space-1);
   min-height: var(--space-14);
   padding: var(--space-4) var(--space-4) var(--space-2);
+}
+
+.chat-side__section-toggle {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: none;
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: inherit;
   font-size: var(--md-sys-typescale-title-small-size);
   line-height: var(--md-sys-typescale-title-small-line-height);
   letter-spacing: var(--md-sys-typescale-title-small-tracking);
   font-weight: var(--md-sys-typescale-weight-medium);
-  color: var(--md-sys-color-on-surface-variant);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.chat-side__section-toggle::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.chat-side__section-toggle:hover::after  { opacity: var(--md-sys-state-hover-state-layer-opacity); }
+.chat-side__section-toggle:active::after { opacity: var(--md-sys-state-pressed-state-layer-opacity); }
+.chat-side__section-toggle:hover { color: var(--md-sys-color-on-surface); }
+
+/* Only shown while collapsed, where it is the one thing still reporting what
+   is inside. */
+.chat-side__section-count {
+  padding: 0 var(--space-2);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-high);
+  font-size: var(--md-sys-typescale-label-small-size);
+  letter-spacing: var(--md-sys-typescale-label-small-tracking);
+  font-variant-numeric: tabular-nums;
 }
 
 .chat-side__section-head--plain { padding-top: 20px; }
