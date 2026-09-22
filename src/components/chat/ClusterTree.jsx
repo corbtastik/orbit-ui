@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as chatApi from '../../api/chat.js';
 import Icon from '../brand/Icon.jsx';
 import SectionHead from './SectionHead.jsx';
-import { MdIconButton, MdFilledTextField, MdList, MdListItem } from '../md/index.jsx';
+import { MdList, MdListItem } from '../md/index.jsx';
 
 // The cluster tree: cluster -> databases -> collections, for whatever is
 // configured as ORBIT_CLUSTER_* in .env.
@@ -29,7 +29,6 @@ export default function ClusterTree({ onOpenTab, sectionOpen = true, onToggleSec
   const [clusters, setClusters] = useState([]);
   const [loadError, setLoadError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState('');
 
   // Keyed "clusterId/dbName" so two clusters with a database of the same name
   // do not share an expansion state.
@@ -79,23 +78,6 @@ export default function ClusterTree({ onOpenTab, sectionOpen = true, onToggleSec
     }
   };
 
-  // Filtering matches databases as well as clusters, and a cluster whose name
-  // does not match still shows if one of its databases does -- otherwise
-  // typing a database name empties the tree that contains it.
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return clusters;
-    return clusters
-      .map((c) => {
-        if (c.name.toLowerCase().includes(q)) return c;
-        const databases = (c.databases ?? []).filter((d) =>
-          d.name.toLowerCase().includes(q)
-        );
-        return databases.length ? { ...c, databases } : null;
-      })
-      .filter(Boolean);
-  }, [clusters, query]);
-
   return (
     <section className="cluster-tree">
       <SectionHead
@@ -107,15 +89,6 @@ export default function ClusterTree({ onOpenTab, sectionOpen = true, onToggleSec
 
       {sectionOpen && (
         <>
-          {clusters.length > 0 && (
-            <MdFilledTextField
-              className="cluster-tree__search"
-              placeholder="Search clusters"
-              value={query}
-              onInput={(e) => setQuery(e.target.value)}
-            />
-          )}
-
           {loading && <p className="cluster-tree__note">Loading…</p>}
 
           {loadError && <p className="cluster-tree__note cluster-tree__note--error">{loadError}</p>}
@@ -128,7 +101,7 @@ export default function ClusterTree({ onOpenTab, sectionOpen = true, onToggleSec
             </p>
           )}
 
-          {filtered.map((cluster) => {
+          {clusters.map((cluster) => {
             const open = !!openClusters[cluster.id];
             return (
               <div key={cluster.id} className="cluster-tree__cluster">

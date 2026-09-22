@@ -1112,24 +1112,6 @@ body.is-resizing-rows .chat-side__section-resizer::after {
   padding-bottom: var(--space-2);
 }
 
-/* A search field, so it takes the fully-rounded container M3 gives search
-   rather than the filled field's square top. */
-.cluster-tree__search {
-  --md-filled-field-container-shape: var(--md-sys-shape-corner-full);
-  --md-filled-text-field-container-color: var(--md-sys-color-surface-container-high);
-  --md-filled-text-field-active-indicator-height: 0;
-  --md-filled-text-field-focus-active-indicator-height: 0;
-  display: block;
-  width: calc(100% - var(--space-6));
-  margin: 0 var(--metric-nav-item-gutter) var(--space-2);
-}
-
-.cluster-tree__search::placeholder { color: var(--muted); }
-.cluster-tree__search:focus {
-  outline: 2px solid var(--md-sys-color-primary);
-  outline-offset: -2px;
-}
-
 /* Tree rows are list items too, denser than the top-level drawer items --
    a tree is dense by nature -- but the same pill and the same ripple. */
 .cluster-tree__row {
