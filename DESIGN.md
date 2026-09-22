@@ -9,27 +9,105 @@ Claude with roughly 87 MongoDB and Atlas tools attached. The model is Claude and
 the API key is this app's; the tools, and the Atlas credentials behind them,
 belong to the OrbitAI MCP server. This app never sees those credentials.
 
+## Architecture
+
+### Processes and trust boundaries
+
 ```
-browser :7001
-   │  POST /chat/stream            (SSE: token / retrieval / done / error)
-   ▼
-server :7002 ──► Anthropic Messages API
-   │                │
-   │                └── tool_use ──► OrbitAI MCP :3600 ──► Atlas
-   │
-   └──► MongoDB: the `orbitai` database (conversations only)
+┌─ your machine ─────────────────────────────────────────────────────────┐
+│                                                                        │
+│  ┌──────────────┐        ┌──────────────────┐     ┌─────────────────┐  │
+│  │  browser     │        │  orbit-ui API    │     │ orbit-mcp-server│  │
+│  │  :7001       │◄──────►│  :7002           │◄───►│ :3600  (POST)   │  │
+│  │  (vite)      │  /chat │  express         │ MCP │ separate repo   │  │
+│  └──────────────┘        └──────────────────┘     └─────────────────┘  │
+│                                   │                        │           │
+└───────────────────────────────────┼────────────────────────┼───────────┘
+                                    │                        │
+                   ┌────────────────┴───────┐                │
+                   ▼                        ▼                ▼
+          ┌─────────────────┐   ┌──────────────────┐  ┌──────────────┐
+          │ Anthropic API   │   │ Atlas            │  │ Atlas        │
+          │ (the model)     │   │ chat history +   │  │ (tools)      │
+          │ ANTHROPIC_API_  │   │ browsed clusters │  │ MCP's own    │
+          │ KEY             │   │ MONGODB_URI /    │  │ credentials  │
+          └─────────────────┘   │ ORBIT_CLUSTER_*  │  └──────────────┘
+                                └──────────────────┘
 ```
 
-The browser never holds the Anthropic key and never talks to the MCP server
-directly. It could not anyway — the MCP server keeps per-session state, and a
-browser tab cannot hold a session across a reload.
+The browser holds no credentials and never reaches :3600 or Atlas directly. It
+could not anyway — MCP sessions are stateful and a browser tab cannot hold one
+across a reload.
+
+### The chat loop
+
+```
+browser                orbit-ui API           Anthropic            MCP :3600
+   │                        │                     │                    │
+   │ POST /chat/stream      │                     │                    │
+   ├───────────────────────►│                     │                    │
+   │                        │ listTools()         │                    │
+   │                        ├────────────────────────────────────────► │
+   │                        │◄─ 87 tool defs ─────────────────────────┤
+   │                        │                     │                    │
+   │                        │  ┌── round 1..30 ──────────────────────┐ │
+   │                        │  │ messages + tools │                  │ │
+   │                        │  ├─────────────────►│                  │ │
+   │  ◄── token ────────────┼──┤◄─ text deltas ───┤                  │ │
+   │                        │  │◄─ tool_use ──────┤                  │ │
+   │  ◄── retrieval ────────┼──┤                  │                  │ │
+   │  ◄── context ──────────┼──┤ callTool() ──────┼─────────────────►│ │
+   │  ◄── retrieval_result ─┼──┤◄─ result ────────┼──────────────────┤ │
+   │                        │  │ results back ───►│                  │ │
+   │                        │  └── until stop_reason ≠ tool_use ─────┘ │
+   │  ◄── done ─────────────┤                     │                    │
+   │                        │                     │                    │
+   │ POST …/turns (once)    │──► Atlas (history)  │                    │
+```
+
+**This is agentic tool-calling, not RAG.** RAG is one-shot: retrieve, stuff the
+prompt, generate. Here the model chooses tools iteratively from what the last
+result said, and cannot know round 1's queries before seeing round 0's output.
+That is why latency is open-ended rather than fixed, why `ORBIT_MAX_ITERATIONS`
+exists as a guard at 30 rounds, and why tool results are capped at 4,000
+characters before they re-enter the context.
+
+The model is what decides which tool to call, reads the result and decides
+whether to call another. MCP can list tools and run one; it can do neither of
+those things. That is the whole reason this app needs a model API key despite
+every tool living behind MCP.
+
+### The browse path
+
+```
+browser ──► GET /chat/clusters                    ──► registry ──► Atlas
+        ──► GET …/databases/:db/stats                 (read-only)
+        ──► GET …/collections/:coll/documents
+```
+
+Separate connections, no MCP, no model. This is why the cluster tree and the
+document views keep working when the model or the MCP server is unavailable.
+
+### State that the diagrams do not show
+
+- **MCP sessions are keyed per conversation.** `connect` and every call
+  depending on it must land in the same session, so two chats cannot silently
+  share a cluster.
+- **Connection context is inferred** from tool arguments in flight, then
+  replayed from the stored calls when a transcript is loaded.
+- **History is written once per exchange**, after the reply completes — never
+  per token.
+
 
 ## Three MongoDB relationships, deliberately separate
 
-    MONGODB_URI       chat history         written by this app, `orbitai` db
-    MCP credentials   whatever the tools   never seen by this app
-                      reach
-    ORBIT_CLUSTER_*   the sidebar tree     read-only, never written
+| | Who connects | Access |
+|---|---|---|
+| `MONGODB_URI` | orbit-ui API | read/write, the `orbitai` database only |
+| `ORBIT_CLUSTER_*` | orbit-ui API | read-only: `listDatabases`, `listCollections`, `$collStats`, `find` |
+| MCP credentials | orbit-mcp-server | all 87 tools, **including the 11 destructive ones** |
+
+The third never passes through orbit-ui, and it is the one with no scoping.
 
 They may all point at the same cluster, and on a dev machine they usually do.
 That is a coincidence of one setup, not a design: they are configured apart so
