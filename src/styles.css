@@ -1403,7 +1403,10 @@ body.is-resizing-rows .chat-side__section-resizer::after {
   align-items: center;
   gap: var(--space-3);
   width: calc(100% - 24px);
-  margin: 0 12px;
+  /* Carries its own space below the wordmark. The brand block stops 4px
+     short because the New chat row used to follow it and brought 12px of its
+     own; this restores the same 16px the logo has above it. */
+  margin: 12px 12px 0;
   padding: 0 var(--space-3);
   height: 40px;
   border: none;
