@@ -1,127 +1,182 @@
-# A ten-minute OrbitAI demo
+# Demo: are we actually fixing what breaks?
 
-Asking a 4.6-million-document Atlas database questions in plain English, and
-watching it actually go and look.
+A simulator floods a MongoDB Atlas cluster with telecom incidents, and a repair
+policy fixes some of them. Nobody has ever checked whether the repairs keep up.
 
-Five questions, in order. Each builds on the one before, so resist the urge to
-skip.
+That is the demo. Seven questions, each in plain English, ending in a finding
+nobody in the room knew when you started. You never write a query.
 
-## Before you start
+**Budget ten to twelve minutes.** The early questions take seconds; the last
+two take a minute each because they aggregate over millions of documents.
+
+> Every number below was measured against this cluster while writing this.
+> They will have drifted — the simulator keeps running and `fix_events` has a
+> 30-day TTL. Drift is fine; the shape of the answer is what matters.
+
+## Before anyone is watching
 
 ```bash
 cd ~/dev/github/corbtastik/orbit && ./start-server.sh    # terminal 1
 cd ~/dev/github/corbtastik/orbit-ui && ./start-all.sh    # terminal 2
 ```
 
-Open <http://localhost:7001> and check two things before anyone is watching:
+Open <http://localhost:7001>. The header must say **Connected** — amber "No
+databases" means the MCP server is up but has no registered connections, which
+is usually a stale build in the orbit repo. Start a new chat.
 
-- The header says **Connected**. Amber "No databases" means the MCP server is
-  up but has no registered connections — rebuild it (`npm run build` in the
-  orbit repo) and restart.
-- The sidebar lists **corbs-demo** with an `incidents` database under it.
+## Act 1 — Where am I?
 
-Start a new chat so the transcript is empty.
+### 1. Summarize my Atlas project
 
-## The one thing to say first
+> **Summarize my Atlas project — what clusters are in it, what tier, what
+> region, and is backup on?**
 
-> "This isn't a chatbot that was trained on my data. It's Claude with tools
-> that reach my actual Atlas cluster. Everything you're about to see, it looks
-> up while you watch."
+This does not touch your data at all. It is the Atlas Admin API, and it comes
+back in a few seconds with `corbs-demo`: an M30 replica set on GCP Central US,
+MongoDB 9.0.2, backup enabled.
 
-That framing is the demo. The rest is evidence.
+**Say:** *"I haven't told it anything about my environment. It went and asked
+Atlas."*
+
+### 2. What is in the database?
+
+> **What databases are on that cluster, and what collections does the
+> incidents database have? Roughly how big is each one?**
+
+Ten collections. `incident_events` holds about 4.6 million documents;
+`fix_events` about 1.3 million; `sim_runs` and `incident_media` are tiny.
+
+**Say:** *"Now it's on the data plane — same conversation, different
+credentials underneath."*
+
+## Act 2 — What am I looking at?
+
+### 3. What does an incident look like?
+
+> **Show me the schema of incident_events. What does one incident document
+> actually contain?**
+
+This is the question that makes everything after it possible. It reports the
+fields it finds: `city`, `ts`, a GeoJSON `loc`, `weight`, `simRunId`, and a
+nested `serviceIssue` carrying `category`, `issue` and per-type details.
+
+**This is the pivot.** Everyone in the room now shares a vocabulary with the
+model, and nobody had to read a data dictionary to get it.
+
+**Point at the tool calls** above the answer and expand one. That panel shows
+the exact call sent to MongoDB — it is the difference between an answer and a
+claim.
+
+## Act 3 — Simple questions
+
+### 4. How much, and of what?
+
+> **Break the incidents down by serviceIssue.category. Which category
+> generates the most?**
+
+Infrastructure leads at ~1.39M, then consumer ~1.16M, then business,
+emerging_tech and federal clustered near 695K each.
+
+**Say:** *"That's a group-and-count over 4.6 million documents. I didn't write
+it, and I didn't have to know that category is nested inside serviceIssue —
+it read that two questions ago."*
+
+### 5. Where?
+
+> **Which cities have the most incidents? Top ten.**
+
+Los Angeles, Chicago and New York lead at roughly 4,400 each, then a tier
+around 3,000.
+
+Cheap follow-up, and worth doing because it shows the conversation holding
+its place:
+
+> **Just Los Angeles — what are the most common issues there?**
+
+## Act 4 — The finding
+
+### 6. One issue does not look like the others
+
+> **What are the ten most common issue types across all incidents?**
+
+Here is the first thing worth noticing: `packet-loss` comes in around 280,000
+while everything else sits near 163,000. One issue is nearly twice as common
+as any other.
+
+**Say:** *"Nobody designed that question to have an interesting answer. It just
+does."*
+
+### 7. Are the repairs keeping up?
+
+Set it up in words first, then ask:
+
+> **fix_events records repairs as a repair_started event and then a fix event
+> for the same incidentId, and repair_started carries an expectedFixAt. For
+> the most recent simulation run, how many incidents were raised, how many were
+> actually repaired, and what was the median time from repair_started to fix
+> broken down by category? Also tell me what fraction of repairs beat their
+> expectedFixAt.**
+
+**This is the long one — give it a minute.** It is a self-join by `incidentId`,
+a median per group, and a ratio, over a collection of 1.3 million events.
+
+Measured on run `20260918-1932Z-s45`:
+
+| | |
+|---|---|
+| Incidents raised | 21,745 |
+| Actually repaired | 13,718 (~63%) |
+| Median time to fix | 59–61 seconds, **in every category** |
+| Beat the expected fix time | **~21%** |
+
+Two findings, and the second is the one that matters:
+
+- **The repair policy is category-blind.** Federal public-safety incidents are
+  repaired at the same speed as consumer broadband — 59 to 61 seconds, across
+  the board. If those are supposed to have different priorities, they do not.
+- **It misses its own estimate four times out of five.** The promised window
+  clusters between 38 and 52 seconds; the actual median is about 60.
+
+**Say:** *"That is a real operational finding, and it took one question. The
+follow-up — 'is that true for every run, or just this one?' — is one more."*
+
+## Closing line
+
+> "I asked seven questions in English. It read the schema, chose the
+> aggregations, ran them against 4.6 million documents, and showed me every
+> call it made so I can check its work. The last answer is something none of us
+> knew ten minutes ago."
 
 ---
 
-## 1 — What's in here?
+## While the long ones run
 
-> **What collections are in the incidents database, and roughly how many
-> documents does each hold?**
-
-Fast, about fifteen seconds. Ten collections, ~4.6M incidents.
-
-**Point at the tool calls** above the answer. Expand one. That panel is the
-whole argument — it shows the actual call that was sent to MongoDB.
-
-## 2 — The scale
-
-> **How many incidents are in incident_events, and what are the ten most common
-> issue types?**
-
-Now it's aggregating over 4.6 million documents. Mention that nobody wrote this
-query — the model chose the pipeline.
-
-## 3 — The real one
-
-> **Show me the five most recent incidents in Los Angeles.**
-
-**This one takes about a minute. Don't fill the silence — narrate the tool
-calls as they appear.** In a verified run it made ten calls in this order:
-
-```
-list-connections → connect → list-databases → list-collections
-→ collection-schema → count → collection-indexes → find
-```
-
-Two of those are worth saying out loud:
-
-- **`collection-schema`** — it didn't know what the documents looked like, so
-  it went and found out before writing a filter.
-- **`collection-indexes`** — it checked what was indexed before choosing how to
-  query. There's a `city + ts` index, which is why this comes back quickly
-  rather than scanning millions of rows.
-
-**Point at the breadcrumb** in the top right. It now reads
-`… / atlas / incidents / incident_events`. Nothing declared that — it's read
-off the tool calls as they went past.
-
-## 4 — The moment that lands
-
-> **Now do the same for Atlanta.**
-
-Six words. It keeps the cluster, the database, the collection, the filter shape
-and the sort. This is the one people remember, so give it a beat.
-
-## 5 — Something only the database knows
-
-> **In fix_events, repairs are recorded as a repair_started event and then a
-> fix event for the same incidentId. What's the median time between them, and
-> does it differ by category?**
-
-A genuine question with no canned answer — a self-join over 1.3M documents that
-the model has to work out how to express.
-
-If you have time, the follow-up is better still:
-
-> **Which categories get repaired fastest, and which get left the longest?**
-
----
-
-## While a long query runs
-
-Open the sidebar tree and click into `incidents` → `incident_events`. The table
-and document views are a normal database browser, sitting beside the chat.
-It makes the point that the chat isn't a replacement for looking at your data —
-it's a faster way in.
+Open the sidebar tree, click into `incidents` → `incident_events`, and page
+through the documents. A normal database browser sitting beside the chat — the
+point being that this does not replace looking at your data, it gets you to the
+right question faster.
 
 ## If something goes wrong
 
 | What you see | What it is |
 |---|---|
-| Header is amber, **No databases** | MCP server up, no connections registered. Usually a stale build in the orbit repo. |
-| Header is red, **Disconnected** | MCP server isn't running. |
-| An answer says it can't connect | Same as amber — check the header. |
-| A query takes >90s | It's iterating. `ORBIT_MAX_ITERATIONS` caps it at 30 rounds. |
+| Header amber, **No databases** | MCP server up, no registered connections. Usually a stale build in the orbit repo — `npm run build`, then restart. |
+| Header red, **Disconnected** | MCP server is not running. |
+| "The most recent run has no repairs" | The TTL expired them. Ask for the most recent run that *has* fix events. |
+| A query runs past 90 seconds | It is iterating; `ORBIT_MAX_ITERATIONS` caps it at 30 rounds. |
 
-**Counts move between runs.** `fix_events` has a 30-day TTL, so repairs expire
-while you watch — it dropped from 1,358,888 to 1,346,119 over two days of
-writing these docs. If someone notices the number changed, that's the TTL
-working, and it's a better answer than a static one.
+## Questions people ask
 
-## What to leave them with
+**"Did it already know the answer?"** No — expand any tool call. The panel shows
+the query and the raw result it came back with.
 
-> "Three of those questions I couldn't have written the query for myself
-> without reading the schema first. It read the schema, checked the indexes,
-> and wrote the query — and showed me every step, so I can check it."
+**"Could it delete my data?"** The MCP server exposes 87 tools and 11 of them
+write. Nothing in this demo calls one, but the boundary is the MCP server's to
+enforce, not this UI's.
+
+**"Why did that take a minute?"** It ran ten or more round trips — list the
+collections, read the schema, check the indexes, then aggregate. You are
+watching it work, not watching it think.
 
 ---
 
