@@ -548,7 +548,14 @@ button, input, select, textarea { font-family: inherit; }
 }
 
 .chat-msg--assistant:hover .chat-msg__actions,
+.chat-msg--user:hover .chat-msg__actions,
 .chat-msg__actions:focus-within { opacity: 1; }
+
+/* Revealed on hover is fine with a mouse and useless without one: a touch
+   device never fires hover, so the control would simply never appear. */
+@media (hover: none) {
+  .chat-msg__actions { opacity: 1; }
+}
 
 /* A code block's copy control rides the top-right corner of the block. */
 .chat-md__pre-wrap { position: relative; }
@@ -581,10 +588,18 @@ button, input, select, textarea { font-family: inherit; }
   margin: 0 auto;
 }
 
+/* A column so the copy control can sit under the bubble rather than beside
+   it; align-items keeps both on the right, which is what justify-content did
+   while this was a row. */
 .chat-msg--user {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
 }
+
+/* The bubble's own corner radius is asymmetric, so the control lines up with
+   its right edge rather than the column's. */
+.chat-msg__actions--user { margin-right: calc(var(--space-1) * -1); }
 
 .chat-msg__bubble {
   background: var(--panel);

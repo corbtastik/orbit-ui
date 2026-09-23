@@ -112,6 +112,16 @@ export default function Message({ message }) {
     return (
       <div className="chat-msg chat-msg--user">
         <div className="chat-msg__bubble">{text}</div>
+        {/* A prompt worth having again is usually a long one -- a question
+            with a cluster, a database and three conditions in it. Selecting
+            that by hand out of a scrolling transcript is the worst way to get
+            it back, which is the same reason the code blocks and the replies
+            carry one. */}
+        {text && (
+          <div className="chat-msg__actions chat-msg__actions--user">
+            <CopyButton text={text} label="Copy prompt" size={16} />
+          </div>
+        )}
       </div>
     );
   }
