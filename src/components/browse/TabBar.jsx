@@ -19,6 +19,13 @@ const DESCRIBE = {
   collection: (t) => ({ icon: 'folder', label: t.coll, title: `${t.db}.${t.coll}` }),
   database: (t) => ({ icon: 'database', label: t.db, title: t.db }),
   bucket: (t) => ({ icon: 'folder_open', label: t.bucket, title: `${t.storeName}/${t.bucket}` }),
+  // The key, not the whole path: a key can be long, and the prefix is already
+  // in the tab beside it.
+  object: (t) => ({
+    icon: 'draft',
+    label: t.key.split('/').pop(),
+    title: `${t.storeName}/${t.bucket}/${t.key}`,
+  }),
 };
 
 const describe = (tab) =>

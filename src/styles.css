@@ -2040,6 +2040,70 @@ button.tabbar__tab { padding: 0 var(--space-4); }
 .browse__crumb-sep { color: var(--muted); }
 .browse__crumb-current { color: var(--md-sys-color-on-surface); }
 
+/* --- one object ---------------------------------------------------------- */
+
+.object-view {
+  padding: 0 var(--space-4) var(--space-6);
+  min-width: 0;
+}
+
+/* Wraps rather than scrolling sideways: a log line is meant to be read, and
+   a horizontal scrollbar under prose is the wrong trade. */
+.object-view__text {
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--font-accent);
+  font-size: var(--fs-code);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.object-view__json {
+  padding: var(--space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+  max-height: 70vh;
+  overflow: auto;
+}
+
+/* Contained rather than sized: an image is whatever it is, and scaling one up
+   to fill the pane tells the reader something false about it. */
+.object-view__image {
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: var(--md-sys-shape-corner-medium);
+  /* So a transparent PNG reads as transparent rather than as black. */
+  background:
+    repeating-conic-gradient(var(--md-sys-color-surface-container-high) 0% 25%,
+                             var(--md-sys-color-surface-container) 0% 50%) 50% / 16px 16px;
+}
+
+.object-view__media {
+  display: block;
+  width: 100%;
+  max-width: 900px;
+  max-height: 70vh;
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: #000;
+}
+
+.object-view__pdf {
+  display: block;
+  width: 100%;
+  height: 70vh;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+}
+
 /* Page N of an unknown total: S3 gives a forward token and no count, so
    there is no "of 12" to show here. */
 .browse__pager-label {

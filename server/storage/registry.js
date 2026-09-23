@@ -98,6 +98,79 @@ function agentFor(store) {
   return store.agent;
 }
 
+/**
+ * One signed read, resolving with the live response stream.
+ *
+ * Separate from send() below, which buffers into a string -- correct for an
+ * XML listing and catastrophic for a 45MB video. Nothing here reads the body;
+ * the caller pipes it, so object size stops being a memory concern and the
+ * ceiling this used to need disappears with it.
+ *
+ * `extra` carries the caller's Range header through unchanged, which is what
+ * lets a browser seek a video instead of waiting for the whole file.
+ */
+export function openObject(id, bucket, key, extra = {}) {
+  const store = stores.get(id);
+  if (!store) return Promise.resolve(null);
+
+  const path = `/${encodeKey(bucket)}/${encodeKey(key)}`;
+  const url = new URL(store.endpoint);
+  const host = url.port ? `${url.hostname}:${url.port}` : url.hostname;
+
+  // Range is deliberately NOT signed. S3 signs only the headers named in
+  // SignedHeaders, and adding one there means signing it everywhere -- the
+  // signature stays over host, x-amz-date and x-amz-content-sha256, and Range
+  // rides along unsigned, which S3 accepts.
+  const signed = signRead({
+    method: "GET",
+    accessKey: store.accessKey,
+    secretKey: store.secretKey,
+    region: store.region,
+    host,
+    path,
+  });
+
+  const transport = url.protocol === "https:" ? https : http;
+
+  return new Promise((resolve, reject) => {
+    const req = transport.request(
+      {
+        protocol: url.protocol,
+        hostname: url.hostname,
+        port: url.port || (url.protocol === "https:" ? 443 : 80),
+        path,
+        method: "GET",
+        agent: agentFor(store),
+        headers: {
+          host,
+          Authorization: signed.authorization,
+          "x-amz-date": signed["x-amz-date"],
+          "x-amz-content-sha256": signed["x-amz-content-sha256"],
+          ...extra,
+        },
+        timeout: 15000,
+      },
+      (res) => {
+        if (res.statusCode >= 400) {
+          // Small enough to read: S3 errors are XML, not object bytes.
+          let body = "";
+          res.setEncoding("utf8");
+          res.on("data", (c) => (body += c));
+          res.on("end", () => {
+            const code = /<Code>([^<]+)<\/Code>/.exec(body)?.[1];
+            reject(new Error(code ? `${code} (${res.statusCode})` : `HTTP ${res.statusCode}`));
+          });
+          return;
+        }
+        resolve({ status: res.statusCode, headers: res.headers, stream: res });
+      }
+    );
+    req.on("timeout", () => req.destroy(new Error("timed out")));
+    req.on("error", reject);
+    req.end();
+  });
+}
+
 /** One signed read. HEAD resolves with headers only and no body. */
 function send(store, method, path, params = {}) {
   const url = new URL(store.endpoint);

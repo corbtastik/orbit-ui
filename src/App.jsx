@@ -15,6 +15,7 @@ import SidebarResizer, {
 import ConnectionContext from './components/chat/ConnectionContext.jsx';
 import CommandPalette from './components/chat/CommandPalette.jsx';
 import ObjectsTable from './components/browse/ObjectsTable.jsx';
+import ObjectView from './components/browse/ObjectView.jsx';
 import TabBar from './components/browse/TabBar.jsx';
 import CollectionsTable from './components/browse/CollectionsTable.jsx';
 import DocumentsView from './components/browse/DocumentsView.jsx';
@@ -60,6 +61,7 @@ const TAB_ID = {
   collection: (t) => `coll:${t.clusterId}/${t.db}/${t.coll}`,
   database: (t) => `db:${t.clusterId}/${t.db}`,
   bucket: (t) => `bucket:${t.storeId}/${t.bucket}`,
+  object: (t) => `object:${t.storeId}/${t.bucket}/${t.key}`,
 };
 
 const tabId = (tab) => TAB_ID[tab.kind]?.(tab) ?? `${tab.kind}:${JSON.stringify(tab)}`;
@@ -449,7 +451,13 @@ export default function App() {
               onOpenCollection={(coll) => openTab({ ...tab, kind: 'collection', coll })}
             />
           )}
-          {tab.kind === 'bucket' && <ObjectsTable tab={tab} />}
+          {tab.kind === 'bucket' && (
+            <ObjectsTable
+              tab={tab}
+              onOpenObject={(key) => openTab({ ...tab, kind: 'object', key })}
+            />
+          )}
+          {tab.kind === 'object' && <ObjectView tab={tab} />}
         </div>
       ))}
       </div>

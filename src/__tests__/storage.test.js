@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { signRead, canonicalQuery, encodeKey } from '../../server/storage/sigv4.js';
 import { parseListBuckets, parseListObjects } from '../../server/storage/registry.js';
+import makeStorageRouter from '../../server/routes/storage.js';
 
 // The two pieces of the object browser that are pure and easy to get subtly
 // wrong: the signature, which fails as "AccessDenied" and reads like bad
@@ -147,5 +148,27 @@ describe('parsing S3 listings', () => {
     expect(page.objects).toEqual([]);
     expect(page.prefixes).toEqual([]);
     expect(page.truncated).toBe(false);
+  });
+});
+
+// The object-content route is a byte proxy, which was a deliberate choice: a
+// presigned URL cannot work against a local MinIO, because the certificate is
+// self-signed and a browser blocks it as a cross-origin subresource.
+describe('the storage router', () => {
+  const routesOf = (router) =>
+    router.stack.filter((l) => l.route).map((l) => `${Object.keys(l.route.methods)[0].toUpperCase()} ${l.route.path}`);
+
+  it('exposes reads only -- no POST, PATCH or DELETE', () => {
+    const routes = routesOf(makeStorageRouter());
+    expect(routes.length).toBeGreaterThan(0);
+    for (const r of routes) expect(r.startsWith('GET ')).toBe(true);
+  });
+
+  it('serves buckets, objects, metadata and content', () => {
+    const routes = routesOf(makeStorageRouter()).join(' ');
+    expect(routes).toContain('/chat/storage');
+    expect(routes).toContain('/objects');
+    expect(routes).toContain('/stat');
+    expect(routes).toContain('/content');
   });
 });

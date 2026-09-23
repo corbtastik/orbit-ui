@@ -1,5 +1,5 @@
 import express from "express";
-import { listConfigured, listBuckets, listObjects, statObject } from "../storage/registry.js";
+import { listConfigured, listBuckets, listObjects, statObject, openObject } from "../storage/registry.js";
 import { describeError } from "../lib/describeError.js";
 
 // The object-storage tree. Read-only by construction: there is no POST, PATCH
@@ -57,10 +57,6 @@ export default function makeStorageRouter() {
     }
   });
 
-  // Metadata only. Object contents are deliberately not served yet: doing so
-  // turns this API into a proxy for arbitrary bytes, which needs a size
-  // ceiling and a content-type policy decided on purpose rather than reached
-  // by accident.
   router.get("/chat/storage/:id/buckets/:bucket/stat", async (req, res) => {
     const key = req.query.key;
     if (!key) return res.status(400).json({ error: "key is required" });
@@ -72,6 +68,60 @@ export default function makeStorageRouter() {
       res.json(meta);
     } catch (err) {
       fail(res, err, "could not stat this object");
+    }
+  });
+
+  /**
+   * Object bytes, streamed.
+   *
+   * This API becomes a proxy here, which was worth deciding rather than
+   * drifting into. The alternative -- handing the browser a presigned URL --
+   * does not work against a local MinIO: the certificate is self-signed, so a
+   * browser fetching it as a subresource from another origin blocks it with
+   * no way to click through. Proxying also keeps the credentials server-side,
+   * which was already the rule everywhere else here.
+   *
+   * Piped, never buffered, so a 45MB video costs no more memory than a 2KB
+   * JSON document. Range travels through unchanged, which is what lets a
+   * browser seek media rather than pull the whole file first.
+   *
+   * Content-Disposition is forced to inline and the type is passed through
+   * from the store. An object is rendered, never offered as a download: this
+   * is a browser, and the tools are how the app moves data.
+   */
+  router.get("/chat/storage/:id/buckets/:bucket/content", async (req, res) => {
+    const key = req.query.key;
+    if (!key) return res.status(400).json({ error: "key is required" });
+
+    try {
+      const extra = req.headers.range ? { Range: req.headers.range } : {};
+      const object = await openObject(req.params.id, req.params.bucket, key, extra);
+      if (object === null) {
+        return res.status(404).json({ error: `unknown store: ${req.params.id}` });
+      }
+
+      const { status, headers, stream } = object;
+      // Only the headers a viewer needs. The store's own x-amz-* and its
+      // server identity are not the browser's business.
+      for (const name of ["content-type", "content-length", "content-range", "accept-ranges", "etag", "last-modified"]) {
+        if (headers[name]) res.setHeader(name, headers[name]);
+      }
+      // Without this a browser may sniff an object into something executable.
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      res.setHeader("Content-Disposition", "inline");
+      res.status(status);
+
+      stream.pipe(res);
+
+      // A reader who closes the tab mid-video should not leave this pulling
+      // the remaining forty megabytes into a socket nobody is reading.
+      res.on("close", () => stream.destroy());
+      stream.on("error", (err) => {
+        console.error("[storage] object stream failed:", describeError(err));
+        res.destroy();
+      });
+    } catch (err) {
+      fail(res, err, "could not read this object");
     }
   });
 

@@ -101,3 +101,10 @@ export const statObject = (storeId, bucket, key) =>
 
 export const listProviders = () =>
   request('/chat/providers').then((r) => r.providers);
+
+// A URL rather than a fetch: images, audio and video are loaded by the
+// element itself, and media elements need a URL they can issue Range requests
+// against. Text and JSON fetch this same URL.
+export const objectContentUrl = (storeId, bucket, key) =>
+  `/chat/storage/${storeId}/buckets/${encodeURIComponent(bucket)}/content` +
+  `?key=${encodeURIComponent(key)}`;

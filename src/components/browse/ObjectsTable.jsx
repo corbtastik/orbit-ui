@@ -27,7 +27,7 @@ function formatWhen(iso) {
       });
 }
 
-export default function ObjectsTable({ tab }) {
+export default function ObjectsTable({ tab, onOpenObject }) {
   const [page, setPage] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -145,15 +145,17 @@ export default function ObjectsTable({ tab }) {
 
               {objects.map((o) => (
                 <tr key={`o:${o.key}`}>
-                  {/* Not a link. Opening an object means serving its bytes,
-                      and that is deliberately not built yet -- this bucket set
-                      holds 43MB files, so it needs a size ceiling decided on
-                      purpose rather than reached by accident. */}
                   <td>
-                    <span className="browse__object-name">
+                    {/* Opens the object in its own tab, the same way a
+                        collection name opens its documents. */}
+                    <button
+                      type="button"
+                      className="browse__link"
+                      onClick={() => onOpenObject?.(o.key)}
+                    >
                       <Icon name="draft" size={16} className="browse__row-icon" />
                       {o.key.slice(prefix.length)}
-                    </span>
+                    </button>
                   </td>
                   <td className="browse__td--right">{formatBytes(o.size)}</td>
                   <td>{formatWhen(o.lastModified)}</td>
