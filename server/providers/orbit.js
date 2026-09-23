@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { listAnthropicTools, callTool, isReachable, mcpUrl } from "../mcp/client.js";
+import { listAnthropicTools, callTool, isReachable, connectionCount, mcpUrl } from "../mcp/client.js";
 import { log } from "../lib/log.js";
 import { SYSTEM } from "./systemPrompt.js";
 import { readContext } from "../../shared/connectionContext.js";
@@ -15,6 +15,14 @@ const getClient = () => (client ??= new Anthropic());
 export const id = "orbit";
 export const isConfigured = () => Boolean(process.env.ANTHROPIC_API_KEY);
 export const checkHealth = () => isReachable();
+
+/**
+ * Whether the server has anything to query, distinct from whether it answers.
+ *
+ * Only asked when checkHealth already passed -- probing connections on a
+ * server that is down is a round trip to learn what is already known.
+ */
+export const checkConnections = () => connectionCount();
 
 const MODEL = process.env.CLAUDE_MODEL ?? "claude-opus-5";
 

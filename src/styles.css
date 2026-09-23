@@ -873,6 +873,16 @@ button, input, select, textarea { font-family: inherit; }
 .orbit-status--down .orbit-status__dot { background: var(--md-sys-color-error); }
 .orbit-status--down .orbit-status__state { color: var(--md-sys-color-error); }
 
+/* Reachable but holding nothing: amber, because the server is up and the
+   Atlas admin tools still work -- it is a warning, not a failure, and
+   colouring it like "down" would misreport what is wrong. */
+.orbit-status--idle {
+  border-color: color-mix(in srgb, var(--warning) 45%, transparent);
+}
+
+.orbit-status--idle .orbit-status__dot { background: var(--warning); }
+.orbit-status--idle .orbit-status__state { color: var(--warning); }
+
 /* Probing is a real third state, not a flash: it lasts as long as the request
    does, and claiming either answer before it lands would be a guess. */
 .orbit-status--probing .orbit-status__state { font-style: italic; }

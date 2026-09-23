@@ -11,6 +11,12 @@ import { DEFAULT_PROVIDER } from './providers.js';
 //
 // The server already knew. /chat/providers reports `healthy` per provider,
 // probed passively by isReachable(), and nothing had ever rendered it.
+//
+// Reachable is not the same as usable. An MCP server answering pings while
+// holding no registered connections fails every data question with `"atlas"
+// is not registered` -- and this showed that as "Connected" for a whole
+// debugging session before the cause was found. So the count is reported
+// too, and zero gets its own state.
 
 // Often enough to notice a restart, rarely enough that an idle tab is not
 // making a request every few seconds all day.
@@ -20,6 +26,9 @@ export default function OrbitStatus() {
   // null while the first probe is in flight: "connecting" is honest, where
   // defaulting to either state means showing something untrue for a moment.
   const [healthy, setHealthy] = useState(null);
+  // Also null when the count could not be established, which is not the same
+  // as a genuine zero and must not be warned about as if it were.
+  const [connections, setConnections] = useState(null);
 
   const probe = useCallback(async () => {
     try {
@@ -28,9 +37,11 @@ export default function OrbitStatus() {
       // Configured but unreachable and not configured at all are both "cannot
       // answer"; the distinction lives in the tooltip rather than the dot.
       setHealthy(Boolean(orbit?.configured && orbit?.healthy));
+      setConnections(typeof orbit?.connections === 'number' ? orbit.connections : null);
     } catch {
       // The API itself is unreachable, which also means no answers.
       setHealthy(false);
+      setConnections(null);
     }
   }, []);
 
@@ -52,12 +63,32 @@ export default function OrbitStatus() {
     };
   }, [probe]);
 
-  const state = healthy === null ? 'probing' : healthy ? 'ok' : 'down';
-  const label = { probing: 'Connecting…', ok: 'Connected', down: 'Disconnected' }[state];
+  // Reachable with nothing registered is its own state, between the two. It
+  // is not "down" -- the server is answering, and the Atlas admin tools still
+  // work -- but no question that reads data can succeed.
+  const state =
+    healthy === null ? 'probing'
+      : !healthy ? 'down'
+      : connections === 0 ? 'idle'
+      : 'ok';
+
+  const label = {
+    probing: 'Connecting…',
+    ok: 'Connected',
+    idle: 'No databases',
+    down: 'Disconnected',
+  }[state];
+
   const title = {
     probing: 'Checking the OrbitAI MCP server…',
-    ok: 'OrbitAI MCP server is reachable',
-    down: 'Cannot reach the OrbitAI MCP server — questions will fail. Start it with ./start-server.sh in the orbit repo.',
+    ok:
+      connections === null
+        ? 'OrbitAI MCP server is reachable'
+        : `OrbitAI MCP server is reachable, with ${connections} registered connection${connections === 1 ? '' : 's'}`,
+    idle:
+      'The MCP server is running but has no registered MongoDB connections, so data questions will fail. ' +
+      'Check MONGODB_CONN_* in the orbit repo\u2019s .env, and that its build is current \u2014 a stale dist is the usual cause.',
+    down: 'Cannot reach the OrbitAI MCP server \u2014 questions will fail. Start it with ./start-server.sh in the orbit repo.',
   }[state];
 
   return (

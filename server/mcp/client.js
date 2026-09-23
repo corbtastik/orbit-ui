@@ -91,6 +91,52 @@ export async function isReachable() {
   }
 }
 
+// A reserved key in the same map, so the health probe can call a tool without
+// ever borrowing a conversation's session. Prefixed to keep it out of the
+// conversation id namespace: a conversation is a Mongo ObjectId, so this
+// cannot collide with one.
+const HEALTH_SESSION = "__health";
+
+/**
+ * How many MongoDB connections the server has registered.
+ *
+ * Reachable and usable are different things, and the gap between them is not
+ * theoretical: a server answering pings perfectly while holding zero
+ * connections makes every data question fail with `"atlas" is not
+ * registered`, and the old indicator showed that as "Connected".
+ *
+ * Returns null when the count cannot be established -- unreachable, or the
+ * call failed -- which the caller must not confuse with a genuine zero.
+ *
+ * `list-connections` needs an initialised session, so this cannot ride the
+ * session-less ping above. It holds ONE reserved session rather than opening
+ * one per poll: the server does not honour DELETE (404, and the session keeps
+ * working), so a per-poll session would leak one every 20 seconds for as long
+ * as the app is open.
+ */
+export async function connectionCount() {
+  try {
+    const { client } = await getMcpClient(HEALTH_SESSION);
+    const result = await client.callTool({ name: "list-connections", arguments: {} });
+
+    const text = (result.content ?? [])
+      .map((b) => (b.type === "text" ? b.text : ""))
+      .join("");
+    const parsed = JSON.parse(text);
+
+    // `count` is what the tool reports; the array is the fallback for a shape
+    // that omits it.
+    if (typeof parsed?.count === "number") return parsed.count;
+    return Array.isArray(parsed?.connections) ? parsed.connections.length : null;
+  } catch (err) {
+    // A failed probe must not poison the session it used: a transient error
+    // here would otherwise leave every later poll talking to a dead client.
+    sessions.delete(HEALTH_SESSION);
+    log(`[health] connection count unavailable: ${err?.message ?? err}`);
+    return null;
+  }
+}
+
 /** MCP tool definitions, shaped for the Anthropic Messages API. */
 export async function listAnthropicTools(conversationId) {
   const { client } = await getMcpClient(conversationId);

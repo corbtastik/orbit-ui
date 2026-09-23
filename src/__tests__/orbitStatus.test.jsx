@@ -23,10 +23,46 @@ const state = (c) => c.querySelector('.orbit-status').className;
 
 describe('OrbitStatus', () => {
   it('reports connected when the MCP server is reachable', async () => {
-    providers = [{ id: 'orbit', configured: true, healthy: true }];
+    providers = [{ id: 'orbit', configured: true, healthy: true, connections: 2 }];
     const { container } = render(<OrbitStatus />);
     await waitFor(() => expect(state(container)).toContain('orbit-status--ok'));
     expect(screen.getByText('Connected')).toBeTruthy();
+  });
+
+  // Reachable with nothing registered is its own state. Not "down" -- the
+  // server answers and the Atlas admin tools still work -- but no question
+  // that reads data can succeed. This showed as "Connected" for a whole
+  // debugging session before the cause was found.
+  it('distinguishes reachable-but-empty from connected', async () => {
+    providers = [{ id: 'orbit', configured: true, healthy: true, connections: 0 }];
+    const { container } = render(<OrbitStatus />);
+    await waitFor(() => expect(state(container)).toContain('orbit-status--idle'));
+    expect(screen.getByText('No databases')).toBeTruthy();
+  });
+
+  // null means the count could not be established, which is not a zero and
+  // must not be warned about as if it were.
+  it('treats an unknown count as connected, not empty', async () => {
+    providers = [{ id: 'orbit', configured: true, healthy: true, connections: null }];
+    const { container } = render(<OrbitStatus />);
+    await waitFor(() => expect(state(container)).toContain('orbit-status--ok'));
+    expect(screen.queryByText('No databases')).toBeNull();
+  });
+
+  // An older API that does not report the field at all still reads as
+  // connected rather than falsely warning.
+  it('tolerates an API that omits the field', async () => {
+    providers = [{ id: 'orbit', configured: true, healthy: true }];
+    const { container } = render(<OrbitStatus />);
+    await waitFor(() => expect(state(container)).toContain('orbit-status--ok'));
+  });
+
+  // Unreachable outranks the count: a dead server reporting zero is down,
+  // not idle.
+  it('reports down even when a count is present', async () => {
+    providers = [{ id: 'orbit', configured: true, healthy: false, connections: 0 }];
+    const { container } = render(<OrbitStatus />);
+    await waitFor(() => expect(state(container)).toContain('orbit-status--down'));
   });
 
   // The case the old dropdown hid: configured, but nothing is listening on
