@@ -2040,12 +2040,12 @@ button.tabbar__tab { padding: 0 var(--space-4); }
 .browse__crumb-sep { color: var(--muted); }
 .browse__crumb-current { color: var(--md-sys-color-on-surface); }
 
-/* --- tab context menu ---------------------------------------------------- */
+/* --- context menus ---------------------------------------------------- */
 
 /* Fixed, because it is positioned at the pointer in viewport coordinates --
    the tab bar scrolls sideways, and an absolutely-positioned menu would ride
    away with it. */
-.tabmenu {
+.ctxmenu {
   position: fixed;
   z-index: 40;
   min-width: 220px;
@@ -2058,7 +2058,7 @@ button.tabbar__tab { padding: 0 var(--space-4); }
   border: 1px solid var(--md-sys-color-outline-variant);
 }
 
-.tabmenu__item {
+.ctxmenu__item {
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -2074,9 +2074,9 @@ button.tabbar__tab { padding: 0 var(--space-4); }
   cursor: pointer;
 }
 
-.tabmenu__item:hover:not(:disabled) { background: var(--wash); }
+.ctxmenu__item:hover:not(:disabled) { background: var(--wash); }
 
-.tabmenu__item:focus-visible {
+.ctxmenu__item:focus-visible {
   outline: 2px solid var(--md-sys-color-secondary);
   outline-offset: -2px;
 }
@@ -2084,7 +2084,7 @@ button.tabbar__tab { padding: 0 var(--space-4); }
 /* Shown rather than hidden: an item that disappears makes the menu change
    shape between right-clicks, and its absence explains nothing. Disabled says
    "not here, not now". */
-.tabmenu__item:disabled {
+.ctxmenu__item:disabled {
   color: var(--md-sys-color-on-surface);
   opacity: 0.38;               /* M3's disabled content opacity */
   cursor: default;

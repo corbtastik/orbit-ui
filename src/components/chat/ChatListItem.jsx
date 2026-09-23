@@ -2,6 +2,7 @@ import React, { useId, useState } from 'react';
 import { relativeTime, DEFAULT_PROJECT } from './conversations.js';
 import { providerLabel } from './providers.js';
 import Icon from '../brand/Icon.jsx';
+import ContextMenu, { ContextMenuItem } from '../ContextMenu.jsx';
 import {
   MdListItem,
   MdIconButton,
@@ -21,9 +22,14 @@ import {
 export default function ChatListItem({ conversation, active, onSelect, onDelete, onMove, onTogglePin, onRename, projects = [] }) {
   const { id, title, updatedAt, provider, projectId, pinnedAt } = conversation;
   const [menuOpen, setMenuOpen] = useState(false);
+  // { x, y } while the right-click menu is open. Renaming was reachable only
+  // through the move-to-project menu, which is not where anyone looks for it.
+  const [ctx, setCtx] = useState(null);
   const [confirming, setConfirming] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [draft, setDraft] = useState(title);
+
+  const beginRename = () => { setDraft(title); setRenaming(true); };
 
   const saveRename = () => {
     const next = draft.trim();
@@ -41,6 +47,10 @@ export default function ChatListItem({ conversation, active, onSelect, onDelete,
         type="button"
         className={`chat-side__row ${active ? 'chat-side__row--active' : ''}`}
         onClick={() => onSelect(id)}
+        // Does not select the chat first: right-clicking to rename something
+        // should not also load it, which on a long transcript is a visible
+        // pause for an action that never needed it.
+        onContextMenu={(e) => { e.preventDefault(); setCtx({ x: e.clientX, y: e.clientY }); }}
         title={`${title} · ${providerLabel(provider)}`}
       >
         <span
@@ -75,7 +85,7 @@ export default function ChatListItem({ conversation, active, onSelect, onDelete,
                 onClosed={() => setMenuOpen(false)}
               >
                 {onRename && (
-                  <MdMenuItem onClick={() => { setDraft(title); setRenaming(true); }}>
+                  <MdMenuItem onClick={beginRename}>
                     <Icon slot="start" name="edit" size={20} />
                     <span slot="headline">Rename</span>
                   </MdMenuItem>
@@ -118,6 +128,18 @@ export default function ChatListItem({ conversation, active, onSelect, onDelete,
           </MdIconButton>
         </span>
       </MdListItem>
+
+      {ctx && (
+        <ContextMenu at={ctx} onClose={() => setCtx(null)} items={1}>
+          <ContextMenuItem
+            disabled={!onRename}
+            onClick={() => { setCtx(null); beginRename(); }}
+          >
+            <Icon name="edit" size={18} />
+            Rename
+          </ContextMenuItem>
+        </ContextMenu>
+      )}
 
       {/* PATCH has accepted a title since the first commit; there was simply
           no way to reach it, so a chat named after its opening "hey" stayed

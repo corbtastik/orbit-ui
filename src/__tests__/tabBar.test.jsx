@@ -21,13 +21,13 @@ const openMenuOn = (container, label) => {
   const tab = [...container.querySelectorAll('.tabbar__tab')]
     .find((el) => el.textContent.includes(label));
   fireEvent.contextMenu(tab);
-  return container.querySelector('.tabmenu');
+  return container.querySelector('.ctxmenu');
 };
 
 describe('the tab context menu', () => {
   it('does not exist until a tab is right-clicked', () => {
     const { container } = render(<TabBar {...props} />);
-    expect(container.querySelector('.tabmenu')).toBeNull();
+    expect(container.querySelector('.ctxmenu')).toBeNull();
   });
 
   it('opens on right-click', () => {
@@ -83,20 +83,20 @@ describe('the tab context menu', () => {
     const { container } = render(<TabBar {...props} />);
     openMenuOn(container, 'fix_events');
     fireEvent.keyDown(window, { key: 'Escape' });
-    expect(container.querySelector('.tabmenu')).toBeNull();
+    expect(container.querySelector('.ctxmenu')).toBeNull();
   });
 
   it('closes when a choice is made', () => {
     const { container } = render(<TabBar {...props} />);
     openMenuOn(container, 'fix_events');
     fireEvent.click(screen.getByText('Close'));
-    expect(container.querySelector('.tabmenu')).toBeNull();
+    expect(container.querySelector('.ctxmenu')).toBeNull();
   });
 
   it('closes on a click outside it', () => {
     const { container } = render(<TabBar {...props} />);
     openMenuOn(container, 'fix_events');
     fireEvent.pointerDown(document.body);
-    expect(container.querySelector('.tabmenu')).toBeNull();
+    expect(container.querySelector('.ctxmenu')).toBeNull();
   });
 });
