@@ -6,6 +6,7 @@ import {
   collectionStats,
   findDocuments,
 } from "../clusters/registry.js";
+import { describeError } from "../lib/describeError.js";
 
 // The sidebar tree. Read-only by construction: there is no POST, PATCH or
 // DELETE here, and the registry behind it exposes no write.
@@ -19,7 +20,7 @@ export default function makeClustersRouter() {
   const router = express.Router();
 
   const fail = (res, err, message) => {
-    console.error(`[clusters] ${message}:`, err?.message ?? err);
+    console.error(`[clusters] ${message}:`, describeError(err));
     // The driver's message names the host and sometimes the user, so it is
     // logged in full and summarised to the browser.
     res.status(502).json({ error: message });
@@ -35,7 +36,7 @@ export default function makeClustersRouter() {
         try {
           return { ...c, status: "ok", databases: await listDatabases(c.id) };
         } catch (err) {
-          console.error(`[clusters] ${c.id} unreachable:`, err?.message ?? err);
+          console.error(`[clusters] ${c.id} unreachable:`, describeError(err));
           return { ...c, status: "error", error: "could not reach this cluster", databases: [] };
         }
       })

@@ -1,5 +1,6 @@
 import express from "express";
 import { listConfigured, listBuckets, listObjects, statObject } from "../storage/registry.js";
+import { describeError } from "../lib/describeError.js";
 
 // The object-storage tree. Read-only by construction: there is no POST, PATCH
 // or DELETE here, and the registry behind it exposes no write.
@@ -12,7 +13,7 @@ export default function makeStorageRouter() {
   const router = express.Router();
 
   const fail = (res, err, message) => {
-    console.error(`[storage] ${message}:`, err?.message ?? err);
+    console.error(`[storage] ${message}:`, describeError(err));
     // The underlying message can name the endpoint and the access key, so it
     // is logged in full and summarised to the browser.
     res.status(502).json({ error: message });
@@ -28,7 +29,7 @@ export default function makeStorageRouter() {
         try {
           return { ...s, status: "ok", buckets: await listBuckets(s.id) };
         } catch (err) {
-          console.error(`[storage] ${s.id} unreachable:`, err?.message ?? err);
+          console.error(`[storage] ${s.id} unreachable:`, describeError(err));
           return { ...s, status: "error", error: "could not reach this endpoint", buckets: [] };
         }
       })
