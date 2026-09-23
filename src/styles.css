@@ -38,7 +38,18 @@
   --warning: var(--sl-sh-string);
   --info:    var(--md-sys-color-secondary);
   --ai:      var(--md-sys-color-tertiary);
-  --success: var(--md-sys-color-secondary);
+
+  /* A literal, and the only one here that is not a role or a palette value.
+     M3 defines no success colour -- error is the only status role it has --
+     and Star Lord has no green either: its seeds are pink, cyan, purple, two
+     navies and red. So --success was aliased to secondary, which made every
+     "connected" indicator cyan and identical to --info.
+
+     Picked to sit with the palette rather than dropped in: the same high
+     lightness as the cyan and yellow it sits beside, leaning slightly cyan so
+     it belongs, but far enough from --info to be a different colour at a
+     glance. 10.6:1 on surface-container, 12.1:1 on surface. */
+  --success: #6EE7A8;
 
   /* ---- rows ---- */
   --row-bg: color-mix(in srgb, var(--md-sys-color-on-surface) calc(var(--md-sys-state-hover-state-layer-opacity) * 100%), transparent);
