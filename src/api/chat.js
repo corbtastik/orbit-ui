@@ -94,3 +94,10 @@ export const statObject = (storeId, bucket, key) =>
     `/chat/storage/${storeId}/buckets/${encodeURIComponent(bucket)}/stat` +
       `?key=${encodeURIComponent(key)}`
   );
+
+// --- provider health --------------------------------------------------------
+// `healthy` is the MCP server's reachability, probed passively server-side:
+// see isReachable() in server/mcp/client.js.
+
+export const listProviders = () =>
+  request('/chat/providers').then((r) => r.providers);

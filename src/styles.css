@@ -800,23 +800,56 @@ button, input, select, textarea { font-family: inherit; }
 
 /* The field's own look belongs to md-filled-select. Kept narrow so the app
    bar does not hand a third of its width to one control. */
-.chat__provider-select {
-  --md-filled-field-container-shape-start-start: var(--md-sys-shape-corner-extra-small);
-  --md-filled-field-container-shape-start-end: var(--md-sys-shape-corner-extra-small);
-  min-width: 150px;
+/* Whether OrbitAI can answer, in the slot the one-option Model dropdown used
+   to occupy. Not a control -- nothing here is clickable. */
+.orbit-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container);
+  font-size: var(--md-sys-typescale-label-medium-size);
+  white-space: nowrap;
 }
 
-.chat__provider-select:focus {
-  outline: none;
-  color: var(--accent);
+.orbit-status__dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--md-sys-color-outline);
 }
 
-/* The option list is drawn by the OS, so it does not inherit the dark
-   theme -- set a readable pairing explicitly. */
-.chat__provider-select option {
-  background: var(--panel);
-  color: var(--fg);
+.orbit-status__name {
+  color: var(--md-sys-color-on-surface);
+  font-weight: var(--fw-semibold);
 }
+
+/* The word carries the meaning; the dot only reinforces it. Colour alone
+   fails anyone who cannot tell the two hues apart. */
+.orbit-status__state { color: var(--md-sys-color-on-surface-variant); }
+
+.orbit-status--ok .orbit-status__dot {
+  /* The same token the cluster tree's connected dot uses -- two indicators
+     meaning "reachable" should not be two different greens. */
+  background: var(--success);
+  /* A quiet halo, so "connected" reads at a glance without the dot having to
+     be large enough to disturb the header. */
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 22%, transparent);
+}
+
+.orbit-status--down {
+  border-color: color-mix(in srgb, var(--md-sys-color-error) 45%, transparent);
+}
+
+.orbit-status--down .orbit-status__dot { background: var(--md-sys-color-error); }
+.orbit-status--down .orbit-status__state { color: var(--md-sys-color-error); }
+
+/* Probing is a real third state, not a flash: it lasts as long as the request
+   does, and claiming either answer before it lands would be a guess. */
+.orbit-status--probing .orbit-status__state { font-style: italic; }
 
 /* Which model produced a turn. The transcript survives a provider switch,
    so a single conversation can hold answers from several. */

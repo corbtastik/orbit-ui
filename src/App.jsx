@@ -5,7 +5,7 @@ import { useHotkeys } from './hooks/useHotkeys.js';
 
 import MessageList from './components/chat/MessageList.jsx';
 import Composer from './components/chat/Composer.jsx';
-import ProviderSelector from './components/chat/ProviderSelector.jsx';
+import OrbitStatus from './components/chat/OrbitStatus.jsx';
 import ChatSidebar from './components/chat/ChatSidebar.jsx';
 import ActivityBar from './components/chat/ActivityBar.jsx';
 import SidebarResizer, {
@@ -72,10 +72,11 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(readStoredWidth);
   const [draft, setDraft] = useState('');
-  // Switching provider changes what the *next* turn uses. The transcript is
-  // deliberately untouched: a conversation that spans several models is the
-  // interesting case, not an accident to guard against.
-  const [provider, setProvider] = useState(DEFAULT_PROVIDER);
+  // A constant rather than state: there is one provider, and the control that
+  // used to change it was a dropdown with a single option. It is still
+  // threaded through every send and every conversation created, so adding a
+  // provider back is this line plus a selector -- nothing below it changes.
+  const provider = DEFAULT_PROVIDER;
   // Browse tabs opened from the sidebar tree. 'chat' is not in this list --
   // it is always present and always first.
   const [tabs, setTabs] = useState([]);
@@ -381,7 +382,7 @@ export default function App() {
         </div>
         <div className="chat__header-controls">
           <ConnectionContext context={context} />
-          <ProviderSelector value={provider} onChange={setProvider} />
+          <OrbitStatus />
         </div>
       </header>
 
