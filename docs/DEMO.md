@@ -117,25 +117,39 @@ Set it up in words first, then ask:
 > broken down by category? Also tell me what fraction of repairs beat their
 > expectedFixAt.**
 
-**This is the long one — give it a minute.** It is a self-join by `incidentId`,
-a median per group, and a ratio, over a collection of 1.3 million events.
+**This is the long one.** Verified end to end: **61 seconds, 15 tool calls**,
+and it answers with a table. It is a self-join by `incidentId`, a median per
+group, and a ratio, over 1.3 million events.
 
-Measured on run `20260918-1932Z-s45`:
+It picks the most recent run itself. On a verified run of
+`20260919-1426Z-s484` it returned:
 
-| | |
-|---|---|
-| Incidents raised | 21,745 |
-| Actually repaired | 13,718 (~63%) |
-| Median time to fix | 59–61 seconds, **in every category** |
-| Beat the expected fix time | **~21%** |
+| Category | Repaired | Median | Beat SLA |
+|---|---|---|---|
+| business | 879 | 57.0 s | 36.7% |
+| consumer | 1,403 | 57.0 s | 35.2% |
+| emerging_tech | 868 | 58.0 s | 37.1% |
+| federal | 863 | 58.0 s | 36.2% |
+| infrastructure | 1,738 | 60.0 s | 35.4% |
+| **all** | **5,751** of 9,350 raised | — | **35.9%** |
+
+It also volunteered that 208 repairs started and never finished, which nobody
+asked for.
 
 Two findings, and the second is the one that matters:
 
 - **The repair policy is category-blind.** Federal public-safety incidents are
-  repaired at the same speed as consumer broadband — 59 to 61 seconds, across
-  the board. If those are supposed to have different priorities, they do not.
-- **It misses its own estimate four times out of five.** The promised window
-  clusters between 38 and 52 seconds; the actual median is about 60.
+  repaired at the same speed as consumer broadband — 57 to 60 seconds, and the
+  beat-rate is flat to within two points. If those are meant to have different
+  priorities, they do not.
+- **It misses its own estimate about two times in three.** The promised window
+  clusters between 38 and 52 seconds; the actual median is around 58.
+
+> **Your numbers will differ, and the miss rate moves a lot between runs.** An
+> earlier run (`20260918-1932Z-s45`) came in at 21.5% on time against this
+> one's 35.9% — so somewhere between two-thirds and four-fifths of repairs
+> miss, depending on the run. Do not quote a fixed figure; read what comes
+> back. The variation is itself a good follow-up question.
 
 **Say:** *"That is a real operational finding, and it took one question. The
 follow-up — 'is that true for every run, or just this one?' — is one more."*
@@ -164,6 +178,7 @@ right question faster.
 | Header red, **Disconnected** | MCP server is not running. |
 | "The most recent run has no repairs" | The TTL expired them. Ask for the most recent run that *has* fix events. |
 | A query runs past 90 seconds | It is iterating; `ORBIT_MAX_ITERATIONS` caps it at 30 rounds. |
+| **One tool call shows as failed** — `connect ECONNREFUSED 127.0.0.1:37017` | Expected, and harmless. Two connections are registered, `local` and `atlas`; it tries `local`, finds nothing listening, and moves on. If it bothers you, say "use the atlas connection" in the first question. |
 
 ## Questions people ask
 
