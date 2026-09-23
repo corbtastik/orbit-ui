@@ -146,5 +146,6 @@ docs/       architecture and demo prompts
 
 - [docs/DESIGN.md](docs/DESIGN.md) — architecture, the design system, and the
   non-obvious constraints worth knowing before changing things
-- [docs/EXAMPLES.md](docs/EXAMPLES.md) — demo prompts for the incidents data
+- [docs/DEMO.md](docs/DEMO.md) — a ten-minute demo script for the incidents data
+- [docs/EXAMPLES.md](docs/EXAMPLES.md) — twenty more prompts, with notes on speed
 - [src/brand/README.md](src/brand/README.md) — theme tokens and components
