@@ -16,6 +16,7 @@ import ConnectionContext from './components/chat/ConnectionContext.jsx';
 import CommandPalette from './components/chat/CommandPalette.jsx';
 import ObjectsTable from './components/browse/ObjectsTable.jsx';
 import ObjectView from './components/browse/ObjectView.jsx';
+import { afterCloseRight } from './components/browse/tabs.js';
 import TabBar from './components/browse/TabBar.jsx';
 import CollectionsTable from './components/browse/CollectionsTable.jsx';
 import DocumentsView from './components/browse/DocumentsView.jsx';
@@ -274,6 +275,21 @@ export default function App() {
     setActiveTab((current) => (current === id ? 'chat' : current));
   }, []);
 
+  /**
+   * Everything after `id`, from the tab bar's context menu.
+   *
+   * Chat is index -1 rather than a special case: it is always first and never
+   * closable, so "to the right" of Chat is every browse tab.
+   */
+  // The arithmetic lives in browse/tabs.js so it can be tested: nothing in
+  // this file renders under jsdom.
+  const closeTabsToRight = useCallback((id) => {
+    const next = afterCloseRight(tabs, id, activeTab);
+    if (!next.changed) return;
+    setTabs(next.tabs);
+    setActiveTab(next.activeId);
+  }, [tabs, activeTab]);
+
   // The shortcuts people reach for without being told. Declared after the
   // handlers they call -- these are const arrow functions, so referencing one
   // earlier is a temporal dead zone error at render, not a hoisted no-op.
@@ -369,7 +385,13 @@ export default function App() {
       )}
 
       <div className="chat__main">
-      <TabBar tabs={tabs} activeId={activeTab} onSelect={setActiveTab} onClose={closeTab} />
+      <TabBar
+        tabs={tabs}
+        activeId={activeTab}
+        onSelect={setActiveTab}
+        onClose={closeTab}
+        onCloseRight={closeTabsToRight}
+      />
 
       {/* Hidden rather than unmounted. A reply streams for 45-90 seconds, and
           browsing a collection mid-answer must not throw away the transcript's

@@ -2040,6 +2040,56 @@ button.tabbar__tab { padding: 0 var(--space-4); }
 .browse__crumb-sep { color: var(--muted); }
 .browse__crumb-current { color: var(--md-sys-color-on-surface); }
 
+/* --- tab context menu ---------------------------------------------------- */
+
+/* Fixed, because it is positioned at the pointer in viewport coordinates --
+   the tab bar scrolls sideways, and an absolutely-positioned menu would ride
+   away with it. */
+.tabmenu {
+  position: fixed;
+  z-index: 40;
+  min-width: 220px;
+  padding: var(--space-2) 0;
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  background: var(--md-sys-color-surface-container-high);
+  box-shadow: var(--md-sys-elevation-level2);
+  /* M3 draws menu surfaces with a tint rather than an outline, but on a navy
+     this dark the edge needs help to separate from the panel behind it. */
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.tabmenu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  height: 40px;                 /* M3 menu-item density */
+  padding: 0 var(--space-3);
+  border: 0;
+  background: none;
+  color: var(--md-sys-color-on-surface);
+  font: inherit;
+  font-size: var(--md-sys-typescale-label-large-size);
+  text-align: left;
+  cursor: pointer;
+}
+
+.tabmenu__item:hover:not(:disabled) { background: var(--wash); }
+
+.tabmenu__item:focus-visible {
+  outline: 2px solid var(--md-sys-color-secondary);
+  outline-offset: -2px;
+}
+
+/* Shown rather than hidden: an item that disappears makes the menu change
+   shape between right-clicks, and its absence explains nothing. Disabled says
+   "not here, not now". */
+.tabmenu__item:disabled {
+  color: var(--md-sys-color-on-surface);
+  opacity: 0.38;               /* M3's disabled content opacity */
+  cursor: default;
+}
+
 /* --- one object ---------------------------------------------------------- */
 
 .object-view {

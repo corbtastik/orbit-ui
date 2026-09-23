@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Icon from '../brand/Icon.jsx';
 import { MdIconButton } from '../md/index.jsx';
 
@@ -28,10 +28,65 @@ const DESCRIBE = {
   }),
 };
 
+// Used to clamp the menu inside the viewport before it has been measured.
+const TABMENU_WIDTH = 220;
+const TABMENU_HEIGHT = 88;
+
 const describe = (tab) =>
   DESCRIBE[tab.kind]?.(tab) ?? { icon: 'help', label: tab.kind, title: tab.kind };
 
-export default function TabBar({ tabs, activeId, onSelect, onClose }) {
+export default function TabBar({ tabs, activeId, onSelect, onClose, onCloseRight }) {
+  // { id, x, y } while open. Positioned at the pointer rather than anchored to
+  // the tab, which is what a context menu is -- md-menu anchors to an element
+  // and cannot do this, the same reason this bar is hand-built.
+  const [menu, setMenu] = useState(null);
+  const menuRef = useRef(null);
+
+  const close = useCallback(() => setMenu(null), []);
+
+  const openMenu = (e, id) => {
+    e.preventDefault();
+    // Deliberately does not select the tab. Right-clicking to close something
+    // should not first navigate to it -- you may be closing it precisely
+    // because you do not want to look at it.
+    setMenu({ id, x: e.clientX, y: e.clientY });
+  };
+
+  useEffect(() => {
+    if (!menu) return undefined;
+
+    const onKey = (e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
+    const onDown = (e) => { if (!menuRef.current?.contains(e.target)) close(); };
+    // Scrolling or resizing leaves the menu pointing at nothing, so it goes
+    // rather than floating over unrelated content.
+    window.addEventListener('keydown', onKey, true);
+    window.addEventListener('pointerdown', onDown, true);
+    window.addEventListener('resize', close);
+    window.addEventListener('blur', close);
+    document.addEventListener('scroll', close, true);
+
+    // The menu takes focus so the keyboard can reach it -- contextmenu fires
+    // for Shift+F10 too, and a menu that only a mouse can use would be half
+    // built.
+    menuRef.current?.querySelector('button:not([disabled])')?.focus();
+
+    return () => {
+      window.removeEventListener('keydown', onKey, true);
+      window.removeEventListener('pointerdown', onDown, true);
+      window.removeEventListener('resize', close);
+      window.removeEventListener('blur', close);
+      document.removeEventListener('scroll', close, true);
+    };
+  }, [menu, close]);
+
+  // Chat is index -1: it is always first and never closable, so "to the right"
+  // of it means every browse tab.
+  const indexOf = (id) => (id === 'chat' ? -1 : tabs.findIndex((t) => t.id === id));
+  const hasRight = menu ? indexOf(menu.id) < tabs.length - 1 : false;
+  const closable = menu ? menu.id !== 'chat' : false;
+
+  const run = (fn) => { close(); fn(); };
+
   return (
     <div className="tabbar" role="tablist">
       <button
@@ -40,6 +95,7 @@ export default function TabBar({ tabs, activeId, onSelect, onClose }) {
         className={`tabbar__tab ${activeId === 'chat' ? 'tabbar__tab--active' : ''}`}
         aria-selected={activeId === 'chat'}
         onClick={() => onSelect('chat')}
+        onContextMenu={(e) => openMenu(e, 'chat')}
       >
         Chat
       </button>
@@ -50,6 +106,7 @@ export default function TabBar({ tabs, activeId, onSelect, onClose }) {
         <span
           key={tab.id}
           className={`tabbar__tab ${activeId === tab.id ? 'tabbar__tab--active' : ''}`}
+          onContextMenu={(e) => openMenu(e, tab.id)}
         >
           <button
             type="button"
@@ -73,6 +130,43 @@ export default function TabBar({ tabs, activeId, onSelect, onClose }) {
         </span>
         );
       })}
+
+      {menu && (
+        <div
+          ref={menuRef}
+          className="tabmenu"
+          role="menu"
+          // Clamped so a right-click near the edge does not put the menu off
+          // screen, where it is unreachable and looks like nothing happened.
+          style={{
+            left: Math.min(menu.x, window.innerWidth - TABMENU_WIDTH - 8),
+            top: Math.min(menu.y, window.innerHeight - TABMENU_HEIGHT - 8),
+          }}
+        >
+          <button
+            type="button"
+            role="menuitem"
+            className="tabmenu__item"
+            disabled={!closable}
+            // Chat is the application, not something opened alongside it.
+            title={closable ? undefined : 'The Chat tab cannot be closed'}
+            onClick={() => run(() => onClose(menu.id))}
+          >
+            <Icon name="close" size={18} />
+            Close
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="tabmenu__item"
+            disabled={!hasRight}
+            onClick={() => run(() => onCloseRight?.(menu.id))}
+          >
+            <Icon name="last_page" size={18} />
+            Close tabs to the right
+          </button>
+        </div>
+      )}
     </div>
   );
 }
