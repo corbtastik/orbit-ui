@@ -4,8 +4,10 @@ Chat client for [OrbitAI](https://github.com/corbtastik/orbit) — conversationa
 access to MongoDB Atlas through MCP.
 
 Ask in plain language and the assistant answers from real Atlas data by calling
-OrbitAI's MCP tools. A sidebar tree browses your configured clusters; clicking a
-database or collection opens it in a tab beside the chat.
+OrbitAI's MCP tools. A sidebar browses your configured clusters and object
+stores; clicking a database, collection or bucket opens it in a tab beside the
+chat. Press <kbd>⌘K</kbd> to search across all of it and your chat history at
+once.
 
 ## Running it
 
@@ -25,27 +27,98 @@ cp .env.example .env       # fill in ANTHROPIC_API_KEY and MONGODB_URI
 ./start-all.sh             # API on :7002, UI on :7001
 ```
 
-Open <http://localhost:7001>.
+Open <http://localhost:7001>. The header shows whether the MCP server is
+reachable — without it, every question fails.
 
-To run the two halves separately: `npm run server` and `npm run dev`.
+`start-all.sh` refuses to start if the MCP server is down, and warns (but
+continues) if a configured object store is unreachable. To run the two halves
+separately: `npm run server` and `npm run dev`.
 
 ## Configuration
 
-Everything lives in `.env` — see `.env.example` for the full list.
+Everything is read from `.env` at startup. **Nothing is `VITE_`-prefixed, so
+none of it reaches the browser bundle** — credentials stay in the API process.
+Changing a value means restarting the API.
+
+`.env` is gitignored. `.env.example` is the annotated template.
+
+### Required
 
 | | |
 |---|---|
-| `ANTHROPIC_API_KEY` | required |
-| `MONGODB_URI` | required — where chat history is stored |
-| `ORBIT_CLUSTER_1_URI` | a cluster for the sidebar tree; add more by number |
-| `ORBIT_OBJECT_1_ENDPOINT` | optional — an S3-compatible store for the sidebar |
-| `ORBIT_MCP_URL` | defaults to `http://127.0.0.1:3600/mcp` |
+| `ANTHROPIC_API_KEY` | The model is Claude; MCP serves tools, not completions. |
+| `MONGODB_URI` | Where conversations are stored. Only ever the `orbitai` database. |
 
-The MongoDB settings are three separate connections on purpose. `MONGODB_URI`
-stores conversations, `ORBIT_CLUSTER_*` is browsed read-only, and the OrbitAI
-tools reach Atlas with the MCP server's own credentials, which this app never
-sees. `ORBIT_OBJECT_*` is a fourth thing again: S3-compatible object storage,
-also browsed read-only, and hidden entirely when nothing is configured.
+### The four data relationships
+
+These are deliberately separate, and the separation is the point:
+
+| | Reaches | Access |
+|---|---|---|
+| `MONGODB_URI` | this API | read/write, the `orbitai` database only |
+| `ORBIT_CLUSTER_*` | this API | read-only browsing for the sidebar |
+| `ORBIT_OBJECT_*` | this API | read-only browsing for the sidebar |
+| MCP credentials | the MCP server | all 87 tools, **including destructive ones** |
+
+The last is configured in the OrbitAI repo and **this app never sees it**. The
+first three may all point at the same place — on a dev machine they usually do
+— but they are configured apart so they can stop coinciding without anything
+being rewired.
+
+### Browsed clusters
+
+Numbered groups. Add a cluster by adding another with the next number:
+
+```bash
+ORBIT_CLUSTER_1_NAME=corbs-demo        # optional; the host stands in
+ORBIT_CLUSTER_1_URI=mongodb+srv://user:pass@cluster/...
+```
+
+Read-only: the tree calls `listDatabases`, `listCollections`, `$collStats` and
+`find`, and there is no write path behind it.
+
+### Browsed object storage
+
+Optional. S3-compatible — MinIO, AIStor, S3 itself. With none configured the
+Object Storage section does not appear at all.
+
+```bash
+ORBIT_OBJECT_1_NAME=localdev           # optional; the host stands in
+ORBIT_OBJECT_1_ENDPOINT=https://localhost:9000
+ORBIT_OBJECT_1_KEY=...
+ORBIT_OBJECT_1_SECRET=...
+ORBIT_OBJECT_1_REGION=us-east-1        # optional, defaults to us-east-1
+ORBIT_OBJECT_1_INSECURE=true           # optional; see below
+```
+
+Read-only: `ListBuckets`, `ListObjectsV2`, `HeadObject`. Requests are signed
+with SigV4 directly, without an S3 SDK.
+
+`_INSECURE` accepts a self-signed certificate, which a local MinIO generates
+for itself. **It is per endpoint on purpose.** The global alternative,
+`NODE_TLS_REJECT_UNAUTHORIZED=0`, would also stop verifying the Atlas and MCP
+connections this process makes — one dev convenience quietly weakening two
+unrelated things.
+
+An endpoint that is down is not fatal: the section shows an error row, and it
+recovers on its own once the endpoint comes back. No restart needed.
+
+### Optional, with defaults
+
+| | Default | |
+|---|---|---|
+| `ORBIT_MCP_URL` | `http://127.0.0.1:3600/mcp` | Where the MCP server listens. |
+| `PORT` | `7002` | The API port. See the warning below. |
+| `ORBIT_DB_NAME` | `orbitai` | Database used for chat history. |
+| `CLAUDE_MODEL` | `claude-opus-5` | |
+| `ORBIT_MAX_ITERATIONS` | `30` | Rounds of the tool loop, not individual calls — parallel calls in one round count once. |
+| `ORBIT_LOG_FILE` | `logs/orbit.log` | Tool traffic; a single answer can span 20+ rounds. |
+| `NODE_ENV` | — | Set to `production` to disable the unauthenticated `/chat/client-error` log endpoint. |
+
+> **`PORT` is not as configurable as it looks.** `vite.config.js` hardcodes
+> `7001` and proxies `/chat` to `7002`. Changing `PORT` alone produces a UI
+> that loads and then fails every request — the least obvious way for this to
+> break. Both files have to agree.
 
 ## Scripts
 
@@ -60,9 +133,13 @@ npm run build:theme    # regenerate the colour tokens
 ## Layout
 
 ```
-server/     API: chat history, the model + MCP tool loop, cluster browsing
-src/        React app: chat, cluster tree, collection and document views
+server/     API: chat history, the model + MCP tool loop, cluster and
+            object-store browsing
+shared/     logic that has to run on both sides
+src/        React app: chat, sidebar trees, collection, document and
+            object views
 src/brand/  Material 3 design tokens
+docs/       architecture and demo prompts
 ```
 
 ## More
