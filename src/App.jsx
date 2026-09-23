@@ -142,6 +142,14 @@ export default function App() {
   };
 
   const handleSelect = async (id) => {
+    // Before the early return, not after. Picking a chat is a request to read
+    // it, and the reader may well be looking at a collection table when they
+    // ask -- including for the chat that is already selected, where the guard
+    // below returns and nothing else would run. That case is the worst one:
+    // the row they clicked is the open chat, and clicking it appeared to do
+    // nothing at all.
+    setActiveTab('chat');
+
     if (id === activeId) return;
 
     // Remember where we were before the transcript is replaced.
@@ -180,6 +188,9 @@ export default function App() {
       });
       setConversations((prev) => [conversation, ...prev]);
       setActiveId(conversation.id);
+      // Same reasoning as handleSelect: starting a chat from the sidebar while
+      // a browse tab is open should show the chat that was just started.
+      setActiveTab('chat');
       reset([]);
       setDraft('');
       setPinned(true);
